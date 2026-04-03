@@ -1,0 +1,46 @@
+{
+  "description": "AI PMO 定时任务配置",
+  "jobs": [
+    {
+      "id": "pmo-daily-check",
+      "name": "每日项目状态检查",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "description": "每个工作日早上 9 点检查项目状态，生成风险预警",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "🔔 PMO 每日检查：扫描所有活跃项目，识别延期风险和阻塞项"
+      }
+    },
+    {
+      "id": "pmo-weekly-report",
+      "name": "周报自动生成",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 17 * * 5",
+        "tz": "America/New_York"
+      },
+      "description": "每周五下午 5 点生成项目周报",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "📊 PMO 周报生成：汇总本周所有项目进展，准备发送周报"
+      }
+    },
+    {
+      "id": "pmo-milestone-reminder",
+      "name": "里程碑提醒",
+      "schedule": {
+        "kind": "every",
+        "everyMs": 86400000
+      },
+      "description": "每天检查即将到来的里程碑（7 天内）",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "⏰ PMO 里程碑提醒：检查未来 7 天内的里程碑，通知相关负责人"
+      }
+    }
+  ]
+}
