@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队成员 - AI PMO Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f7fa; }
+        .nav-bar { background: white; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
+        .nav-links a:hover { background: #f0f0f0; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .team-member { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; transition: transform 0.2s; }
+        .team-member:hover { transform: translateX(5px); }
+        .team-member h4 { color: #333; margin-bottom: 5px; }
+        .team-member .role { color: #667eea; font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+        .team-member .email { color: #666; font-size: 12px; }
+        .team-member .dept { color: #999; font-size: 11px; margin-top: 8px; }
+        .generated-time { text-align: center; color: #999; font-size: 12px; margin-top: 30px; padding-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card .value { font-size: 28px; font-weight: bold; color: #667eea; }
+        .stat-card .label { font-size: 12px; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-links">
+            <a href="project-dashboard.html">📊 概览</a>
+            <a href="team.html" class="active">👥 团队</a>
+            <a href="timeline.html">📅 时间线</a>
+            <a href="milestones.html">🎯 里程碑</a>
+            <a href="automation.html">🤖 自动化</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>👥 团队成员与角色分配</h1>
+            <p>AI Smart Customer Service Upgrade 项目</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value">12</div>
+                <div class="label">总成员</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">5</div>
+                <div class="label">技术部</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">4</div>
+                <div class="label">产品/设计</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">3</div>
+                <div class="label">业务代表</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 核心管理层</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <h4>Zhang San (张三)</h4>
+                    <div class="role">Project Manager</div>
+                    <div class="email">zhangsan@company.com</div>
+                    <div class="dept">技术部 | 高级工程师</div>
+                </div>
+                <div class="team-member">
+                    <h4>Li Si (李四)</h4>
+                    <div class="role">Tech Lead</div>
+                    <div class="email">lisi@company.com</div>
+                    <div class="dept">技术部 | 开发工程师</div>
+                </div>
+                <div class="team-member">
+                    <h4>Wu Shi</h4>
+                    <div class="role">Product Specialist</div>
+                    <div class="email">wushi@company.com</div>
+                    <div class="dept">产品部</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>💻 开发团队</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <h4>Wang Wu (王五)</h4>
+                    <div class="role">Backend Developer</div>
+                    <div class="email">wangwu@company.com</div>
+                    <div class="dept">技术部</div>
+                </div>
+                <div class="team-member">
+                    <h4>Zhao Liu (赵六)</h4>
+                    <div class="role">Frontend Developer</div>
+                    <div class="email">zhaoliu@company.com</div>
+                    <div class="dept">测试部 | 测试工程师</div>
+                </div>
+                <div class="team-member">
+                    <h4>Chen Qi</h4>
+                    <div class="role">UI/UX Designer</div>
+                    <div class="email">chenqi@company.com</div>
+                    <div class="dept">设计部</div>
+                </div>
+                <div class="team-member">
+                    <h4>Zhou Jiu</h4>
+                    <div class="role">DevOps Engineer</div>
+                    <div class="email">zhoujiu@company.com</div>
+                    <div class="dept">技术部</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 质量与分析</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <h4>Liu Ba</h4>
+                    <div class="role">Test Engineer</div>
+                    <div class="email">liuba@company.com</div>
+                    <div class="dept">测试部</div>
+                </div>
+                <div class="team-member">
+                    <h4>Zheng Shi Yi</h4>
+                    <div class="role">Data Analyst</div>
+                    <div class="email">zhengshiyi@company.com</div>
+                    <div class="dept">产品部</div>
+                </div>
+                <div class="team-member">
+                    <h4>Qian Shi Er</h4>
+                    <div class="role">Security Engineer</div>
+                    <div class="email">qianshier@company.com</div>
+                    <div class="dept">技术部</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📢 业务代表</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <h4>Olivia</h4>
+                    <div class="role">Business Representative</div>
+                    <div class="email">duyu5@lenovo.com</div>
+                    <div class="dept">业务部</div>
+                </div>
+                <div class="team-member">
+                    <h4>Lisa</h4>
+                    <div class="role">Business Representative</div>
+                    <div class="email">zhuran1@lenovo.com</div>
+                    <div class="dept">业务部</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="generated-time">
+            团队数据更新时间：2026-04-07 10:50:00 EDT
+        </div>
+    </div>
+</body>
+</html>

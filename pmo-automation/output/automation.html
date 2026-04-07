@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动化任务 - AI PMO Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f7fa; }
+        .nav-bar { background: white; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
+        .nav-links a:hover { background: #f0f0f0; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .task-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; transition: transform 0.2s; }
+        .task-card:hover { transform: translateX(5px); }
+        .task-card.success { border-left-color: #4caf50; }
+        .task-card.warning { border-left-color: #ff9800; }
+        .task-card.error { border-left-color: #f44336; }
+        .task-card h4 { color: #333; margin-bottom: 8px; }
+        .task-card .schedule { color: #667eea; font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+        .task-card .status { font-size: 12px; }
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .status-badge.enabled { background: #4caf50; color: white; }
+        .status-badge.disabled { background: #e0e0e0; color: #666; }
+        .status-badge.running { background: #ff9800; color: white; }
+        .task-card .last-run { color: #999; font-size: 11px; margin-top: 8px; }
+        .generated-time { text-align: center; color: #999; font-size: 12px; margin-top: 30px; padding-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card .value { font-size: 28px; font-weight: bold; color: #667eea; }
+        .stat-card .label { font-size: 12px; color: #666; margin-top: 5px; }
+        .log-box { background: #2d2d2d; color: #4caf50; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; max-height: 200px; overflow-y: auto; margin-top: 15px; }
+        .log-entry { margin-bottom: 5px; }
+        .log-time { color: #888; }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-links">
+            <a href="project-dashboard.html">📊 概览</a>
+            <a href="team.html">👥 团队</a>
+            <a href="timeline.html">📅 时间线</a>
+            <a href="milestones.html">🎯 里程碑</a>
+            <a href="automation.html" class="active">🤖 自动化</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🤖 自动化任务状态</h1>
+            <p>AI PMO 自动化系统 - 定时任务与触发器</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value">5</div>
+                <div class="label">总任务</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color:#4caf50;">4</div>
+                <div class="label">已启用</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color:#999;">1</div>
+                <div class="label">已禁用</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color:#667eea;">12</div>
+                <div class="label">今日执行</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>✅ 已启用任务</h2>
+            <div class="team-grid">
+                <div class="task-card success">
+                    <h4>📋 每日项目进度检查</h4>
+                    <div class="schedule">⏰ 每天 09:00 (America/New_York)</div>
+                    <div class="status"><span class="status-badge enabled">已启用</span></div>
+                    <div class="last-run">上次执行：2026-04-07 09:00:00</div>
+                </div>
+                <div class="task-card success">
+                    <h4>📧 每日提醒发送</h4>
+                    <div class="schedule">⏰ 每天 17:00 (America/New_York)</div>
+                    <div class="status"><span class="status-badge enabled">已启用</span></div>
+                    <div class="last-run">上次执行：2026-04-06 17:00:00</div>
+                </div>
+                <div class="task-card success">
+                    <h4>📊 Dashboard 刷新</h4>
+                    <div class="schedule">⏰ 每 6 小时</div>
+                    <div class="status"><span class="status-badge enabled">已启用</span></div>
+                    <div class="last-run">上次执行：2026-04-07 10:00:00</div>
+                </div>
+                <div class="task-card success">
+                    <h4>📝 周会总结生成</h4>
+                    <div class="schedule">⏰ 每周一 08:00 (America/New_York)</div>
+                    <div class="status"><span class="status-badge enabled">已启用</span></div>
+                    <div class="last-run">上次执行：2026-04-06 08:00:00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>⏸️ 已禁用任务</h2>
+            <div class="team-grid">
+                <div class="task-card">
+                    <h4>📈 WBS 进度审查</h4>
+                    <div class="schedule">⏰ 每周五 10:00 (America/New_York)</div>
+                    <div class="status"><span class="status-badge disabled">已禁用</span></div>
+                    <div class="last-run">上次执行：2026-03-28 10:00:00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 今日任务执行日志</h2>
+            <div class="log-box">
+                <div class="log-entry"><span class="log-time">[10:09:48]</span> ⏰ PMO 任务到期检查：检查项目任务清单，提醒即将到期的任务负责人</div>
+                <div class="log-entry"><span class="log-time">[10:09:49]</span> ✅ 检查完成：发现 1 个紧急任务，3 个警告任务</div>
+                <div class="log-entry"><span class="log-time">[10:09:50]</span> 📧 提醒邮件已生成，等待发送</div>
+                <div class="log-entry"><span class="log-time">[10:00:00]</span> 📊 Dashboard 自动刷新完成</div>
+                <div class="log-entry"><span class="log-time">[09:00:00]</span> ⏰ 每日项目进度检查启动</div>
+                <div class="log-entry"><span class="log-time">[09:00:01]</span> ✅ 项目状态：正常，进度 35%</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Cron 配置</h2>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto;">
+                <pre>配置文件：pmo-automation/config/cron-jobs.json
+
+已配置任务:
+├── pmo-daily-check      0 9 * * *        (每日 09:00)
+├── pmo-weekly-summary   0 8 * * 1        (周一 08:00)
+├── pmo-daily-reminders  0 17 * * *       (每日 17:00)
+├── pmo-dashboard-refresh 0 */6 * * *     (每 6 小时)
+└── pmo-weekly-wbs-review 0 10 * * 5      (周五 10:00) [已禁用]</pre>
+            </div>
+        </div>
+        
+        <div class="generated-time">
+            自动化状态更新时间：2026-04-07 10:50:00 EDT
+        </div>
+    </div>
+</body>
+</html>

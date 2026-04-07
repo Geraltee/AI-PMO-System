@@ -1,0 +1,28 @@
+﻿Subject: Project Kickoff - AI Smart Customer Service Upgrade
+
+Dear Team,
+
+Project 'AI Smart Customer Service Upgrade' is now starting!
+
+Project Info:
+- Version: V1.0
+- Period: 2026-04-04 to 2026-07-04
+
+Team Members:
+- Zhang San (Project Manager): zhangsan@company.com
+- Li Si (Tech Lead): lisi@company.com
+- Wang Wu (Backend Developer): wangwu@company.com
+- Zhao Liu (Frontend Developer): zhaoliu@company.com
+- Chen Qi (UI/UX Designer): chenqi@company.com
+- Liu Ba (Test Engineer): liuba@company.com
+- Zhou Jiu (DevOps Engineer): zhoujiu@company.com
+- Wu Shi (Product Specialist): wushi@company.com
+- Zheng Shi Yi (Data Analyst): zhengshiyi@company.com
+- Qian Shi Er (Security Engineer): qianshier@company.com
+- Olivia (Business Representative): duyu5@lenovo.com
+- Lisa (Business Representative): zhuran1@lenovo.com
+
+Please check the attached Dashboard and SOP for details.
+
+Best regards,
+AI PMO System
