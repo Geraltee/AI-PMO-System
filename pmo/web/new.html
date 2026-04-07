@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>新建项目 - AI PMO</title>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k)}
+.hdr{background:var(--w);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{font-size:18px;font-weight:600;color:var(--b)}.nav{display:flex;gap:20px}.nav a{color:var(--k);text-decoration:none;padding:8px 12px;border-radius:4px;cursor:pointer}
+.nav a:hover,.nav a.active{background:var(--b);color:var(--w)}.main{display:flex;margin-top:48px;height:calc(100vh - 48px)}.sb{width:200px;background:var(--w);border-right:1px solid var(--bd)}
+.mi{padding:12px 20px;cursor:pointer}.mi:hover{background:var(--g)}.mi.active{background:#eff6fc;border-left:3px solid var(--b)}.ct{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:20px;margin-bottom:20px}.ctitle{font-size:16px;font-weight:600;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.btn{background:var(--b);color:var(--w);border:none;padding:8px 16px;border-radius:4px;cursor:pointer}.btn:hover{background:#106ebe}
+.fg{margin-bottom:15px}.fl{display:block;margin-bottom:5px;font-weight:500}.fi{width:100%;padding:8px 12px;border:1px solid var(--bd);border-radius:4px}textarea.fi{min-height:80px}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="logo">🚀 AI PMO</div><div class="nav"><a href="dashboard.html">控制台</a><a href="projects.html">项目</a><a href="new.html" class="active">新建</a><a href="alerts.html">预警</a><a href="features.html">功能</a></div></div>
+<div class="main">
+<div class="sb">
+<div class="mi" onclick="location.href='dashboard.html'">📊 概览</div>
+<div class="mi" onclick="location.href='projects.html'">📁 项目</div>
+<div class="mi active" onclick="location.href='new.html'">➕ 新建</div>
+<div class="mi" onclick="location.href='alerts.html'">⚠️ 预警</div>
+<div class="mi" onclick="location.href='features.html'">⭐ 功能</div>
+</div>
+<div class="ct">
+<div class="card"><div class="ctitle">➕ 新建项目</div>
+<div class="fg"><label class="fl">项目名称</label><input class="fi" id="n1"></div>
+<div class="fg"><label class="fl">项目背景</label><textarea class="fi" id="n2"></textarea></div>
+<div class="fg"><label class="fl">负责人</label><input class="fi" id="n3"></div>
+<div class="fg"><label class="fl">周期 (天)</label><input class="fi" id="n4" type="number"></div>
+<div class="fg"><label class="fl">部门</label><input class="fi" id="n5"></div>
+<button class="btn" onclick="addP()">🤖 AI 创建</button>
+</div></div>
+</div>
+<script>
+function addP(){let n=document.getElementById('n1').value;if(!n){alert('输入名称');return;}alert('创建成功：'+n);location.href='projects.html';}
+</script>
+</body>
+</html>

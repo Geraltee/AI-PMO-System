@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>预警 - AI PMO</title>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k)}
+.hdr{background:var(--w);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{font-size:18px;font-weight:600;color:var(--b)}.nav{display:flex;gap:20px}.nav a{color:var(--k);text-decoration:none;padding:8px 12px;border-radius:4px;cursor:pointer}
+.nav a:hover,.nav a.active{background:var(--b);color:var(--w)}.main{display:flex;margin-top:48px;height:calc(100vh - 48px)}.sb{width:200px;background:var(--w);border-right:1px solid var(--bd)}
+.mi{padding:12px 20px;cursor:pointer}.mi:hover{background:var(--g)}.mi.active{background:#eff6fc;border-left:3px solid var(--b)}.ct{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:20px;margin-bottom:20px}.ctitle{font-size:16px;font-weight:600;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.alert{padding:12px;background:#fff4ce;border-left:3px solid var(--wa);margin:10px 0}.alert-er{background:#fde7e9;border-left-color:var(--er)}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="logo">🚀 AI PMO</div><div class="nav"><a href="dashboard.html">控制台</a><a href="projects.html">项目</a><a href="new.html">新建</a><a href="alerts.html" class="active">预警</a><a href="features.html">功能</a></div></div>
+<div class="main">
+<div class="sb">
+<div class="mi" onclick="location.href='dashboard.html'">📊 概览</div>
+<div class="mi" onclick="location.href='projects.html'">📁 项目</div>
+<div class="mi" onclick="location.href='new.html'">➕ 新建</div>
+<div class="mi active" onclick="location.href='alerts.html'">⚠️ 预警</div>
+<div class="mi" onclick="location.href='features.html'">⭐ 功能</div>
+</div>
+<div class="ct">
+<div class="card"><div class="ctitle">⚠️ 预警</div><div id="a2"></div></div>
+</div>
+</div>
+<script>
+let ps=[{id:'PRJ-2026-001',nm:'AI Smart Customer Service Upgrade',ow:'张三',st:'ok',rk:[{d:'T005 技术架构设计 2 天后到期 (04-08)',i:'高'},{d:'T006 数据库设计 4 天后到期 (04-10)',i:'中'},{d:'T008 UI/UX 设计 4 天后到期 (04-10)',i:'中'},{d:'张三负载 95% 过载',i:'高'}]}];
+function r3(){document.getElementById('a2').innerHTML=ps.filter(x=>x.rk&&x.rk.length>0).map(x=>'<div class="alert"><b>'+x.nm+'</b><br>'+x.rk.map(r=>'<div class="'+(r.i==='高'?'alert-er':'')+'" style="padding:8px;margin:5px 0">'+r.d+' (影响:'+r.i+')</div>').join('')+'</div>').join('')||'暂无';}
+r3();
+</script>
+</body>
+</html>

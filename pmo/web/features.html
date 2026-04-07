@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>功能说明 - AI PMO</title>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k)}
+.hdr{background:var(--w);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{font-size:18px;font-weight:600;color:var(--b)}.nav{display:flex;gap:20px}.nav a{color:var(--k);text-decoration:none;padding:8px 12px;border-radius:4px;cursor:pointer}
+.nav a:hover,.nav a.active{background:var(--b);color:var(--w)}.main{display:flex;margin-top:48px;height:calc(100vh - 48px)}.sb{width:200px;background:var(--w);border-right:1px solid var(--bd)}
+.mi{padding:12px 20px;cursor:pointer}.mi:hover{background:var(--g)}.mi.active{background:#eff6fc;border-left:3px solid var(--b)}.ct{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:20px;margin-bottom:20px}.ctitle{font-size:16px;font-weight:600;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.feat{padding:15px;border:1px solid var(--bd);border-radius:4px;margin-bottom:15px}.feat h4{color:var(--b);margin-bottom:8px}.feat p{font-size:13px;color:#605e5c}
+.fg2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="logo">🚀 AI PMO</div><div class="nav"><a href="dashboard.html">控制台</a><a href="projects.html">项目</a><a href="new.html">新建</a><a href="alerts.html">预警</a><a href="features.html" class="active">功能</a></div></div>
+<div class="main">
+<div class="sb">
+<div class="mi" onclick="location.href='dashboard.html'">📊 概览</div>
+<div class="mi" onclick="location.href='projects.html'">📁 项目</div>
+<div class="mi" onclick="location.href='new.html'">➕ 新建</div>
+<div class="mi" onclick="location.href='alerts.html'">⚠️ 预警</div>
+<div class="mi active" onclick="location.href='features.html'">⭐ 功能</div>
+</div>
+<div class="ct">
+<div class="card"><div class="ctitle">⭐ 8 大核心功能</div>
+<div class="fg2">
+<div class="feat"><h4>1️⃣ 项目创建与解析</h4><p>AI 自动提取目标/周期/干系人/交付物</p></div>
+<div class="feat"><h4>2️⃣ 自动 RACI 分配</h4><p>按类型匹配负责人/协作/知会</p></div>
+<div class="feat"><h4>3️⃣ 自动 WBS 分段</h4><p>生成阶段→里程碑，识别依赖</p></div>
+<div class="feat"><h4>4️⃣ 自动生成 SOP</h4><p>步骤/输入输出/标准/验收</p></div>
+<div class="feat"><h4>5️⃣ 自动排期</h4><p>倒排工期，生成甘特图节点</p></div>
+<div class="feat"><h4>6️⃣ 自动周会总结</h4><p>读取会议记录，输出完成/计划/待办</p></div>
+<div class="feat"><h4>7️⃣ 自动提醒</h4><p>截止前 3 天邮件 + 站内信</p></div>
+<div class="feat"><h4>8️⃣ PMO 控制台</h4><p>进度/逾期/预警/资源概览</p></div>
+</div></div></div>
+</div>
+</div>
+</body>
+</html>

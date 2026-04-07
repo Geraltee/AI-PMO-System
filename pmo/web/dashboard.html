@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI PMO</title>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k)}
+.hdr{background:var(--w);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{font-size:18px;font-weight:600;color:var(--b)}.nav{display:flex;gap:20px}.nav a{color:var(--k);text-decoration:none;padding:8px 12px;border-radius:4px;cursor:pointer}
+.nav a:hover,.nav a.active{background:var(--b);color:var(--w)}.main{display:flex;margin-top:48px;height:calc(100vh - 48px)}.sb{width:200px;background:var(--w);border-right:1px solid var(--bd)}
+.mi{padding:12px 20px;cursor:pointer}.mi:hover{background:var(--g)}.mi.active{background:#eff6fc;border-left:3px solid var(--b)}.ct{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:20px;margin-bottom:20px}.ctitle{font-size:16px;font-weight:600;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}.stat{background:var(--w);border:1px solid var(--bd);padding:20px;text-align:center}
+.stat-n{font-size:32px;font-weight:600;color:var(--b)}.stat-l{color:#605e5c;margin-top:5px}.btn{background:var(--b);color:var(--w);border:none;padding:8px 16px;border-radius:4px;cursor:pointer}
+.btn:hover{background:#106ebe}table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid var(--bd)}th{background:var(--g);color:#605e5c}
+.badge{padding:4px 10px;border-radius:12px;font-size:12px}.bg-ok{background:#dff6dd;color:var(--ok)}.bg-wa{background:#fff4ce;color:var(--wa)}.bg-er{background:#fde7e9;color:var(--er)}
+.prog{height:6px;background:var(--g);border-radius:3px}.prog-bar{height:100%;background:var(--b)}.fg{margin-bottom:15px}.fl{display:block;margin-bottom:5px;font-weight:500}
+.fi{width:100%;padding:8px 12px;border:1px solid var(--bd);border-radius:4px}textarea.fi{min-height:80px}.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;justify-content:center;align-items:center}
+.modal.on{display:flex}.mc{background:var(--w);width:700px;max-height:80vh;overflow-y:auto;border-radius:4px}.mh{padding:20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between}
+.mb{padding:20px}.mf{padding:20px;border-top:1px solid var(--bd);text-align:right}.x{font-size:24px;cursor:pointer}.alert{padding:12px;background:#fff4ce;border-left:3px solid var(--wa);margin:10px 0}
+.pg{display:none}.pg.on{display:block}.step{padding:10px;background:var(--g);margin:8px 0;border-radius:4px}.raci{display:flex;gap:10px;margin:8px 0}.rb{padding:4px 8px;background:var(--b);color:var(--w);border-radius:4px;min-width:50px;text-align:center}
+.fg2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.feat{padding:15px;border:1px solid var(--bd);border-radius:4px}.feat h4{color:var(--b);margin-bottom:8px}.feat p{font-size:13px;color:#605e5c}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="logo">🚀 AI PMO</div><div class="nav"><a href="dashboard.html" class="active">控制台</a><a href="projects.html">项目</a><a href="new.html">新建</a><a href="alerts.html">预警</a><a href="features.html">功能</a></div></div>
+<div class="main">
+<div class="sb">
+<div class="mi active" onclick="location.href='dashboard.html'">📊 概览</div>
+<div class="mi" onclick="location.href='projects.html'">📁 项目</div>
+<div class="mi" onclick="location.href='new.html'">➕ 新建</div>
+<div class="mi" onclick="location.href='alerts.html'">⚠️ 预警</div>
+<div class="mi" onclick="location.href='features.html'">⭐ 功能</div>
+</div>
+<div class="ct">
+<div id="dash" class="pg on">
+<div class="stats">
+<div class="stat"><div class="stat-n" id="s1">0</div><div class="stat-l">进行中</div></div>
+<div class="stat"><div class="stat-n" id="s2" style="color:var(--wa)">0</div><div class="stat-l">风险</div></div>
+<div class="stat"><div class="stat-n" id="s3" style="color:var(--er)">0</div><div class="stat-l">待处理</div></div>
+<div class="stat"><div class="stat-n" id="s4">0</div><div class="stat-l">任务</div></div>
+</div>
+<div class="card"><div class="ctitle">📋 项目进度</div><table><thead><tr><th>项目</th><th>负责人</th><th>进度</th><th>状态</th><th>截止</th></tr></thead><tbody id="t1"></tbody></table></div>
+<div class="card"><div class="ctitle">⚠️ 预警</div><div id="a1"></div></div>
+</div>
+<div id="proj" class="pg"><div class="card"><div class="ctitle">📁 所有项目</div><table><thead><tr><th>ID</th><th>名称</th><th>负责人</th><th>进度</th><th>状态</th></tr></thead><tbody id="t2"></tbody></table></div></div>
+<div id="new" class="pg">
+<div class="card"><div class="ctitle">➕ 新建项目</div>
+<div class="fg"><label class="fl">项目名称</label><input class="fi" id="n1"></div>
+<div class="fg"><label class="fl">项目背景</label><textarea class="fi" id="n2"></textarea></div>
+<div class="fg"><label class="fl">负责人</label><input class="fi" id="n3"></div>
+<div class="fg"><label class="fl">周期 (天)</label><input class="fi" id="n4" type="number"></div>
+<div class="fg"><label class="fl">部门</label><input class="fi" id="n5"></div>
+<button class="btn" onclick="addP()">🤖 AI 创建</button>
+</div></div>
+<div id="alrt" class="pg"><div class="card"><div class="ctitle">⚠️ 预警</div><div id="a2"></div></div></div>
+<div id="feat" class="pg">
+<div class="card"><div class="ctitle">⭐ 8 大核心功能</div>
+<div class="fg2">
+<div class="feat"><h4>1️⃣ 项目创建与解析</h4><p>AI 自动提取目标/周期/干系人/交付物</p></div>
+<div class="feat"><h4>2️⃣ 自动 RACI 分配</h4><p>按类型匹配负责人/协作/知会</p></div>
+<div class="feat"><h4>3️⃣ 自动 WBS 分段</h4><p>生成阶段→里程碑，识别依赖</p></div>
+<div class="feat"><h4>4️⃣ 自动生成 SOP</h4><p>步骤/输入输出/标准/验收</p></div>
+<div class="feat"><h4>5️⃣ 自动排期</h4><p>倒排工期，生成甘特图节点</p></div>
+<div class="feat"><h4>6️⃣ 自动周会总结</h4><p>读取会议记录，输出完成/计划/待办</p></div>
+<div class="feat"><h4>7️⃣ 自动提醒</h4><p>截止前 3 天邮件 + 站内信</p></div>
+<div class="feat"><h4>8️⃣ PMO 控制台</h4><p>进度/逾期/预警/资源概览</p></div>
+</div></div></div>
+</div>
+</div>
+<div class="modal" id="m"><div class="mc"><div class="mh"><h3 id="mt">详情</h3><span class="x" onclick="cm()">&times;</span></div><div class="mb" id="mb"></div><div class="mf"><button class="btn" onclick="cm()">关闭</button></div></div></div>
+<script>
+let ps=[{id:'PRJ-001',nm:'AI 客服升级',ow:'张三',st:'ok',pr:15,dl:'2026-05-30',ms:[{nm:'需求确认',dt:'04-10'},{nm:'开发',dt:'05-15'},{nm:'上线',dt:'05-30'}],rc:[{r:'负责',n:'张三'},{r:'协作',n:'李四'}],rk:[{d:'需求变更',i:'中'}],sp:[{s:'需求调研',inp:'业务',out:'文档',std:'清晰',acc:'评审'}]}];
+function go(p){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.mi,.nav a').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('on');event.target.classList.add('active');if(p==='dash')r1();if(p==='proj')r2();if(p==='alrt')r3();}
+function r1(){document.getElementById('s1').textContent=ps.length;document.getElementById('s2').textContent=ps.filter(x=>x.st==='wa').length;document.getElementById('s3').textContent=ps.reduce((a,x)=>a+(x.rk?x.rk.length:0),0);document.getElementById('s4').textContent=ps.reduce((a,x)=>a+(x.ms?x.ms.length:0),0);document.getElementById('t1').innerHTML=ps.map(x=>'<tr><td>'+x.nm+'</td><td>'+x.ow+'</td><td><div class="prog"><div class="prog-bar" style="width:'+x.pr+'%"></div></div></td><td><span class="badge bg-'+x.st+'">'+(x.st==='ok'?'正常':x.st==='wa'?'风险':'严重')+'</span></td><td>'+x.dl+'</td></tr>').join('');document.getElementById('a1').innerHTML=ps.filter(x=>x.rk&&x.rk.length>0).map(x=>'<div class="alert"><b>'+x.nm+'</b>: '+x.rk.map(r=>r.d).join(', ')+'</div>').join('')||'暂无';}
+function r2(){document.getElementById('t2').innerHTML=ps.map(x=>'<tr><td>'+x.id+'</td><td>'+x.nm+'</td><td>'+x.ow+'</td><td><div class="prog"><div class="prog-bar" style="width:'+x.pr+'%"></div></div></td><td><span class="badge bg-'+x.st+'">'+(x.st==='ok'?'正常':x.st==='wa'?'风险':'严重')+'</span></td></tr>').join('');}
+function r3(){document.getElementById('a2').innerHTML=ps.filter(x=>x.rk&&x.rk.length>0).map(x=>'<div class="alert"><b>'+x.nm+'</b>: '+x.rk.map(r=>r.d+' (影响:'+r.i+')').join('<br>')</div>').join('')||'暂无';}
+function show(id){let p=ps.find(x=>x.id===id);if(!p)return;document.getElementById('mt').textContent=p.nm;document.getElementById('mb').innerHTML='<div style="margin-bottom:15px"><b>状态:</b> <span class="badge bg-'+p.st+'">'+(p.st==='ok'?'正常':p.st==='wa'?'风险':'严重')+'</span></div><div style="margin-bottom:15px"><b>进度:</b> '+p.pr+'%</div><div style="margin-bottom:15px"><b>负责人:</b> '+p.ow+'</div><div style="margin-bottom:15px"><b>截止:</b> '+p.dl+'</div><div style="margin-bottom:15px"><b>📍 里程碑</b>'+p.ms.map(m=>'<div class="step">'+m.nm+' - '+m.dt+'</div>').join('')+'</div><div style="margin-bottom:15px"><b>👥 RACI</b>'+p.rc.map(r=>'<div class="raci"><span class="rb">'+r.r+'</span><span>'+r.n+'</span></div>').join('')+'</div><div style="margin-bottom:15px"><b>⚠️ 风险</b>'+p.rk.map(r=>'<div class="alert">'+r.d+'</div>').join('')+'</div><div style="margin-bottom:15px"><b>📋 SOP</b>'+p.sp.map(s=>'<div class="step"><b>'+s.s+'</b><br>输入:'+s.inp+' | 输出:'+s.out+' | 标准:'+s.std+' | 验收:'+s.acc+'</div>').join('')+'</div>';document.getElementById('m').classList.add('on');}
+function cm(){document.getElementById('m').classList.remove('on');}
+function addP(){let n=document.getElementById('n1').value;if(!n){alert('输入名称');return;}let p={id:'PRJ-'+Math.floor(Math.random()*999),nm:n,ow:document.getElementById('n3').value||'待分配',st:'ok',pr:0,dl:'2026-06-30',ms:[{nm:'启动',dt:'TBD'},{nm:'执行',dt:'TBD'},{nm:'收尾',dt:'TBD'}],rc:[{r:'负责',n:document.getElementById('n3').value||'待分配'}],rk:[],sp:[]};ps.push(p);alert('创建成功');go('proj');r2();}
+r1();
+</script>
+</body>
+</html>

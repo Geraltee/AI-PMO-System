@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>项目列表 - AI PMO</title>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k)}
+.hdr{background:var(--w);border-bottom:1px solid var(--bd);height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{font-size:18px;font-weight:600;color:var(--b)}.nav{display:flex;gap:20px}.nav a{color:var(--k);text-decoration:none;padding:8px 12px;border-radius:4px;cursor:pointer}
+.nav a:hover,.nav a.active{background:var(--b);color:var(--w)}.main{display:flex;margin-top:48px;height:calc(100vh - 48px)}.sb{width:200px;background:var(--w);border-right:1px solid var(--bd)}
+.mi{padding:12px 20px;cursor:pointer}.mi:hover{background:var(--g)}.mi.active{background:#eff6fc;border-left:3px solid var(--b)}.ct{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:20px;margin-bottom:20px}.ctitle{font-size:16px;font-weight:600;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid var(--bd)}th{background:var(--g);color:#605e5c}
+.badge{padding:4px 10px;border-radius:12px;font-size:12px}.bg-ok{background:#dff6dd;color:var(--ok)}.bg-wa{background:#fff4ce;color:var(--wa)}.bg-er{background:#fde7e9;color:var(--er)}
+.prog{height:6px;background:var(--g);border-radius:3px}.prog-bar{height:100%;background:var(--b)}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;justify-content:center;align-items:center}
+.modal.on{display:flex}.mc{background:var(--w);width:700px;max-height:80vh;overflow-y:auto;border-radius:4px}.mh{padding:20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between}
+.mb{padding:20px}.mf{padding:20px;border-top:1px solid var(--bd);text-align:right}.x{font-size:24px;cursor:pointer}
+.step{padding:10px;background:var(--g);margin:8px 0;border-radius:4px}.raci{display:flex;gap:10px;margin:8px 0}.rb{padding:4px 8px;background:var(--b);color:var(--w);border-radius:4px;min-width:50px;text-align:center}
+.alert{padding:12px;background:#fff4ce;border-left:3px solid var(--wa);margin:10px 0}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="logo">🚀 AI PMO</div><div class="nav"><a href="dashboard.html">控制台</a><a href="projects.html" class="active">项目</a><a href="new.html">新建</a><a href="alerts.html">预警</a><a href="features.html">功能</a></div></div>
+<div class="main">
+<div class="sb">
+<div class="mi" onclick="location.href='dashboard.html'">📊 概览</div>
+<div class="mi active" onclick="location.href='projects.html'">📁 项目</div>
+<div class="mi" onclick="location.href='new.html'">➕ 新建</div>
+<div class="mi" onclick="location.href='alerts.html'">⚠️ 预警</div>
+<div class="mi" onclick="location.href='features.html'">⭐ 功能</div>
+</div>
+<div class="ct">
+<div class="card"><div class="ctitle">📁 所有项目</div><table><thead><tr><th>ID</th><th>名称</th><th>负责人</th><th>进度</th><th>状态</th><th>操作</th></tr></thead><tbody id="t2"></tbody></table></div>
+</div>
+</div>
+<div class="modal" id="m"><div class="mc"><div class="mh"><h3 id="mt">详情</h3><span class="x" onclick="cm()">&times;</span></div><div class="mb" id="mb"></div><div class="mf"><button class="btn" onclick="cm()">关闭</button></div></div></div>
+<script>
+let ps=[{id:'PRJ-2026-001',nm:'AI Smart Customer Service Upgrade',ow:'张三',st:'ok',pr:35,dl:'2026-05-31',ms:[{nm:'需求分析完成',dt:'03-31'},{nm:'系统设计完成',dt:'04-15'},{nm:'开发完成',dt:'05-15'},{nm:'上线',dt:'05-31'}],rc:[{r:'负责',n:'张三'},{r:'协作',n:'李四'},{r:'协作',n:'王五'}],rk:[{d:'张三负载过高 (95%)',i:'高'}],sp:[{s:'需求调研',inp:'业务',out:'文档',std:'清晰',acc:'评审'}]}];
+function r2(){document.getElementById('t2').innerHTML=ps.map(x=>'<tr><td>'+x.id+'</td><td>'+x.nm+'</td><td>'+x.ow+'</td><td><div class="prog"><div class="prog-bar" style="width:'+x.pr+'%"></div></div></td><td><span class="badge bg-'+x.st+'">'+(x.st==='ok'?'正常':x.st==='wa'?'风险':'严重')+'</span></td><td><button class="btn" onclick="show(\''+x.id+'\')">查看</button></td></tr>').join('');}
+function show(id){let p=ps.find(x=>x.id===id);if(!p)return;document.getElementById('mt').textContent=p.nm;document.getElementById('mb').innerHTML='<div style="margin-bottom:15px"><b>状态:</b> <span class="badge bg-'+p.st+'">'+(p.st==='ok'?'正常':p.st==='wa'?'风险':'严重')+'</span></div><div style="margin-bottom:15px"><b>进度:</b> '+p.pr+'%</div><div style="margin-bottom:15px"><b>负责人:</b> '+p.ow+'</div><div style="margin-bottom:15px"><b>截止:</b> '+p.dl+'</div><div style="margin-bottom:15px"><b>📍 里程碑</b>'+p.ms.map(m=>'<div class="step">'+m.nm+' - '+m.dt+'</div>').join('')+'</div><div style="margin-bottom:15px"><b>👥 RACI</b>'+p.rc.map(r=>'<div class="raci"><span class="rb">'+r.r+'</span><span>'+r.n+'</span></div>').join('')+'</div><div style="margin-bottom:15px"><b>⚠️ 风险</b>'+p.rk.map(r=>'<div class="alert">'+r.d+'</div>').join('')+'</div><div style="margin-bottom:15px"><b>📋 SOP</b>'+p.sp.map(s=>'<div class="step"><b>'+s.s+'</b><br>输入:'+s.inp+' | 输出:'+s.out+' | 标准:'+s.std+' | 验收:'+s.acc+'</div>').join('')+'</div>';document.getElementById('m').classList.add('on');}
+function cm(){document.getElementById('m').classList.remove('on');}
+r2();
+</script>
+</body>
+</html>

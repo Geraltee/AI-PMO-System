@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PMO 项目仪表板</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        header h1 { font-size: 2em; margin-bottom: 10px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-number { font-size: 2.5em; font-weight: bold; color: var(--primary); }
+        .stat-label { color: var(--text-light); margin-top: 5px; }
+        .filters {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filters select, .filters input {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .project-card {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .project-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-title { font-size: 1.2em; font-weight: 600; }
+        .project-id {
+            font-size: 0.85em;
+            color: var(--text-light);
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .project-body { padding: 20px; }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .status-green { background: #dcfce7; color: var(--success); }
+        .status-yellow { background: #fef3c7; color: var(--warning); }
+        .status-red { background: #fee2e2; color: var(--danger); }
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #3b82f6);
+            border-radius: 4px;
+        }
+        .project-footer {
+            padding: 15px 20px;
+            background: #f8fafc;
+            font-size: 0.85em;
+            color: var(--text-light);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .detail-section { margin: 25px 0; }
+        .detail-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; }
+        .btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn:hover { background: #1d4ed8; }
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 AI PMO 项目仪表板</h1>
+            <p>实时项目监控 · 风险预警 · 进度追踪</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-projects">0</div>
+                <div class="stat-label">总项目数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="green-projects" style="color: #16a34a">0</div>
+                <div class="stat-label">🟢 正常</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="yellow-projects" style="color: #ca8a04">0</div>
+                <div class="stat-label">🟡 风险</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="red-projects" style="color: #dc2626">0</div>
+                <div class="stat-label">🔴 严重</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <label>状态:</label>
+            <select id="status-filter">
+                <option value="all">全部</option>
+                <option value="green">🟢 正常</option>
+                <option value="yellow">🟡 风险</option>
+                <option value="red">🔴 严重</option>
+            </select>
+            <label>搜索:</label>
+            <input type="text" id="search-input" placeholder="项目名称或 ID...">
+            <button class="btn" onclick="renderProjects()">筛选</button>
+        </div>
+
+        <div class="projects-grid" id="projects-container"></div>
+        <button class="refresh-btn" onclick="loadProjects()" title="刷新">🔄</button>
+    </div>
+
+    <div class="modal" id="project-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const projects = [{
+            id: "PRJ-2026-001",
+            name: "AI 客服系统升级",
+            status: "green",
+            priority: "P1",
+            owner: "待填写",
+            created: "2026-04-03",
+            updated: "2026-04-03",
+            progress: 15,
+            milestones: [
+                { name: "需求确认", date: "2026-04-10", status: "pending" },
+                { name: "技术方案", date: "2026-04-20", status: "pending" },
+                { name: "开发完成", date: "2026-05-15", status: "pending" },
+                { name: "上线发布", date: "2026-05-30", status: "pending" }
+            ],
+            risks: [
+                { desc: "需求频繁变更", impact: "中", prob: "中" },
+                { desc: "人手不足", impact: "高", prob: "低" }
+            ]
+        }];
+
+        const statusMap = {
+            green: { text: "正常", class: "status-green" },
+            yellow: { text: "风险", class: "status-yellow" },
+            red: { text: "严重", class: "status-red" }
+        };
+
+        document.addEventListener('DOMContentLoaded', loadProjects);
+
+        function loadProjects() {
+            updateStats();
+            renderProjects();
+        }
+
+        function updateStats() {
+            document.getElementById('total-projects').textContent = projects.length;
+            document.getElementById('green-projects').textContent = projects.filter(p => p.status === 'green').length;
+            document.getElementById('yellow-projects').textContent = projects.filter(p => p.status === 'yellow').length;
+            document.getElementById('red-projects').textContent = projects.filter(p => p.status === 'red').length;
+        }
+
+        function renderProjects() {
+            const filter = document.getElementById('status-filter').value;
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('projects-container');
+            
+            let filtered = projects.filter(p => {
+                const matchStatus = filter === 'all' || p.status === filter;
+                const matchSearch = p.name.toLowerCase().includes(search) || p.id.toLowerCase().includes(search);
+                return matchStatus && matchSearch;
+            });
+
+            container.innerHTML = filtered.map(p => `
+                <div class="project-card" onclick="showProject('${p.id}')">
+                    <div class="project-header">
+                        <span class="project-title">${p.name}</span>
+                        <span class="project-id">${p.id}</span>
+                    </div>
+                    <div class="project-body">
+                        <span class="status-badge ${statusMap[p.status].class}">${statusMap[p.status].text}</span>
+                        <div style="margin: 10px 0; color: #64748b; font-size: 0.9em;">
+                            优先级：${p.priority} | 负责人：${p.owner}
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${p.progress}%"></div>
+                        </div>
+                        <div style="font-size: 0.85em; color: #64748b;">进度：${p.progress}%</div>
+                        ${p.risks.length > 0 ? `<div style="margin-top: 15px; padding: 10px; background: #fef2f2; border-radius: 8px; border-left: 3px solid #dc2626;">
+                            ⚠️ ${p.risks.length} 个风险
+                        </div>` : ''}
+                    </div>
+                    <div class="project-footer">
+                        <span>创建：${p.created}</span>
+                        <span>更新：${p.updated}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showProject(id) {
+            const p = projects.find(x => x.id === id);
+            if (!p) return;
+            
+            document.getElementById('modal-body').innerHTML = `
+                <h2 style="margin-bottom: 20px;">${p.name}</h2>
+                <span class="status-badge ${statusMap[p.status].class}">${statusMap[p.status].text}</span>
+                
+                <div class="detail-section">
+                    <h3>📋 基本信息</h3>
+                    <table>
+                        <tr><td>项目 ID</td><td>${p.id}</td></tr>
+                        <tr><td>优先级</td><td>${p.priority}</td></tr>
+                        <tr><td>负责人</td><td>${p.owner}</td></tr>
+                        <tr><td>创建日期</td><td>${p.created}</td></tr>
+                        <tr><td>最后更新</td><td>${p.updated}</td></tr>
+                        <tr><td>进度</td><td>${p.progress}%</td></tr>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🎯 里程碑</h3>
+                    <table>
+                        <tr><th>里程碑</th><th>计划日期</th><th>状态</th></tr>
+                        ${p.milestones.map(m => `
+                            <tr>
+                                <td>${m.name}</td>
+                                <td>${m.date}</td>
+                                <td>${m.status === 'pending' ? '⏳ 待开始' : m.status === 'active' ? '🔄 进行中' : '✅ 已完成'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>⚠️ 风险日志</h3>
+                    ${p.risks.length > 0 ? `
+                    <table>
+                        <tr><th>风险描述</th><th>影响</th><th>概率</th></tr>
+                        ${p.risks.map(r => `
+                            <tr>
+                                <td>${r.desc}</td>
+                                <td>${r.impact}</td>
+                                <td>${r.prob}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                    ` : '<p>暂无风险</p>'}
+                </div>
+            `;
+            
+            document.getElementById('project-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('project-modal');
+            if (event.target === modal) closeModal();
+        }
+    </script>
+</body>
+</html>
