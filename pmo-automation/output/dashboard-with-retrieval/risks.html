@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险预警 - PMO Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .nav-bar { background: white; padding: 15px 30px; border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 0; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: #f5f5f5; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .content-card { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 30px; margin-bottom: 30px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .card-title { font-size: 24px; font-weight: 600; color: #333; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #f9f9f9; padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { font-size: 13px; color: #666; }
+        .risk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 20px; }
+        .risk-card { background: #f9f9f9; border-radius: 12px; padding: 20px; border-left: 4px solid; transition: all 0.3s; }
+        .risk-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .risk-card.high { border-left-color: #c62828; background: #ffebee; }
+        .risk-card.medium { border-left-color: #f57c00; background: #fff3e0; }
+        .risk-card.low { border-left-color: #1976d2; background: #e3f2fd; }
+        .risk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .risk-title { font-size: 18px; font-weight: 600; color: #333; }
+        .risk-level { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .risk-level.high { background: #c62828; color: white; }
+        .risk-level.medium { background: #f57c00; color: white; }
+        .risk-level.low { background: #1976d2; color: white; }
+        .risk-desc { color: #666; line-height: 1.6; margin-bottom: 15px; }
+        .risk-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
+        .meta-item { font-size: 13px; color: #666; }
+        .meta-label { color: #999; font-size: 12px; margin-bottom: 3px; }
+        .action-btn { margin-top: 15px; padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .last-updated { text-align: center; color: rgba(255,255,255,0.8); margin-top: 30px; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="index.html">📊 概览</a>
+                <a href="projects.html">📁 项目</a>
+                <a href="team.html">👥 团队</a>
+                <a href="risks.html" class="active">⚠️ 风险</a>
+                <a href="documents.html">📄 文档</a>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">⚠️ 风险预警中心</div>
+                <button style="padding:10px 20px;background:#f5f5f5;border:none;border-radius:8px;cursor:pointer;">📥 导出报告</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value" style="color:#c62828;">3</div><div class="stat-label">高风险</div></div>
+                <div class="stat-card"><div class="stat-value" style="color:#f57c00;">5</div><div class="stat-label">中风险</div></div>
+                <div class="stat-card"><div class="stat-value" style="color:#1976d2;">4</div><div class="stat-label">低风险</div></div>
+                <div class="stat-card"><div class="stat-value" style="color:#667eea;">12</div><div class="stat-label">总风险项</div></div>
+            </div>
+            <div class="risk-grid">
+                <div class="risk-card high">
+                    <div class="risk-header"><div class="risk-title">🔴 资源过载 - 张三</div><span class="risk-level high">高风险</span></div>
+                    <div class="risk-desc">技术负责人当前负载 95%，负责任务 9 个，已超出正常负载阈值。可能导致任务延期或质量下降。</div>
+                    <div class="risk-meta"><div class="meta-item"><div class="meta-label">影响项目</div>AI Smart Customer Service Upgrade</div><div class="meta-item"><div class="meta-label">发现日期</div>2026-04-07</div><div class="meta-item"><div class="meta-label">负责人</div>张三</div><div class="meta-item"><div class="meta-label">状态</div>未处理</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+                <div class="risk-card high">
+                    <div class="risk-header"><div class="risk-title">🔴 任务即将到期 - T005</div><span class="risk-level high">高风险</span></div>
+                    <div class="risk-desc">技术架构设计任务仅剩 2 天到期，当前进度 75%。如不能按时完成，将影响后续设计评审和开发阶段。</div>
+                    <div class="risk-meta"><div class="meta-label">影响项目</div>AI Smart Customer Service Upgrade</div><div class="meta-item"><div class="meta-label">截止日期</div>2026-04-08</div><div class="meta-item"><div class="meta-label">负责人</div>张三</div><div class="meta-item"><div class="meta-label">状态</div>进行中</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+                <div class="risk-card high">
+                    <div class="risk-header"><div class="risk-title">🔴 项目延期 - 安全合规审计</div><span class="risk-level high">高风险</span></div>
+                    <div class="risk-desc">PRJ-2026-005 已延期 5 天，当前完成度 68%。需立即采取补救措施，评估对整体项目组合的影响。</div>
+                    <div class="risk-meta"><div class="meta-item"><div class="meta-label">影响项目</div>PRJ-2026-005</div><div class="meta-item"><div class="meta-label">延期天数</div>5 天</div><div class="meta-item"><div class="meta-label">负责人</div>钱七</div><div class="meta-item"><div class="meta-label">状态</div>需立即处理</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header"><div class="risk-title">🟠 资源冲突 - 数据分析平台</div><span class="risk-level medium">中风险</span></div>
+                    <div class="risk-desc">数据分析平台与 CRM 迁移项目争夺开发资源，可能导致两个项目进度都受影响。</div>
+                    <div class="risk-meta"><div class="meta-item"><div class="meta-label">影响项目</div>PRJ-2026-002, PRJ-2026-003</div><div class="meta-item"><div class="meta-label">发现日期</div>2026-04-05</div><div class="meta-item"><div class="meta-label">负责人</div>王五</div><div class="meta-item"><div class="meta-label">状态</div>监控中</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header"><div class="risk-title">🟠 技术依赖 - 第三方 API</div><span class="risk-level medium">中风险</span></div>
+                    <div class="risk-desc">AI 客服项目依赖的第三方 NLP API 存在集成不确定性，可能影响开发进度。</div>
+                    <div class="risk-meta"><div class="meta-item"><div class="meta-label">影响项目</div>AI Smart Customer Service Upgrade</div><div class="meta-item"><div class="meta-label">发现日期</div>2026-04-03</div><div class="meta-item"><div class="meta-label">负责人</div>李四</div><div class="meta-item"><div class="meta-label">状态</div>监控中</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header"><div class="risk-title">🟠 进度滞后 - API 接口设计</div><span class="risk-level medium">中风险</span></div>
+                    <div class="risk-desc">T007 任务进度仅 40%，截止日期 04-12，剩余 6 天。需加快进度以避免影响后续开发。</div>
+                    <div class="risk-meta"><div class="meta-item"><div class="meta-label">影响项目</div>AI Smart Customer Service Upgrade</div><div class="meta-item"><div class="meta-label">截止日期</div>2026-04-12</div><div class="meta-item"><div class="meta-label">负责人</div>张三</div><div class="meta-item"><div class="meta-label">状态</div>进行中</div></div>
+                    <button class="action-btn">📋 制定缓解计划</button>
+                </div>
+            </div>
+        </div>
+        <div class="last-updated"><p>最后更新：2026-04-07 10:56 EDT | 共 12 个风险项</p></div>
+    </div>
+</body>
+</html>
