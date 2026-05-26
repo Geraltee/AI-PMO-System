@@ -1,0 +1,40 @@
+﻿{
+  "projectInfo": {
+    "name": "AI Smart Customer Service Upgrade",
+    "version": "V1.0",
+    "description": "AI customer service system development based on TRON framework",
+    "startDate": "2026-04-04",
+    "endDate": "2026-07-04",
+    "status": "Starting"
+  },
+  "teamMembers": [
+    {"name": "Zhang San", "email": "zhangsan@company.com", "role": "Project Manager", "responsibilities": ["Coordination", "Progress Control", "Risk Management"]},
+    {"name": "Li Si", "email": "lisi@company.com", "role": "Tech Lead", "responsibilities": ["Architecture", "Technical Decisions", "Code Review"]},
+    {"name": "Wang Wu", "email": "wangwu@company.com", "role": "Backend Developer", "responsibilities": ["API Development", "Database Design", "System Integration"]},
+    {"name": "Zhao Liu", "email": "zhaoliu@company.com", "role": "Frontend Developer", "responsibilities": ["UI Development", "User Experience", "Frontend Testing"]},
+    {"name": "Chen Qi", "email": "chenqi@company.com", "role": "UI/UX Designer", "responsibilities": ["Interface Design", "Interaction Design", "Visual Standards"]},
+    {"name": "Liu Ba", "email": "liuba@company.com", "role": "Test Engineer", "responsibilities": ["Test Planning", "Automation Testing", "Quality Assurance"]},
+    {"name": "Zhou Jiu", "email": "zhoujiu@company.com", "role": "DevOps Engineer", "responsibilities": ["Deployment", "Monitoring", "Performance Optimization"]},
+    {"name": "Wu Shi", "email": "wushi@company.com", "role": "Product Specialist", "responsibilities": ["Requirement Analysis", "Documentation", "User Research"]},
+    {"name": "Zheng Shi Yi", "email": "zhengshiyi@company.com", "role": "Data Analyst", "responsibilities": ["Data Analysis", "Report Development", "Business Insights"]},
+    {"name": "Qian Shi Er", "email": "qianshier@company.com", "role": "Security Engineer", "responsibilities": ["Security Audit", "Vulnerability Scanning", "Compliance"]},
+    {"name": "Olivia", "email": "duyu5@lenovo.com", "role": "Business Representative", "responsibilities": ["Business Requirements", "UAT", "User Training"]},
+    {"name": "Lisa", "email": "zhuran1@lenovo.com", "role": "Business Representative", "responsibilities": ["Business Requirements", "UAT", "User Training"]}
+  ],
+  "projectPhases": [
+    {"phase": "Requirement Analysis", "startDate": "2026-04-04", "endDate": "2026-04-18", "owner": "Wu Shi", "deliverables": ["Requirement Doc", "User Stories", "Prototype"]},
+    {"phase": "System Design", "startDate": "2026-04-19", "endDate": "2026-05-03", "owner": "Li Si", "deliverables": ["Architecture Design", "Database Design", "API Specs"]},
+    {"phase": "UI/UX Design", "startDate": "2026-04-19", "endDate": "2026-05-10", "owner": "Chen Qi", "deliverables": ["UI Designs", "Interactive Prototype", "Design System"]},
+    {"phase": "Development", "startDate": "2026-05-04", "endDate": "2026-06-14", "owner": "Wang Wu", "deliverables": ["Backend Services", "Frontend App", "Integration"]},
+    {"phase": "Testing", "startDate": "2026-06-15", "endDate": "2026-06-28", "owner": "Liu Ba", "deliverables": ["Test Report", "Bug Fixes", "Acceptance Doc"]},
+    {"phase": "Deployment", "startDate": "2026-06-29", "endDate": "2026-07-04", "owner": "Zhou Jiu", "deliverables": ["Production Deploy", "Monitoring Setup", "Ops Manual"]}
+  ],
+  "milestones": [
+    {"name": "Project Kickoff", "date": "2026-04-04", "phase": "Requirement Analysis"},
+    {"name": "Requirement Review Complete", "date": "2026-04-18", "phase": "Requirement Analysis"},
+    {"name": "Design Review Complete", "date": "2026-05-03", "phase": "System Design"},
+    {"name": "Development Complete", "date": "2026-06-14", "phase": "Development"},
+    {"name": "Testing Complete", "date": "2026-06-28", "phase": "Testing"},
+    {"name": "Go Live", "date": "2026-07-04", "phase": "Deployment"}
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "description": "PMO 自动化管理系统 - OpenClaw Cron 任务配置",
+  "jobs": [
+    {
+      "id": "pmo-daily-check",
+      "name": "每日项目进度检查",
+      "schedule": "0 9 * * *",
+      "timezone": "America/New_York",
+      "enabled": true,
+      "action": "Track-Timeline",
+      "command": "pwsh -ExecutionPolicy Bypass -File .\\Main.ps1 -Action Track-Timeline",
+      "description": "每天早上 9 点检查项目进度和逾期情况"
+    },
+    {
+      "id": "pmo-weekly-summary",
+      "name": "周会总结生成",
+      "schedule": "0 8 * * 1",
+      "timezone": "America/New_York",
+      "enabled": true,
+      "action": "Weekly-Summary",
+      "command": "pwsh -ExecutionPolicy Bypass -File .\\Main.ps1 -Action Weekly-Summary",
+      "description": "每周一早上 8 点生成周会总结报告"
+    },
+    {
+      "id": "pmo-daily-reminders",
+      "name": "每日提醒发送",
+      "schedule": "0 17 * * *",
+      "timezone": "America/New_York",
+      "enabled": true,
+      "action": "Send-Reminders",
+      "command": "pwsh -ExecutionPolicy Bypass -File .\\Main.ps1 -Action Send-Reminders",
+      "description": "每天下午 5 点发送到期提醒"
+    },
+    {
+      "id": "pmo-dashboard-refresh",
+      "name": "Dashboard 刷新",
+      "schedule": "0 */6 * * *",
+      "timezone": "America/New_York",
+      "enabled": true,
+      "action": "Generate-Dashboard",
+      "command": "pwsh -ExecutionPolicy Bypass -File .\\Main.ps1 -Action Generate-Dashboard",
+      "description": "每 6 小时刷新一次 Dashboard"
+    },
+    {
+      "id": "pmo-weekly-wbs-review",
+      "name": "WBS 进度审查",
+      "schedule": "0 10 * * 5",
+      "timezone": "America/New_York",
+      "enabled": false,
+      "action": "Generate-WBS",
+      "command": "pwsh -ExecutionPolicy Bypass -File .\\Main.ps1 -Action Generate-WBS -ProjectId all",
+      "description": "每周五上午 10 点审查 WBS 进度（可选）"
+    }
+  ],
+  "openclawIntegration": {
+    "setupCommand": "openclaw cron import ./config/cron-jobs.json",
+    "statusCommand": "openclaw cron list",
+    "notes": [
+      "确保 OpenClaw Gateway 已启动",
+      "cron 表达式格式：分 时 日 月 星期",
+      "时区配置为 America/New_York，可根据需要调整"
+    ]
+  }
+}

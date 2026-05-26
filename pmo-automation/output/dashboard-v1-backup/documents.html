@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档检索 - PMO Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .nav-bar { background: white; padding: 15px 30px; border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 0; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: #f5f5f5; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .retrieval-module { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 30px; margin-bottom: 30px; }
+        .retrieval-header { display: flex; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .retrieval-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 24px; }
+        .retrieval-title h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
+        .retrieval-title p { color: #666; font-size: 14px; }
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-tab { padding: 10px 20px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s; font-weight: 500; }
+        .search-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .search-tab:hover:not(.active) { background: #e0e0e0; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-input { flex: 1; padding: 15px 20px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 16px; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .search-btn { padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .search-results { margin-top: 20px; }
+        .result-item { background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; cursor: pointer; }
+        .result-item:hover { border-color: #667eea; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15); transform: translateX(5px); }
+        .result-title { font-size: 18px; color: #667eea; margin-bottom: 8px; font-weight: 600; }
+        .result-snippet { color: #666; line-height: 1.6; margin-bottom: 10px; }
+        .result-meta { display: flex; gap: 15px; font-size: 13px; color: #999; }
+        .file-type { padding: 3px 8px; background: #e3f2fd; color: #1976d2; border-radius: 4px; font-weight: 600; }
+        .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 30px; }
+        .doc-card { background: #f9f9f9; border-radius: 12px; padding: 20px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .doc-card:hover { border-color: #667eea; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15); transform: translateY(-5px); }
+        .doc-icon { font-size: 48px; margin-bottom: 10px; }
+        .doc-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; height: 40px; overflow: hidden; }
+        .doc-meta { font-size: 12px; color: #666; margin-bottom: 10px; }
+        .file-badge { display: inline-block; padding: 3px 12px; background: #e3f2fd; color: #1976d2; border-radius: 12px; font-weight: 600; font-size: 11px; }
+        .last-updated { text-align: center; color: rgba(255,255,255,0.8); margin-top: 30px; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="index.html">📊 概览</a>
+                <a href="projects.html">📁 项目</a>
+                <a href="team.html">👥 团队</a>
+                <a href="risks.html">⚠️ 风险</a>
+                <a href="documents.html" class="active">📄 文档</a>
+            </div>
+        </div>
+        <div class="retrieval-module">
+            <div class="retrieval-header">
+                <div class="retrieval-icon">🔍</div>
+                <div class="retrieval-title">
+                    <h2>OneDrive 文档信息检索</h2>
+                    <p>基于谷歌学术/知网检索逻辑 · 支持关键词搜索与自然语言提问</p>
+                </div>
+            </div>
+            <div class="search-tabs">
+                <button class="search-tab active" data-mode="keyword">关键词搜索</button>
+                <button class="search-tab" data-mode="natural">自然语言提问</button>
+                <button class="search-tab" data-mode="recent">最近文档</button>
+            </div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="输入关键词或自然语言问题...">
+                <button class="search-btn" id="searchBtn">🔍 搜索</button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div style="text-align:center;padding:40px;color:#999;">
+                    <div style="font-size:48px;margin-bottom:15px;">📚</div>
+                    <p>输入关键词或问题，开始检索 OneDrive 文档</p>
+                    <p style="font-size:13px;margin-top:10px;color:#bbb;">支持文档类型：Word, Excel, PowerPoint, PDF, OneNote</p>
+                </div>
+            </div>
+        </div>
+        <div class="content-card" style="background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.2);padding:30px;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #f0f0f0;">
+                <div class="card-title" style="font-size:24px;font-weight:600;color:#333;">📁 项目文档库</div>
+                <button style="padding:10px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;">📤 上传文档</button>
+            </div>
+            <div class="doc-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📄</div>
+                    <div class="doc-name">AI 智能客服系统需求文档 v2.0</div>
+                    <div class="doc-meta">2026-04-02 | 张三</div>
+                    <span class="file-badge">DOCX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📊</div>
+                    <div class="doc-name">技术架构设计 PPT</div>
+                    <div class="doc-meta">2026-03-28 | 李四</div>
+                    <span class="file-badge">PPTX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📅</div>
+                    <div class="doc-name">项目里程碑计划表 PRJ-2026-001</div>
+                    <div class="doc-meta">2026-04-04 | 张三</div>
+                    <span class="file-badge">XLSX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📑</div>
+                    <div class="doc-name">竞品分析报告 - 智能客服市场</div>
+                    <div class="doc-meta">2026-03-15 | 王五</div>
+                    <span class="file-badge">PDF</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📈</div>
+                    <div class="doc-name">用户调研数据汇总</div>
+                    <div class="doc-meta">2026-03-10 | 李四</div>
+                    <span class="file-badge">XLSX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">🤖</div>
+                    <div class="doc-name">NLP 引擎技术方案</div>
+                    <div class="doc-meta">2026-04-01 | 张三</div>
+                    <span class="file-badge">DOCX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📋</div>
+                    <div class="doc-name">数据库设计文档</div>
+                    <div class="doc-meta">2026-04-05 | 张三</div>
+                    <span class="file-badge">DOCX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">🎨</div>
+                    <div class="doc-name">UI/UX 设计稿 v1.0</div>
+                    <div class="doc-meta">2026-04-03 | 李四</div>
+                    <span class="file-badge">FIG</span>
+                </div>
+            </div>
+        </div>
+        <div class="last-updated"><p>最后更新：2026-04-07 10:56 EDT | OneDrive 文档库</p></div>
+    </div>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchResults = document.getElementById('searchResults');
+        const searchTabs = document.querySelectorAll('.search-tab');
+        let currentMode = 'keyword';
+        searchTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                searchTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+                if (currentMode === 'natural') { searchInput.placeholder = '用自然语言提问，例如："AI 客服项目的技术架构是什么？"'; }
+                else if (currentMode === 'recent') { searchInput.placeholder = '查看最近更新的文档...'; }
+                else { searchInput.placeholder = '输入关键词或自然语言问题...'; }
+            });
+        });
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) { alert('请输入搜索内容'); return; }
+            searchBtn.disabled = true;
+            searchResults.innerHTML = '<div style="text-align:center;padding:40px;color:#666;"><div style="border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 15px;"></div><p>正在检索 OneDrive 文档...</p></div>';
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const results = [{title:'AI 智能客服系统需求文档 v2.0',snippet:'本文档详细描述了 AI 智能客服升级项目的功能需求、技术架构和实施方案，包括 NLP 引擎集成、知识库建设、对话管理流程等核心模块...',source:'OneDrive/Projects/AI-Customer-Service/',date:'2026-04-02',type:'docx'},{title:'客服系统技术架构设计',snippet:'系统采用微服务架构，包含 NLP 引擎、知识库、对话管理等核心模块，支持多渠道接入和智能路由...',source:'OneDrive/Technical/Architecture/',date:'2026-03-28',type:'pptx'},{title:'竞品分析报告 - 智能客服市场',snippet:'对市场上主流智能客服解决方案的对比分析，包括功能、价格、用户评价等维度...',source:'OneDrive/Research/Market-Analysis/',date:'2026-03-15',type:'pdf'}];
+            let html = '<div style="margin-bottom:15px;padding:10px;background:#f5f5f5;border-radius:8px;"><span style="font-weight:600;color:#667eea;">📄 找到 '+results.length+' 个相关文档</span><span style="font-size:13px;color:#666;margin-left:10px;">搜索词："'+query+'"</span></div>';
+            results.forEach(r => { html += '<div class="result-item"><div class="result-title">📄 '+r.title+'</div><div class="result-snippet">'+r.snippet+'</div><div class="result-meta"><span>📁 '+r.source+'</span><span>📅 '+r.date+'</span><span class="file-type">'+r.type.toUpperCase()+'</span></div></div>'; });
+            searchResults.innerHTML = html;
+            searchBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>

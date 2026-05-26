@@ -1,0 +1,55 @@
+[
+  {
+    "ProjectId": "PRJ-2024-001",
+    "ProjectName": "企业门户系统升级",
+    "Type": "software",
+    "Status": "active",
+    "Priority": "high",
+    "StartDate": "2024-04-01",
+    "EndDate": "2024-08-31",
+    "Progress": 35,
+    "Objectives": "升级现有企业门户系统，提升用户体验和系统性能",
+    "Scope": "包括前端重构、后端优化、数据库升级",
+    "Budget": "500000",
+    "ProjectManager": "张三",
+    "Stakeholders": ["CTO", "IT 总监", "业务部门负责人"],
+    "Deliverables": [
+      "新版门户网站",
+      "API 接口文档",
+      "用户手册",
+      "运维手册"
+    ],
+    "Constraints": [
+      "必须在 Q3 前上线",
+      "预算不超过 50 万",
+      "需要兼容现有系统"
+    ],
+    "RequiredRoles": ["ProjectManager", "TechLead", "Developer", "Designer", "Tester"]
+  },
+  {
+    "ProjectId": "PRJ-2024-002",
+    "ProjectName": "市场营销活动",
+    "Type": "marketing",
+    "Status": "planning",
+    "Priority": "medium",
+    "StartDate": "2024-05-01",
+    "EndDate": "2024-06-30",
+    "Progress": 10,
+    "Objectives": "提升品牌知名度和产品销量",
+    "Scope": "线上广告投放、社交媒体营销、线下活动",
+    "Budget": "200000",
+    "ProjectManager": "钱七",
+    "Stakeholders": ["CMO", "销售总监"],
+    "Deliverables": [
+      "营销方案",
+      "广告素材",
+      "活动报告",
+      "ROI 分析"
+    ],
+    "Constraints": [
+      "预算有限",
+      "时间紧迫"
+    ],
+    "RequiredRoles": ["ProjectManager", "BusinessAnalyst", "Designer"]
+  }
+]

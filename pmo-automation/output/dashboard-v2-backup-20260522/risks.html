@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险预警 — PMO Dashboard</title>
+    <style>
+        :root{
+            --bg-page:#F5F5F7;--bg-card:#FFFFFF;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+            --radius-card:16px;--radius-sm:10px;--radius-pill:20px;
+            --blue:#007AFF;--blue-light:#E5F1FF;
+            --green:#34C759;--green-light:#E8F9ED;
+            --orange:#FF9500;--orange-light:#FFF4E5;
+            --red:#FF3B30;--red-light:#FFEBEA;
+            --gray:#86868B;--gray-light:#F2F2F7;--gray-border:#D2D2D7;
+            --text-primary:#1D1D1F;--text-secondary:#86868B;--text-tertiary:#AEAEB2;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+        .container{max-width:1200px;margin:0 auto;padding:40px 24px;}
+
+        .nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;}
+        .nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+        .nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        .page-header{margin-bottom:28px;}
+        .page-header h1{font-size:32px;font-weight:700;letter-spacing:-0.8px;margin-bottom:4px;}
+        .page-header p{font-size:15px;color:var(--text-secondary);}
+
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .card-title{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+        .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:var(--radius-pill);}
+        .pill-red{background:var(--red-light);color:var(--red);}
+        .pill-orange{background:var(--orange-light);color:var(--orange);}
+        .pill-blue{background:var(--blue-light);color:var(--blue);}
+
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:#0066D6;}
+        .btn-ghost{background:transparent;color:var(--blue);}.btn-ghost:hover{background:var(--blue-light);}
+
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+        .stat-card{background:#FAFAFA;border-radius:12px;padding:20px;border:1.5px solid var(--gray-border);text-align:center;}
+        .stat-value{font-size:32px;font-weight:700;letter-spacing:-0.5px;}
+        .stat-label{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+
+        .risk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px;}
+        .risk-card{
+            border-radius:var(--radius-card);
+            padding:22px;
+            border:1.5px solid;
+            transition:all 0.2s;
+        }
+        .risk-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
+        .risk-card.high{border-color:var(--red);background:var(--red-light);}
+        .risk-card.medium{border-color:var(--orange);background:var(--orange-light);}
+        .risk-card.low{border-color:var(--blue);background:var(--blue-light);}
+
+        .risk-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;}
+        .risk-title{font-size:15px;font-weight:600;color:var(--text-primary);line-height:1.4;}
+        .risk-desc{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;}
+        .risk-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:14px;border-top:1px solid rgba(0,0,0,0.08);}
+        .meta-item{font-size:12px;color:var(--text-secondary);}
+        .meta-item .label{font-size:11px;color:var(--text-tertiary);margin-bottom:1px;}
+        .meta-item .value{font-weight:600;color:var(--text-primary);}
+
+        .filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+        .filter-pill{font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--gray-border);background:white;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;}
+        .filter-pill:hover{border-color:var(--blue);color:var(--blue);}
+        .filter-pill.active{background:var(--blue);color:white;border-color:var(--blue);}
+
+        .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+        @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}.risk-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">P</div>
+            PMO Dashboard
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">概览</a></li>
+            <li><a href="projects.html">项目</a></li>
+            <li><a href="team.html">团队</a></li>
+            <li><a href="risks.html" class="active">风险</a></li>
+            <li><a href="documents.html">文档</a></li>
+            <li><a href="gantt.html">甘特图</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>风险预警中心</h1>
+        <p>识别、评估与跟踪项目风险，制定缓解措施</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">⚠ 风险项</div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-ghost">导出报告</button>
+                <button class="btn btn-primary">+ 记录风险</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" style="color:var(--red);">3</div><div class="stat-label">高风险</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--orange);">5</div><div class="stat-label">中风险</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--blue);">4</div><div class="stat-label">低风险</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--text-primary);">12</div><div class="stat-label">总风险项</div></div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-pill active">全部 (12)</button>
+            <button class="filter-pill">🔴 高风险 (3)</button>
+            <button class="filter-pill">🟠 中风险 (5)</button>
+            <button class="filter-pill">🔵 低风险 (4)</button>
+        </div>
+
+        <div class="risk-grid">
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <div class="risk-title">🔴 资源过载 — 张三</div>
+                    <span class="pill pill-red">高风险</span>
+                </div>
+                <div class="risk-desc">技术负责人当前负载 95%，负责任务 9 个，已超出正常阈值，可能导致任务延期或质量下降。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">AI 智能客服升级</div></div>
+                    <div class="meta-item"><div class="label">发现日期</div><div class="value">2026-04-07</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">张三</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--red);">未处理</div></div>
+                </div>
+            </div>
+
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <div class="risk-title">🔴 任务即将到期 — T005</div>
+                    <span class="pill pill-red">高风险</span>
+                </div>
+                <div class="risk-desc">技术架构设计任务仅剩 2 天到期，当前进度 75%，需加快进度以避免影响后续设计评审和开发。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">AI 智能客服升级</div></div>
+                    <div class="meta-item"><div class="label">截止日期</div><div class="value">2026-04-08</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">张三</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--orange);">进行中</div></div>
+                </div>
+            </div>
+
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <div class="risk-title">🔴 项目延期 — 安全合规审计</div>
+                    <span class="pill pill-red">高风险</span>
+                </div>
+                <div class="risk-desc">PRJ-2026-005 已延期 5 天，当前完成度 68%，需立即采取补救措施。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">PRJ-2026-005</div></div>
+                    <div class="meta-item"><div class="label">延期天数</div><div class="value" style="color:var(--red);">5 天</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">钱七</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--red);">需立即处理</div></div>
+                </div>
+            </div>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <div class="risk-title">🟠 资源冲突 — 数据分析平台</div>
+                    <span class="pill pill-orange">中风险</span>
+                </div>
+                <div class="risk-desc">数据分析平台与 CRM 迁移项目争夺开发资源，可能导致两个项目进度都受影响。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">PRJ-2026-002, 003</div></div>
+                    <div class="meta-item"><div class="label">发现日期</div><div class="value">2026-04-05</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">王五</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--orange);">监控中</div></div>
+                </div>
+            </div>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <div class="risk-title">🟠 技术依赖 — 第三方 API</div>
+                    <span class="pill pill-orange">中风险</span>
+                </div>
+                <div class="risk-desc">AI 客服项目依赖的第三方 NLP API 存在集成不确定性，可能影响开发进度。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">AI 智能客服升级</div></div>
+                    <div class="meta-item"><div class="label">发现日期</div><div class="value">2026-04-03</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">李四</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--orange);">监控中</div></div>
+                </div>
+            </div>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <div class="risk-title">🟠 进度滞后 — API 接口设计</div>
+                    <span class="pill pill-orange">中风险</span>
+                </div>
+                <div class="risk-desc">T007 任务进度仅 40%，截止日期 04-12，剩余 6 天，需加快进度以避免影响后续开发。</div>
+                <div class="risk-meta">
+                    <div class="meta-item"><div class="label">影响项目</div><div class="value">AI 智能客服升级</div></div>
+                    <div class="meta-item"><div class="label">截止日期</div><div class="value">2026-04-12</div></div>
+                    <div class="meta-item"><div class="label">负责人</div><div class="value">张三</div></div>
+                    <div class="meta-item"><div class="label">当前状态</div><div class="value" style="color:var(--orange);">进行中</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">最后更新：2026-04-07 10:56 EDT &nbsp;·&nbsp; 共 12 个风险项</div>
+</div>
+</body>
+</html>

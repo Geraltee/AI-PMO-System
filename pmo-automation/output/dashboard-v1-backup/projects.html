@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目列表 - PMO Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .nav-bar { background: white; padding: 15px 30px; border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 0; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: #f5f5f5; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .content-card { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 30px; margin-bottom: 30px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .card-title { font-size: 24px; font-weight: 600; color: #333; }
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
+        .project-card { background: #f9f9f9; border-radius: 12px; padding: 20px; border-left: 4px solid #667eea; transition: all 0.3s; cursor: pointer; }
+        .project-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .project-card.urgent { border-left-color: #c62828; }
+        .project-card.warning { border-left-color: #f57c00; }
+        .project-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 10px; }
+        .project-meta { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .meta-item { font-size: 13px; color: #666; display: flex; align-items: center; gap: 5px; }
+        .project-progress { margin-top: 15px; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: #666; }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .status-on-track { background: #e8f5e9; color: #388e3c; }
+        .status-at-risk { background: #fff3e0; color: #f57c00; }
+        .status-delayed { background: #ffebee; color: #c62828; }
+        .last-updated { text-align: center; color: rgba(255,255,255,0.8); margin-top: 30px; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="index.html">📊 概览</a>
+                <a href="projects.html" class="active">📁 项目</a>
+                <a href="team.html">👥 团队</a>
+                <a href="risks.html">⚠️ 风险</a>
+                <a href="documents.html">📄 文档</a>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-title">📁 所有项目</div>
+                <div style="display:flex;gap:10px;">
+                    <button style="padding:10px 20px;background:#f5f5f5;border:none;border-radius:8px;cursor:pointer;">🔍 筛选</button>
+                    <button style="padding:10px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;">➕ 新建项目</button>
+                </div>
+            </div>
+            <div class="project-grid">
+                <div class="project-card urgent" onclick="location.href='project-detail.html?id=PRJ-2026-001'">
+                    <div class="project-name">🤖 AI Smart Customer Service Upgrade</div>
+                    <div class="project-meta">
+                        <span class="meta-item">📋 PRJ-2026-001</span>
+                        <span class="meta-item">👤 张三</span>
+                        <span class="meta-item">📅 2026-03-15 ~ 2026-05-31</span>
+                    </div>
+                    <div style="margin-bottom:10px;"><span class="status-badge status-at-risk">🟡 进行中</span></div>
+                    <div class="project-progress">
+                        <div class="progress-label"><span>完成度</span><span>35%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:35%;"></div></div>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;">⚠️ 1 个紧急任务 | 3 个警告任务</div>
+                </div>
+                <div class="project-card" style="border-left-color:#388e3c;">
+                    <div class="project-name">💼 CRM 系统迁移</div>
+                    <div class="project-meta">
+                        <span class="meta-item">📋 PRJ-2026-002</span>
+                        <span class="meta-item">👤 李四</span>
+                        <span class="meta-item">📅 2026-04-01 ~ 2026-06-30</span>
+                    </div>
+                    <div style="margin-bottom:10px;"><span class="status-badge status-on-track">🟢 正常</span></div>
+                    <div class="project-progress">
+                        <div class="progress-label"><span>完成度</span><span>55%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:55%;background:#388e3c;"></div></div>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;">✅ 所有任务正常进行</div>
+                </div>
+                <div class="project-card warning">
+                    <div class="project-name">📊 数据分析平台</div>
+                    <div class="project-meta">
+                        <span class="meta-item">📋 PRJ-2026-003</span>
+                        <span class="meta-item">👤 王五</span>
+                        <span class="meta-item">📅 2026-03-20 ~ 2026-06-15</span>
+                    </div>
+                    <div style="margin-bottom:10px;"><span class="status-badge status-at-risk">🟠 风险</span></div>
+                    <div class="project-progress">
+                        <div class="progress-label"><span>完成度</span><span>42%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:42%;background:#f57c00;"></div></div>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;">⚠️ 资源冲突 | 进度滞后</div>
+                </div>
+                <div class="project-card" style="border-left-color:#388e3c;">
+                    <div class="project-name">📱 移动端应用开发</div>
+                    <div class="project-meta">
+                        <span class="meta-item">📋 PRJ-2026-004</span>
+                        <span class="meta-item">👤 赵六</span>
+                        <span class="meta-item">📅 2026-04-10 ~ 2026-07-10</span>
+                    </div>
+                    <div style="margin-bottom:10px;"><span class="status-badge status-on-track">🟢 正常</span></div>
+                    <div class="project-progress">
+                        <div class="progress-label"><span>完成度</span><span>20%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:20%;background:#388e3c;"></div></div>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;">✅ 所有任务正常进行</div>
+                </div>
+                <div class="project-card" style="border-left-color:#c62828;">
+                    <div class="project-name">🔒 安全合规审计</div>
+                    <div class="project-meta">
+                        <span class="meta-item">📋 PRJ-2026-005</span>
+                        <span class="meta-item">👤 钱七</span>
+                        <span class="meta-item">📅 2026-03-01 ~ 2026-04-30</span>
+                    </div>
+                    <div style="margin-bottom:10px;"><span class="status-badge status-delayed">🔴 延期</span></div>
+                    <div class="project-progress">
+                        <div class="progress-label"><span>完成度</span><span>68%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:68%;background:#c62828;"></div></div>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;">🔴 已延期 5 天 | 需立即处理</div>
+                </div>
+            </div>
+        </div>
+        <div class="last-updated"><p>最后更新：2026-04-07 10:56 EDT | 共 5 个项目</p></div>
+    </div>
+</body>
+</html>

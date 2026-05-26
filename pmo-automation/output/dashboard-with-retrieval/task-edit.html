@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑任务 — PMO Dashboard</title>
+    <style>
+        :root{
+            --bg-page:#F5F5F7;--bg-card:#FFFFFF;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+            --radius-card:16px;--radius-sm:10px;--radius-pill:20px;
+            --blue:#007AFF;--blue-light:#E5F1FF;
+            --green:#34C759;--green-light:#E8F9ED;
+            --orange:#FF9500;--orange-light:#FFF4E5;
+            --red:#FF3B30;--red-light:#FFEBEA;
+            --gray:#86868B;--gray-light:#F2F2F7;--gray-border:#D2D2D7;
+            --text-primary:#1D1D1F;--text-secondary:#86868B;--text-tertiary:#AEAEB2;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+        .container{max-width:800px;margin:0 auto;padding:40px 24px;}
+
+        .nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;}
+        .nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+        .nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        .page-header{margin-bottom:28px;}
+        .page-header h1{font-size:28px;font-weight:700;color:var(--text-primary);letter-spacing:-0.6px;margin-bottom:4px;}
+        .page-header p{font-size:15px;color:var(--text-secondary);}
+
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .card-title{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+        .form-group{margin-bottom:20px;}
+        .form-label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+        .form-input, .form-select{
+            width:100%;padding:10px 14px;border:1.5px solid var(--gray-border);border-radius:var(--radius-sm);
+            font-size:14px;font-family:inherit;color:var(--text-primary);background:#FAFAFA;transition:all 0.2s;
+        }
+        .form-input:focus, .form-select:focus{outline:none;border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(0,122,255,0.1);}
+        textarea.form-input{resize:vertical;min-height:80px;}
+
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+
+        .range-wrap{display:flex;align-items:center;gap:12px;}
+        input[type="range"]{flex:1;}
+        .range-value{font-size:14px;font-weight:600;color:var(--blue);min-width:40px;text-align:right;}
+
+        .btn-bar{display:flex;gap:10px;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--gray-border);flex-wrap:wrap;}
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;padding:8px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:#0066D6;}
+        .btn-ghost{background:transparent;color:var(--blue);}.btn-ghost:hover{background:var(--blue-light);}
+        .btn-danger{background:var(--red-light);color:var(--red);}.btn-danger:hover{background:var(--red);color:white;}
+        .btn-secondary{background:var(--gray-light);color:var(--text-secondary);}.btn-secondary:hover{background:var(--gray-border);}
+
+        .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:var(--radius-pill);}
+        .pill-blue{background:var(--blue-light);color:var(--blue);}
+        .pill-green{background:var(--green-light);color:var(--green);}
+        .pill-orange{background:var(--orange-light);color:var(--orange);}
+        .pill-red{background:var(--red-light);color:var(--red);}
+
+        .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+
+        /* 空状态 / 错误 */
+        .empty-state{text-align:center;padding:60px 20px;color:var(--text-tertiary);}
+        .empty-state .icon{font-size:48px;margin-bottom:16px;}
+        .empty-state .title{font-size:17px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;}
+        .empty-state a{color:var(--blue);text-decoration:none;}
+
+        /* ─── 共享备注 ─── */
+        .notes-section{margin-top:24px;}
+        .notes-section .card{margin-bottom:16px;}
+        .note-item{
+            padding:16px;margin-bottom:12px;border:1px solid var(--gray-border);border-radius:12px;
+            background:var(--bg-page);transition:all 0.2s;
+        }
+        .note-item:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(0,122,255,0.08);}
+        .note-item:last-child{margin-bottom:0;}
+        .note-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .note-author{display:flex;align-items:center;gap:8px;}
+        .note-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600;}
+        .note-meta{font-size:12px;color:var(--text-tertiary);}
+        .note-body{font-size:14px;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;word-break:break-word;}
+        .note-perm{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--text-tertiary);}
+        .note-actions{display:flex;gap:4px;}
+        .note-actions button{font-size:12px;padding:3px 8px;border:none;border-radius:6px;cursor:pointer;background:transparent;color:var(--text-tertiary);transition:all 0.15s;}
+        .note-actions button:hover{background:var(--gray-light);color:var(--text-primary);}
+
+        /* 权限选择器 */
+        .perm-selector{margin-top:12px;padding:14px;background:var(--gray-light);border-radius:var(--radius-sm);}
+        .perm-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .perm-row:last-child{margin-bottom:0;}
+        .perm-label{font-size:13px;font-weight:500;color:var(--text-secondary);}
+        .perm-chips{display:flex;flex-wrap:wrap;gap:6px;}
+        .perm-chip{
+            display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:4px 10px;
+            border-radius:16px;border:1.5px solid var(--gray-border);background:white;cursor:pointer;
+            transition:all 0.15s;user-select:none;
+        }
+        .perm-chip.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+        .perm-chip .chip-close{font-size:14px;line-height:1;opacity:0.6;margin-left:2px;}
+        .perm-chip .chip-close:hover{opacity:1;}
+
+        .new-note-area{display:none;}
+        .new-note-area.show{display:block;}
+        .new-note-area textarea{min-height:100px;margin-bottom:12px;}
+
+        .notes-empty{text-align:center;padding:32px 16px;color:var(--text-tertiary);font-size:14px;}
+        .notes-empty .icon{font-size:32px;margin-bottom:8px;opacity:0.5;}
+
+        /* 弹窗遮罩 */
+        .modal-overlay{
+            display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.3);z-index:100;align-items:center;justify-content:center;
+            backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+        }
+        .modal-overlay.show{display:flex;}
+        .modal{
+            background:var(--bg-card);border-radius:var(--radius-card);padding:28px;
+            width:90%;max-width:480px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-hover);
+        }
+        .modal-title{font-size:17px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+        .modal-close{background:none;border:none;font-size:20px;color:var(--text-tertiary);cursor:pointer;padding:4px;}
+        .modal-close:hover{color:var(--text-primary);}
+        .modal .btn-bar{margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-border);}
+
+        .member-check-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;}
+        .member-check-item{
+            display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
+            border:1.5px solid var(--gray-border);cursor:pointer;transition:all 0.15s;user-select:none;
+        }
+        .member-check-item:hover{border-color:var(--blue);}
+        .member-check-item.checked{border-color:var(--blue);background:var(--blue-light);}
+        .member-check-item input[type="checkbox"]{display:none;}
+        .member-check-item .check-icon{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray-border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.15s;flex-shrink:0;}
+        .member-check-item.checked .check-icon{background:var(--blue);border-color:var(--blue);color:white;}
+        .member-check-item .member-name{font-size:14px;font-weight:500;}
+        .member-check-item .member-role{font-size:12px;color:var(--text-tertiary);}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">P</div>
+            PMO Dashboard
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">概览</a></li>
+            <li><a href="projects.html">项目</a></li>
+            <li><a href="team.html">团队</a></li>
+            <li><a href="documents.html">文档</a></li>
+            <li><a href="gantt.html">甘特图</a></li>
+            <li><a href="personal.html">个人</a></li>
+        </ul>
+    </nav>
+
+    <div id="contentArea">
+        <!-- 动态渲染 -->
+    </div>
+
+    <div class="footer">PMO Dashboard &nbsp;·&nbsp; 任务编辑器</div>
+</div>
+
+<script src="js/data-store.js"></script>
+<script>
+// ─── 解析 URL 参数 ───
+const params = new URLSearchParams(location.search);
+const projectId = params.get('projectId');
+const taskId    = params.get('taskId');
+const content   = document.getElementById('contentArea');
+
+if (!projectId || !taskId) {
+    content.innerHTML = `
+        <div class="empty-state">
+            <div class="icon">⚠️</div>
+            <div class="title">缺少参数</div>
+            <div class="desc">需要提供 projectId 和 taskId</div>
+            <a href="projects.html">返回项目列表 →</a>
+        </div>`;
+    throw new Error('Missing params');
+}
+
+// ─── 加载数据 ───
+const project = PMOData.getById(projectId);
+if (!project) {
+    content.innerHTML = `
+        <div class="empty-state">
+            <div class="icon">📁</div>
+            <div class="title">项目未找到</div>
+            <div class="desc">ID: ${projectId}</div>
+            <a href="projects.html">返回项目列表 →</a>
+        </div>`;
+    throw new Error('Project not found');
+}
+
+const taskIndex = (project.tasks || []).findIndex(t => t.id === taskId);
+if (taskIndex === -1) {
+    content.innerHTML = `
+        <div class="empty-state">
+            <div class="icon">📝</div>
+            <div class="title">任务未找到</div>
+            <div class="desc">项目: ${project.projectName}<br>任务 ID: ${taskId}</div>
+            <a href="project-detail.html?id=${projectId}">返回项目详情 →</a>
+        </div>`;
+    throw new Error('Task not found');
+}
+
+const task = project.tasks[taskIndex];
+
+// ─── 渲染表单 ───
+content.innerHTML = `
+    <div class="page-header">
+        <h1>✏️ 编辑任务</h1>
+        <p>${project.projectName} · <span class="pill pill-blue">${task.id}</span></p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">📝 任务信息</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">任务名称</label>
+            <input type="text" class="form-input" id="fName" value="${esc(task.name || '')}">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">所属阶段</label>
+                <input type="text" class="form-input" id="fPhase" value="${esc(task.phase || '')}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">负责人</label>
+                <input type="text" class="form-input" id="fAssignee" value="${esc(task.assignee || '')}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">开始日期</label>
+                <input type="date" class="form-input" id="fStart" value="${task.startDate || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">结束日期</label>
+                <input type="date" class="form-input" id="fEnd" value="${task.endDate || ''}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">优先级</label>
+                <select class="form-select" id="fPriority">
+                    <option value="高" ${task.priority==='高'?'selected':''}>高</option>
+                    <option value="中" ${task.priority==='中'?'selected':''}>中</option>
+                    <option value="低" ${task.priority==='低'?'selected':''}>低</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态</label>
+                <select class="form-select" id="fStatus">
+                    <option value="未开始" ${task.status==='未开始'?'selected':''}>未开始</option>
+                    <option value="进行中" ${task.status==='进行中'?'selected':''}>进行中</option>
+                    <option value="已完成" ${task.status==='已完成'?'selected':''}>已完成</option>
+                    <option value="有风险" ${task.status==='有风险'?'selected':''}>有风险</option>
+                    <option value="已延期" ${task.status==='已延期'?'selected':''}>已延期</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">进度 (${task.progress || 0}%)</label>
+            <div class="range-wrap">
+                <input type="range" id="fProgress" min="0" max="100" value="${task.progress || 0}"
+                    oninput="document.getElementById('progVal').textContent=this.value+'%'">
+                <span class="range-value" id="progVal">${task.progress || 0}%</span>
+            </div>
+        </div>
+
+        <div class="btn-bar">
+            <button class="btn btn-secondary" onclick="goBack()">↩ 取消</button>
+            <button class="btn btn-danger" onclick="deleteTask()">🗑 删除任务</button>
+            <button class="btn btn-primary" onclick="saveTask()">💾 保存修改</button>
+        </div>
+    </div>
+
+    <!-- ═══ 共享备注 ═══ -->
+    <div class="notes-section" id="notesSection">
+        <!-- 由 JS 动态渲染 -->
+    </div>
+
+    <!-- ═══ 成员选择弹窗 ═══ -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal">
+            <div class="modal-title">
+                选择共享成员
+                <button class="modal-close" onclick="closeMemberModal()">&times;</button>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">选择可以查看此备注的团队成员</p>
+            <div class="member-check-list" id="memberCheckList"></div>
+            <div style="margin-top:16px;">
+                <div class="perm-row">
+                    <span class="perm-label">编辑权限</span>
+                    <select class="form-select" id="editPermSelect" style="width:auto;padding:6px 12px;font-size:13px;">
+                        <option value="view">仅查看</option>
+                        <option value="comment">可评论</option>
+                        <option value="edit">可编辑</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-bar">
+                <button class="btn btn-secondary" onclick="closeMemberModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmMemberSelect()">确认选择</button>
+            </div>
+        </div>
+    </div>
+`;
+
+// ─── 工具函数 ───
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function goBack(){ location.href = 'project-detail.html?id=' + encodeURIComponent(projectId); }
+
+// ─── 共享备注模块 ───
+const NOTES_KEY = 'pmo_shared_notes';
+const CUR_USER_KEY = 'pmo_current_user';
+
+// 头像颜色生成
+function avatarColor(name) {
+    const colors = ['#007AFF','#34C759','#FF9500','#FF3B30','#AF52DE','#5856D6','#FF2D55','#00C7BE','#64D2FF','#FFD60A'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+}
+
+// 获取所有团队成员（从所有项目的 assignee 聚合）
+function getAllMembers() {
+    const projects = PMOData.getAll();
+    const map = {};
+    projects.forEach(p => (p.tasks || []).forEach(t => {
+        if (t.assignee && !map[t.assignee]) map[t.assignee] = t.assignee;
+    }));
+    return Object.keys(map);
+}
+
+// 获取当前用户
+function getCurrentUser() {
+    return localStorage.getItem(CUR_USER_KEY) || '';
+}
+
+// 读取备注
+function readNotes() {
+    try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]'); } catch { return []; }
+}
+
+// 保存备注
+function saveNotes(notes) {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+
+// 获取当前任务相关的备注
+function getTaskNotes() {
+    const all = readNotes();
+    return all.filter(n => n.projectId === projectId && n.taskId === taskId);
+}
+
+// 权限类型标签
+function permLabel(type) {
+    const map = { all: '所有人可见', selected: '指定成员', private: '仅自己可见' };
+    return map[type] || type;
+}
+function permPill(type) {
+    const map = { all: 'pill-green', selected: 'pill-blue', private: 'pill-orange' };
+    return map[type] || 'pill-blue';
+}
+function editPermLabel(perm) {
+    const map = { view: '仅查看', comment: '可评论', edit: '可编辑' };
+    return map[perm] || perm;
+}
+
+// 检查当前用户是否有权限查看
+function canView(note) {
+    const me = getCurrentUser();
+    if (!me) return true; // 未登录时都能看到
+    if (note.author === me) return true;
+    if (note.permissions.type === 'all') return true;
+    if (note.permissions.type === 'selected') return (note.permissions.viewers || []).includes(me);
+    if (note.permissions.type === 'private') return false;
+    return true;
+}
+
+// 检查当前用户是否可编辑
+function canEdit(note) {
+    const me = getCurrentUser();
+    if (note.author === me) return true;
+    if (!me) return false;
+    const ep = note.permissions.editPerm || 'view';
+    if (ep === 'edit') return (note.permissions.viewers || []).includes(me);
+    return false;
+}
+
+// 检查当前用户是否可评论
+function canComment(note) {
+    const me = getCurrentUser();
+    if (note.author === me) return true;
+    if (!me) return false;
+    const ep = note.permissions.editPerm || 'view';
+    if (ep === 'comment' || ep === 'edit') return (note.permissions.viewers || []).includes(me);
+    return false;
+}
+
+// ─── 成员选择弹窗 ───
+let pendingNoteViewers = [];
+let pendingEditPerm = 'view';
+
+function openMemberModal(viewers, editPerm) {
+    pendingNoteViewers = [...(viewers || [])];
+    pendingEditPerm = editPerm || 'view';
+    const list = document.getElementById('memberCheckList');
+    const members = getAllMembers();
+    const me = getCurrentUser();
+
+    if (members.length === 0 && !me) {
+        list.innerHTML = '<div class="notes-empty"><div class="icon">👥</div><div>暂无团队成员，请先在项目中添加任务和负责人</div></div>';
+    } else {
+        // 合并当前用户和成员列表
+        const allPeople = [...new Set([me, ...members].filter(Boolean))];
+        list.innerHTML = allPeople.map(m => {
+            const checked = pendingNoteViewers.includes(m);
+            return `
+                <div class="member-check-item ${checked ? 'checked' : ''}" data-member="${esc(m)}" onclick="toggleMemberCheck(this,'${esc(m)}')">
+                    <input type="checkbox" ${checked ? 'checked' : ''}>
+                    <div class="check-icon">${checked ? '✓' : ''}</div>
+                    <div>
+                        <div class="member-name">${esc(m)}</div>
+                        ${m === me ? '<div class="member-role">我</div>' : '<div class="member-role">团队成员</div>'}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    document.getElementById('editPermSelect').value = pendingEditPerm;
+    document.getElementById('memberModal').classList.add('show');
+}
+
+function closeMemberModal() {
+    document.getElementById('memberModal').classList.remove('show');
+}
+
+function toggleMemberCheck(el, name) {
+    el.classList.toggle('checked');
+    const icon = el.querySelector('.check-icon');
+    const cb = el.querySelector('input[type="checkbox"]');
+    if (el.classList.contains('checked')) {
+        if (!pendingNoteViewers.includes(name)) pendingNoteViewers.push(name);
+        icon.textContent = '✓';
+        cb.checked = true;
+    } else {
+        pendingNoteViewers = pendingNoteViewers.filter(n => n !== name);
+        icon.textContent = '';
+        cb.checked = false;
+    }
+}
+
+function confirmMemberSelect() {
+    pendingEditPerm = document.getElementById('editPermSelect').value;
+    // 更新可见成员 chips 显示
+    updateViewerChips();
+    closeMemberModal();
+}
+
+function updateViewerChips() {
+    const chips = document.getElementById('viewerChips');
+    if (!chips) return;
+    if (pendingNoteViewers.length === 0) {
+        chips.innerHTML = '<span style="font-size:12px;color:var(--text-tertiary);">未选择成员</span>';
+    } else {
+        chips.innerHTML = pendingNoteViewers.map(m =>
+            `<span class="perm-chip active" data-member="${esc(m)}">
+                <span class="note-avatar" style="width:16px;height:16px;font-size:9px;background:${avatarColor(m)}">${esc(m.charAt(0))}</span>
+                ${esc(m)}
+                <span class="chip-close" onclick="event.stopPropagation();removeViewer('${esc(m)}')">&times;</span>
+            </span>`
+        ).join('');
+    }
+}
+
+function removeViewer(name) {
+    pendingNoteViewers = pendingNoteViewers.filter(n => n !== name);
+    updateViewerChips();
+}
+
+// ─── 备注编辑表单 ───
+function toggleNewNote() {
+    const area = document.getElementById('newNoteArea');
+    area.classList.toggle('show');
+    if (area.classList.contains('show')) {
+        document.getElementById('noteContent').focus();
+    }
+}
+
+function cancelNote() {
+    document.getElementById('newNoteArea').classList.remove('show');
+    document.getElementById('noteContent').value = '';
+    pendingNoteViewers = [];
+}
+
+function submitNote() {
+    const content = document.getElementById('noteContent').value.trim();
+    if (!content) { alert('请输入备注内容'); return; }
+
+    const me = getCurrentUser();
+    const author = me || '匿名用户';
+
+    const note = {
+        id: 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        projectId: projectId,
+        taskId: taskId,
+        taskName: task.name,
+        author: author,
+        content: content,
+        permissions: {
+            type: pendingNoteViewers.length > 0 ? 'selected' : 'all',
+            viewers: pendingNoteViewers,
+            editPerm: pendingEditPerm,
+        },
+        comments: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+
+    const all = readNotes();
+    all.unshift(note);
+    saveNotes(all);
+
+    document.getElementById('noteContent').value = '';
+    pendingNoteViewers = [];
+    document.getElementById('newNoteArea').classList.remove('show');
+    renderNotes();
+}
+
+// ─── 编辑已有备注 ───
+function editNote(noteId) {
+    const all = readNotes();
+    const note = all.find(n => n.id === noteId);
+    if (!note) return;
+    const newContent = prompt('编辑备注内容：', note.content);
+    if (newContent === null) return;
+    note.content = newContent.trim();
+    note.updatedAt = new Date().toISOString();
+    saveNotes(all);
+    renderNotes();
+}
+
+// ─── 删除备注 ───
+function deleteNote(noteId) {
+    if (!confirm('确定删除此备注？')) return;
+    const all = readNotes().filter(n => n.id !== noteId);
+    saveNotes(all);
+    renderNotes();
+}
+
+// ─── 评论 ───
+function addComment(noteId) {
+    const input = document.getElementById('commentInput_' + noteId);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    const me = getCurrentUser() || '匿名用户';
+
+    const all = readNotes();
+    const note = all.find(n => n.id === noteId);
+    if (!note) return;
+    note.comments.push({
+        id: 'cmt_' + Date.now(),
+        author: me,
+        content: text,
+        createdAt: new Date().toISOString(),
+    });
+    note.updatedAt = new Date().toISOString();
+    saveNotes(all);
+    input.value = '';
+    renderNotes();
+}
+
+function toggleCommentBox(noteId) {
+    const box = document.getElementById('commentBox_' + noteId);
+    if (box) box.classList.toggle('show');
+}
+
+// ─── 修改权限 ───
+function changePerm(noteId) {
+    const all = readNotes();
+    const note = all.find(n => n.id === noteId);
+    if (!note) return;
+    openMemberModal(note.permissions.viewers || [], note.permissions.editPerm || 'view');
+    // 覆盖确认回调
+    window._permChangeNoteId = noteId;
+    // 重写 confirmMemberSelect 临时行为
+    const origConfirm = window.confirmMemberSelect;
+    window.confirmMemberSelect = function() {
+        origConfirm();
+        const n2 = readNotes().find(n => n.id === window._permChangeNoteId);
+        if (n2) {
+            n2.permissions.type = pendingNoteViewers.length > 0 ? 'selected' : 'all';
+            n2.permissions.viewers = pendingNoteViewers;
+            n2.permissions.editPerm = pendingEditPerm;
+            n2.updatedAt = new Date().toISOString();
+            saveNotes(readNotes().map(n => n.id === n2.id ? n2 : n));
+            renderNotes();
+        }
+        window.confirmMemberSelect = origConfirm;
+    };
+}
+
+// ─── 时间格式化 ───
+function timeAgo(isoStr) {
+    const d = new Date(isoStr);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+    if (diffMin < 1) return '刚刚';
+    if (diffMin < 60) return diffMin + ' 分钟前';
+    if (diffHr < 24) return diffHr + ' 小时前';
+    if (diffDay < 7) return diffDay + ' 天前';
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ─── 渲染备注区域 ───
+function renderNotes() {
+    const section = document.getElementById('notesSection');
+    const notes = getTaskNotes();
+    const me = getCurrentUser();
+    const members = getAllMembers();
+
+    // 筛选当前用户可见的
+    const visibleNotes = notes.filter(n => canView(n));
+
+    section.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📋 共享备注 <span style="font-size:13px;color:var(--text-tertiary);font-weight:400;">(${visibleNotes.length})</span></div>
+                <button class="btn btn-primary" onclick="toggleNewNote()" style="padding:6px 14px;font-size:13px;">+ 新增备注</button>
+            </div>
+
+            <!-- 新增备注表单 -->
+            <div class="new-note-area" id="newNoteArea">
+                <textarea class="form-input" id="noteContent" placeholder="输入备注内容，支持多行文本..."></textarea>
+                <div class="perm-selector">
+                    <div class="perm-row">
+                        <span class="perm-label">👥 可见范围</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <div id="viewerChips">
+                                <span style="font-size:12px;color:var(--text-tertiary);">点击右侧选择成员</span>
+                            </div>
+                            <button class="btn btn-ghost" onclick="openMemberModal()" style="padding:4px 10px;font-size:12px;">选择成员</button>
+                        </div>
+                    </div>
+                    <div class="perm-row">
+                        <span class="perm-label">🔒 编辑权限</span>
+                        <select class="form-select" id="newNoteEditPerm" style="width:auto;padding:6px 12px;font-size:13px;">
+                            <option value="view">仅查看</option>
+                            <option value="comment">可评论</option>
+                            <option value="edit">可编辑</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+                    <button class="btn btn-secondary" onclick="cancelNote()" style="padding:6px 14px;font-size:13px;">取消</button>
+                    <button class="btn btn-primary" onclick="submitNote()" style="padding:6px 14px;font-size:13px;">发布备注</button>
+                </div>
+            </div>
+
+            <!-- 备注列表 -->
+            <div id="notesList">
+                ${visibleNotes.length === 0 ? `
+                    <div class="notes-empty">
+                        <div class="icon">💬</div>
+                        <div>暂无共享备注</div>
+                        <div style="font-size:12px;margin-top:4px;">点击上方"新增备注"添加第一条</div>
+                    </div>
+                ` : visibleNotes.map(n => `
+                    <div class="note-item">
+                        <div class="note-header">
+                            <div class="note-author">
+                                <div class="note-avatar" style="background:${avatarColor(n.author)}">${esc(n.author.charAt(0))}</div>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;">${esc(n.author)}</div>
+                                    <div class="note-meta">${timeAgo(n.createdAt)}${n.updatedAt !== n.createdAt ? ' · 已编辑' : ''}</div>
+                                </div>
+                            </div>
+                            <div class="note-actions">
+                                ${canEdit(n) ? `<button onclick="editNote('${n.id}')" title="编辑">✏️</button>` : ''}
+                                ${n.author === me ? `<button onclick="deleteNote('${n.id}')" title="删除">🗑</button>` : ''}
+                                ${n.author === me ? `<button onclick="changePerm('${n.id}')" title="权限设置">🔒</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="note-body">${esc(n.content)}</div>
+                        <div class="note-perm">
+                            <span class="pill ${permPill(n.permissions.type)}">${permLabel(n.permissions.type)}</span>
+                            <span>${editPermLabel(n.permissions.editPerm || 'view')}</span>
+                            ${n.permissions.type === 'selected' ? '<span>· ' + (n.permissions.viewers || []).join('、') + '</span>' : ''}
+                        </div>
+
+                        <!-- 评论区 -->
+                        ${(n.comments || []).length > 0 ? `
+                            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border);">
+                                ${(n.comments || []).map(c => `
+                                    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:13px;">
+                                        <div class="note-avatar" style="background:${avatarColor(c.author)};width:22px;height:22px;font-size:10px;flex-shrink:0;">${esc(c.author.charAt(0))}</div>
+                                        <div>
+                                            <span style="font-weight:600;">${esc(c.author)}</span>
+                                            <span style="color:var(--text-tertiary);font-size:11px;"> ${timeAgo(c.createdAt)}</span>
+                                            <div style="color:var(--text-primary);line-height:1.5;">${esc(c.content)}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${canComment(n) || canEdit(n) ? `
+                            <div style="margin-top:10px;">
+                                <button class="btn btn-ghost" onclick="toggleCommentBox('${n.id}')" style="padding:2px 8px;font-size:12px;">💬 评论</button>
+                                <div id="commentBox_${n.id}" style="display:none;margin-top:8px;">
+                                    <div style="display:flex;gap:8px;">
+                                        <input type="text" class="form-input" id="commentInput_${n.id}" placeholder="输入评论..." style="flex:1;padding:6px 12px;font-size:13px;">
+                                        <button class="btn btn-primary" onclick="addComment('${n.id}')" style="padding:6px 12px;font-size:13px;">发送</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// 监听 newNoteEditPerm 变化
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'newNoteEditPerm') {
+        pendingEditPerm = e.target.value;
+    }
+});
+
+// 页面加载后渲染备注
+renderNotes();
+
+function saveTask(){
+    let status    = document.getElementById('fStatus').value;
+    let progress  = parseInt(document.getElementById('fProgress').value) || 0;
+
+    // ─── 状态-进度联动 ───
+    if (progress === 100 && status !== '已完成') {
+        status = '已完成';
+    } else if (status === '已完成' && progress !== 100) {
+        progress = 100;
+    }
+
+    const updated = {
+        ...task,
+        name:      document.getElementById('fName').value.trim() || task.name,
+        phase:     document.getElementById('fPhase').value.trim(),
+        assignee:  document.getElementById('fAssignee').value.trim(),
+        startDate: document.getElementById('fStart').value,
+        endDate:   document.getElementById('fEnd').value,
+        priority:  document.getElementById('fPriority').value,
+        status:    status,
+        progress:  progress,
+    };
+
+    // 替换任务
+    const newTasks = [...project.tasks];
+    newTasks[taskIndex] = updated;
+
+    // ─── 自动重新生成团队数据（从所有 assignee 去重推导）───
+    const memberMap = {};
+    newTasks.forEach(t => {
+        if (!t.assignee) return;
+        if (!memberMap[t.assignee]) {
+            memberMap[t.assignee] = { name: t.assignee, role: '成员', load: 0, desc: '', count: 0 };
+        }
+        memberMap[t.assignee].count++;
+        // 简单负载：每人任务数占总任务数的比例 × 100
+        memberMap[t.assignee].load = Math.min(100, Math.round((memberMap[t.assignee].count / newTasks.length) * 100));
+    });
+    const derivedTeam = Object.values(memberMap).map(m => ({
+        name: m.name, role: m.role, load: m.load, desc: m.desc, count: m.count
+    }));
+
+    // 更新项目（任务 + 团队 + 进度）
+    PMOData.update(projectId, {
+        tasks: newTasks,
+        team:  derivedTeam,
+    });
+
+    // 刷新项目整体进度
+    const totalProg = newTasks.length ? Math.round(newTasks.reduce((s,t)=>s+(t.progress||0),0) / newTasks.length) : 0;
+    PMOData.update(projectId, { progress: totalProg });
+
+    alert('✅ 任务已保存');
+    goBack();
+}
+
+function deleteTask(){
+    if(!confirm('确定要删除此任务吗？此操作不可撤销。')) return;
+    const newTasks = project.tasks.filter((_,i) => i !== taskIndex);
+    PMOData.update(projectId, { tasks: newTasks });
+    alert('🗑 任务已删除');
+    goBack();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "ProjectRoot": "C:\\Users\\Administrator\\.openclaw\\workspace\\pmo-automation",
+  "OutputPath": ".\\output",
+  "DataPath": ".\\data",
+  "EmailEnabled": true,
+  "DashboardRefreshInterval": 3600,
+  "ReminderSettings": {
+    "OverdueAlertDays": 1,
+    "UpcomingAlertDays": 3,
+    "DailyReminderTime": "09:00",
+    "WeeklySummaryDay": "Monday",
+    "WeeklySummaryTime": "08:00"
+  },
+  "NotificationChannels": {
+    "Email": true,
+    "OpenClawMessage": true,
+    "Webhook": false
+  },
+  "WBSDefaultTemplate": "General",
+  "SOPTemplates": [
+    "ProjectKickoff",
+    "ChangeManagement",
+    "QualityControl",
+    "RiskManagement"
+  ],
+  "RoleAssignment": {
+    "MinMatchScore": 30,
+    "MaxTasksPerPerson": 5
+  }
+}

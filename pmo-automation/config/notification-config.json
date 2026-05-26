@@ -1,0 +1,7 @@
+{
+  "feishu": {
+    "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/9879f1d0-e6bf-4e2a-939a-a6e39c7af379",
+    "secret": "",
+    "keyword": "我是小P"
+  }
+}

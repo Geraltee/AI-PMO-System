@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目详情 - AI Smart Customer Service Upgrade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .project-header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .project-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .status-on-track { background: #e8f5e9; color: #388e3c; }
+        .status-at-risk { background: #fff3e0; color: #f57c00; }
+        .status-delayed { background: #ffebee; color: #c62828; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .task-item.urgent {
+            border-left-color: #c62828;
+            background: #ffebee;
+        }
+
+        .task-item.warning {
+            border-left-color: #f57c00;
+            background: #fff3e0;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .task-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .task-deadline {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.high { background: #388e3c; }
+        .progress-fill.medium { background: #f57c00; }
+        .progress-fill.low { background: #c62828; }
+
+        .team-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .member-role {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .member-load {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .load-high { color: #c62828; }
+        .load-medium { color: #f57c00; }
+        .load-low { color: #388e3c; }
+
+        .milestone-list {
+            list-style: none;
+        }
+
+        .milestone-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .milestone-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+
+        .milestone-item.completed::before {
+            background: #388e3c;
+        }
+
+        .milestone-item.current::before {
+            background: #f57c00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .milestone-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .milestone-date {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .risk-list {
+            list-style: none;
+        }
+
+        .risk-item {
+            padding: 15px;
+            background: #fff3e0;
+            border-left: 4px solid #f57c00;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .risk-item.high {
+            background: #ffebee;
+            border-left-color: #c62828;
+        }
+
+        .risk-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .risk-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .documents-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .doc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .doc-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .doc-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .doc-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .doc-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .doc-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .file-type {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .project-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.history.back()">
+            ← 返回 Dashboard
+        </button>
+
+        <div class="project-header">
+            <h1 class="project-title">🤖 AI Smart Customer Service Upgrade</h1>
+            <div class="project-meta">
+                <div class="meta-item">
+                    <span>📋</span>
+                    <span>项目 ID: PRJ-2026-001</span>
+                </div>
+                <div class="meta-item">
+                    <span>👤</span>
+                    <span>项目经理：张三</span>
+                </div>
+                <div class="meta-item">
+                    <span>📅</span>
+                    <span>开始日期：2026-03-15</span>
+                </div>
+                <div class="meta-item">
+                    <span>🎯</span>
+                    <span>结束日期：2026-05-31</span>
+                </div>
+                <div class="meta-item status-badge status-at-risk">
+                    🟡 进行中
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- 项目概览 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📊 项目概览</div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #666;">整体完成度</span>
+                        <span style="font-weight: 700; color: #667eea; font-size: 18px;">35%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 35%;"></div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #388e3c;">4</div>
+                        <div style="font-size: 13px; color: #666;">已完成</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #fff3e0; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #f57c00;">5</div>
+                        <div style="font-size: 13px; color: #666;">进行中</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #1976d2;">9</div>
+                        <div style="font-size: 13px; color: #666;">未开始</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f3e5f5; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #7b1fa2;">18</div>
+                        <div style="font-size: 13px; color: #666;">总任务</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 即将到期任务 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">⏰ 即将到期任务</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item urgent" onclick="alert('任务详情：技术架构设计\n负责人：张三\n截止：2026-04-08\n进度：75%\n\n需要立即优先处理！')">
+                        <div class="task-header">
+                            <span class="task-name">🔴 T005 技术架构设计</span>
+                            <span class="task-deadline">2 天后</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>👤 张三</span>
+                            <span>📊 进度：75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill medium" style="width: 75%;"></div>
+                        </div>
+                    </li>
+                    <li class="task-item warning" onclick="alert('任务详情：数据库设计\n负责人：张三\n截止：2026-04-10\n进度：60%')">
+                        <div class="task-header">
+                            <span class="task-name">🟡 T006 数据库设计</span>
+                            <span class="task-deadline">4 天后</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>👤 张三</span>
+                            <span>📊 进度：60%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill medium" style="width: 60%;"></div>
+                        </div>
+                    </li>
+                    <li class="task-item warning" onclick="alert('任务详情：UI/UX 设计\n负责人：李四\n截止：2026-04-10\n进度：70%')">
+                        <div class="task-header">
+                            <span class="task-name">🟡 T008 UI/UX 设计</span>
+                            <span class="task-deadline">4 天后</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>👤 李四</span>
+                            <span>📊 进度：70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill medium" style="width: 70%;"></div>
+                        </div>
+                    </li>
+                    <li class="task-item warning" onclick="alert('任务详情：API 接口设计\n负责人：张三\n截止：2026-04-12\n进度：40%')">
+                        <div class="task-header">
+                            <span class="task-name">🟡 T007 API 接口设计</span>
+                            <span class="task-deadline">6 天后</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>👤 张三</span>
+                            <span>📊 进度：40%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill low" style="width: 40%;"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 团队成员 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">👥 团队成员</div>
+                </div>
+                <div class="team-list">
+                    <div class="team-member">
+                        <div class="avatar">张</div>
+                        <div class="member-info">
+                            <div class="member-name">张三</div>
+                            <div class="member-role">技术负责人 | 负责任务：9 个</div>
+                        </div>
+                        <div class="member-load load-high" title="负载过高">95% 🔴</div>
+                    </div>
+                    <div class="team-member">
+                        <div class="avatar">李</div>
+                        <div class="member-info">
+                            <div class="member-name">李四</div>
+                            <div class="member-role">产品经理 | 负责任务：4 个</div>
+                        </div>
+                        <div class="member-load load-medium">72% 🟡</div>
+                    </div>
+                    <div class="team-member">
+                        <div class="avatar">王</div>
+                        <div class="member-info">
+                            <div class="member-name">王五</div>
+                            <div class="member-role">测试负责人 | 负责任务：5 个</div>
+                        </div>
+                        <div class="member-load load-low">65% 🟢</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 里程碑 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🎯 项目里程碑</div>
+                </div>
+                <ul class="milestone-list">
+                    <li class="milestone-item completed">
+                        <div class="milestone-name">✅ 需求分析完成</div>
+                        <div class="milestone-date">计划：2026-03-31 | 实际：2026-03-31</div>
+                    </li>
+                    <li class="milestone-item current">
+                        <div class="milestone-name">🔄 系统设计完成</div>
+                        <div class="milestone-date">计划：2026-04-15 | 当前进度：60%</div>
+                    </li>
+                    <li class="milestone-item">
+                        <div class="milestone-name">⏳ 开发实施完成</div>
+                        <div class="milestone-date">计划：2026-05-15</div>
+                    </li>
+                    <li class="milestone-item">
+                        <div class="milestone-name">⏳ 测试验收完成</div>
+                        <div class="milestone-date">计划：2026-05-31</div>
+                    </li>
+                    <li class="milestone-item">
+                        <div class="milestone-name">⏳ 项目上线</div>
+                        <div class="milestone-date">计划：2026-05-31</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 风险预警 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">⚠️ 风险预警</div>
+                </div>
+                <ul class="risk-list">
+                    <li class="risk-item high">
+                        <div class="risk-title">🔴 资源过载 - 张三</div>
+                        <div class="risk-desc">技术负责人负载 95%，负责任务 9 个，需考虑重新分配任务</div>
+                    </li>
+                    <li class="risk-item">
+                        <div class="risk-title">🟡 时间风险 - 技术架构设计</div>
+                        <div class="risk-desc">T005 任务仅剩 2 天，进度 75%，需优先处理</div>
+                    </li>
+                    <li class="risk-item">
+                        <div class="risk-title">🟡 依赖风险 - 设计评审</div>
+                        <div class="risk-desc">T009 依赖 T005-T008 完成，需密切关注前置任务进度</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 项目文档 -->
+        <div class="documents-section">
+            <div class="card-header">
+                <div class="card-title">📁 项目文档</div>
+                <button onclick="openOneDriveSearch('AI Smart Customer Service Upgrade')" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    🔍 在 OneDrive 中搜索
+                </button>
+            </div>
+            <div class="doc-list">
+                <div class="doc-item" onclick="alert('打开文档：AI 智能客服系统需求文档 v2.0')">
+                    <div class="doc-icon">📄</div>
+                    <div class="doc-name">AI 智能客服系统需求文档 v2.0</div>
+                    <div class="doc-meta">最后修改：2026-04-02</div>
+                    <span class="file-type">DOCX</span>
+                </div>
+                <div class="doc-item" onclick="alert('打开文档：技术架构设计 PPT')">
+                    <div class="doc-icon">📊</div>
+                    <div class="doc-name">技术架构设计 PPT</div>
+                    <div class="doc-meta">最后修改：2026-03-28</div>
+                    <span class="file-type">PPTX</span>
+                </div>
+                <div class="doc-item" onclick="alert('打开文档：项目里程碑计划表')">
+                    <div class="doc-icon">📅</div>
+                    <div class="doc-name">项目里程碑计划表 PRJ-2026-001</div>
+                    <div class="doc-meta">最后修改：2026-04-04</div>
+                    <span class="file-type">XLSX</span>
+                </div>
+                <div class="doc-item" onclick="alert('打开文档：竞品分析报告')">
+                    <div class="doc-icon">📑</div>
+                    <div class="doc-name">竞品分析报告 - 智能客服市场</div>
+                    <div class="doc-meta">最后修改：2026-03-15</div>
+                    <span class="file-type">PDF</span>
+                </div>
+                <div class="doc-item" onclick="alert('打开文档：用户调研数据汇总')">
+                    <div class="doc-icon">📈</div>
+                    <div class="doc-name">用户调研数据汇总</div>
+                    <div class="doc-meta">最后修改：2026-03-10</div>
+                    <span class="file-type">XLSX</span>
+                </div>
+                <div class="doc-item" onclick="alert('打开文档：NLP 引擎技术方案')">
+                    <div class="doc-icon">🤖</div>
+                    <div class="doc-name">NLP 引擎技术方案</div>
+                    <div class="doc-meta">最后修改：2026-04-01</div>
+                    <span class="file-type">DOCX</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="last-updated">
+            <p>最后更新：2026-04-06 10:28 EDT | 项目 ID: PRJ-2026-001</p>
+            <p style="margin-top: 10px; font-size: 13px;">💡 点击任务卡片查看详情 | 🔍 点击"在 OneDrive 中搜索"查找相关文档</p>
+        </div>
+    </div>
+
+    <script>
+        // 从 URL 参数获取项目 ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id') || 'PRJ-2026-001';
+
+        // 打开 OneDrive 搜索
+        function openOneDriveSearch(projectName) {
+            // 跳转到 Dashboard 并打开 OneDrive 搜索
+            const dashboardUrl = 'index.html';
+            localStorage.setItem('searchQuery', projectName);
+            window.location.href = dashboardUrl;
+        }
+
+        // 页面加载时检查是否有搜索请求
+        window.addEventListener('load', () => {
+            const searchQuery = localStorage.getItem('searchQuery');
+            if (searchQuery) {
+                localStorage.removeItem('searchQuery');
+                // 可以在这里自动触发搜索
+                console.log('搜索项目:', searchQuery);
+            }
+        });
+
+        // 任务卡片点击详情
+        document.querySelectorAll('.task-item').forEach(item => {
+            item.addEventListener('dblclick', function() {
+                const taskName = this.querySelector('.task-name').textContent;
+                alert('任务详情窗口\n\n' + taskName + '\n\n（实际实现应显示完整任务详情弹窗）');
+            });
+        });
+
+        // 文档卡片悬停效果增强
+        document.querySelectorAll('.doc-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
