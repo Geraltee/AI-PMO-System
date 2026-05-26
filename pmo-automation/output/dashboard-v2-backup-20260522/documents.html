@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目文档库 — PMO Dashboard</title>
+    <style>
+        :root{
+            --bg-page:#F5F5F7;--bg-card:#FFFFFF;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+            --radius-card:16px;--radius-sm:10px;--radius-pill:20px;
+            --blue:#007AFF;--blue-light:#E5F1FF;
+            --green:#34C759;--green-light:#E8F9ED;
+            --orange:#FF9500;--orange-light:#FFF4E5;
+            --gray:#86868B;--gray-light:#F2F2F7;--gray-border:#D2D2D7;
+            --text-primary:#1D1D1F;--text-secondary:#86868B;--text-tertiary:#AEAEB2;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+        .container{max-width:1200px;margin:0 auto;padding:40px 24px;}
+
+        .nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;}
+        .nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+        .nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        .page-header{margin-bottom:28px;}
+        .page-header h1{font-size:32px;font-weight:700;letter-spacing:-0.8px;margin-bottom:4px;}
+        .page-header p{font-size:15px;color:var(--text-secondary);}
+
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .card-title{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:#0066D6;}
+        .btn-ghost{background:transparent;color:var(--blue);}.btn-ghost:hover{background:var(--blue-light);}
+
+        /* 搜索栏 */
+        .search-bar{display:flex;gap:10px;margin-bottom:24px;}
+        .search-input{
+            flex:1;padding:10px 16px;border:1.5px solid var(--gray-border);
+            border-radius:var(--radius-sm);font-size:14px;font-family:inherit;
+            background:#FAFAFA;transition:all 0.2s;color:var(--text-primary);
+        }
+        .search-input:focus{outline:none;border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(0,122,255,0.1);}
+
+        /* 文档统计 */
+        .doc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+        .doc-stat{background:#FAFAFA;border-radius:10px;padding:16px;text-align:center;border:1.5px solid var(--gray-border);}
+        .doc-stat-num{font-size:24px;font-weight:700;color:var(--text-primary);}
+        .doc-stat-label{font-size:11px;color:var(--text-secondary);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px;}
+
+        /* 文档网格 */
+        .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+
+        .doc-card{
+            background:#FAFAFA;
+            border-radius:var(--radius-card);
+            padding:22px 18px;
+            border:1.5px solid var(--gray-border);
+            text-align:center;
+            cursor:pointer;
+            transition:all 0.2s ease;
+            position:relative;
+        }
+        .doc-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-3px);border-color:var(--blue);}
+        .doc-icon{font-size:44px;margin-bottom:12px;line-height:1;}
+        .doc-name{font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.4;margin-bottom:8px;height:38px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+        .doc-meta{font-size:11px;color:var(--text-secondary);margin-bottom:10px;}
+        .file-badge{
+            display:inline-block;font-size:11px;font-weight:700;
+            padding:3px 10px;border-radius:var(--radius-pill);
+            letter-spacing:0.5px;
+        }
+        .badge-docx{background:#E3F2FD;color:#1565C0;}
+        .badge-pptx{background:#FFF3E0;color:#E65100;}
+        .badge-xlsx{background:#E8F5E9;color:#2E7D32;}
+        .badge-pdf{background:#FCE4EC;color:#880E4F;}
+        .badge-fig{background:#F3E5F5;color:#6A1B9A;}
+
+        /* 分组标题 */
+        .section-group{margin-bottom:32px;}
+        .section-label{font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;padding-left:4px;}
+
+        .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+        @media(max-width:700px){.doc-grid{grid-template-columns:repeat(2,1fr);}.doc-stats{grid-template-columns:repeat(2,1fr);}}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">P</div>
+            PMO Dashboard
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">概览</a></li>
+            <li><a href="projects.html">项目</a></li>
+            <li><a href="team.html">团队</a></li>
+            <li><a href="risks.html">风险</a></li>
+            <li><a href="documents.html" class="active">文档</a></li>
+            <li><a href="gantt.html">甘特图</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>项目文档库</h1>
+        <p>集中管理项目文档、需求、设计与报告</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">📁 全部文档</div>
+            <button class="btn btn-primary">📤 上传文档</button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="搜索文档名称、类型或作者...">
+        </div>
+
+        <div class="doc-stats">
+            <div class="doc-stat"><div class="doc-stat-num">8</div><div class="doc-stat-label">总文档数</div></div>
+            <div class="doc-stat"><div class="doc-stat-num">3</div><div class="doc-stat-label">本周新增</div></div>
+            <div class="doc-stat"><div class="doc-stat-num">5</div><div class="doc-stat-label">待更新</div></div>
+            <div class="doc-stat"><div class="doc-stat-num">2</div><div class="doc-stat-label">即将过期</div></div>
+        </div>
+
+        <div class="section-group">
+            <div class="section-label">📄 需求与设计文档</div>
+            <div class="doc-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📄</div>
+                    <div class="doc-name">AI 智能客服系统<br>需求文档 v2.0</div>
+                    <div class="doc-meta">2026-04-02 · 张三</div>
+                    <span class="file-badge badge-docx">DOCX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📊</div>
+                    <div class="doc-name">技术架构设计 PPT</div>
+                    <div class="doc-meta">2026-03-28 · 李四</div>
+                    <span class="file-badge badge-pptx">PPTX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">🤖</div>
+                    <div class="doc-name">NLP 引擎技术方案</div>
+                    <div class="doc-meta">2026-04-01 · 张三</div>
+                    <span class="file-badge badge-docx">DOCX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📋</div>
+                    <div class="doc-name">数据库设计文档</div>
+                    <div class="doc-meta">2026-04-05 · 张三</div>
+                    <span class="file-badge badge-docx">DOCX</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-group">
+            <div class="section-label">📈 计划与报告</div>
+            <div class="doc-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📅</div>
+                    <div class="doc-name">项目里程碑计划表<br>PRJ-2026-001</div>
+                    <div class="doc-meta">2026-04-04 · 张三</div>
+                    <span class="file-badge badge-xlsx">XLSX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📑</div>
+                    <div class="doc-name">竞品分析报告<br>智能客服市场</div>
+                    <div class="doc-meta">2026-03-15 · 王五</div>
+                    <span class="file-badge badge-pdf">PDF</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">📈</div>
+                    <div class="doc-name">用户调研数据汇总</div>
+                    <div class="doc-meta">2026-03-10 · 李四</div>
+                    <span class="file-badge badge-xlsx">XLSX</span>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">🎨</div>
+                    <div class="doc-name">UI/UX 设计稿 v1.0</div>
+                    <div class="doc-meta">2026-04-03 · 李四</div>
+                    <span class="file-badge badge-fig">FIG</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">最后更新：2026-04-07 10:56 EDT &nbsp;·&nbsp; 项目文档库</div>
+</div>
+</body>
+</html>

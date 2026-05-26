@@ -1,0 +1,47 @@
+[
+  {
+    "EmployeeId": "EMP001",
+    "Name": "张三",
+    "Department": "技术部",
+    "Skills": ["项目管理", "Java", "架构设计", "沟通协调"],
+    "Availability": "全职",
+    "Email": "zhangsan@company.com",
+    "Role": "高级工程师"
+  },
+  {
+    "EmployeeId": "EMP002",
+    "Name": "李四",
+    "Department": "技术部",
+    "Skills": ["编程", "Python", "软件开发", "单元测试"],
+    "Availability": "全职",
+    "Email": "lisi@company.com",
+    "Role": "开发工程师"
+  },
+  {
+    "EmployeeId": "EMP003",
+    "Name": "王五",
+    "Department": "设计部",
+    "Skills": ["UI 设计", "UX 设计", "原型设计", "Figma"],
+    "Availability": "全职",
+    "Email": "wangwu@company.com",
+    "Role": "设计师"
+  },
+  {
+    "EmployeeId": "EMP004",
+    "Name": "赵六",
+    "Department": "测试部",
+    "Skills": ["测试", "质量保证", "自动化测试", "Selenium"],
+    "Availability": "全职",
+    "Email": "zhaoliu@company.com",
+    "Role": "测试工程师"
+  },
+  {
+    "EmployeeId": "EMP005",
+    "Name": "钱七",
+    "Department": "产品部",
+    "Skills": ["需求分析", "业务流程", "产品设计", "Axure"],
+    "Availability": "全职",
+    "Email": "qianqi@company.com",
+    "Role": "产品经理"
+  }
+]

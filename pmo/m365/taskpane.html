@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PMO</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<style>
+:root{--w:#fff;--g:#f3f2f1;--b:#0078d4;--bd:#e1dfdd;--k:#323130;--ok:#107c10;--wa:#ff8c00;--er:#d13438}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:var(--g);color:var(--k);padding:16px}
+.hdr{font-size:18px;font-weight:600;color:var(--b);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.nav{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}.nav button{padding:6px 12px;border:1px solid var(--bd);background:var(--w);border-radius:4px;cursor:pointer;font-size:13px}.nav button.active{background:var(--b);color:var(--w);border-color:var(--b)}
+.card{background:var(--w);border:1px solid var(--bd);border-radius:4px;padding:16px;margin-bottom:16px}.ctitle{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--k)}
+.fg{margin-bottom:12px}.fl{display:block;margin-bottom:4px;font-size:13px;font-weight:500}.fi{width:100%;padding:8px;border:1px solid var(--bd);border-radius:4px;font-size:13px}.fi:focus{outline:none;border-color:var(--b)}textarea.fi{min-height:80px;resize:vertical}
+.btn{background:var(--b);color:var(--w);border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:13px;width:100%}.btn:hover{background:#106ebe}.btn-sec{background:var(--w);color:var(--b);border:1px solid var(--b)}.btn-sm{padding:4px 8px;font-size:12px;width:auto}
+.badge{padding:4px 8px;border-radius:12px;font-size:11px;display:inline-block}.bg-ok{background:#dff6dd;color:var(--ok)}.bg-wa{background:#fff4ce;color:var(--wa)}.bg-er{background:#fde7e9;color:var(--er)}
+.prog{height:4px;background:var(--g);border-radius:2px}.prog-bar{height:100%;background:var(--b);border-radius:2px}
+.pg{display:none}.pg.on{display:block}
+.alert{padding:10px;background:#fff4ce;border-left:3px solid var(--wa);margin:8px 0;font-size:12px}
+.step{padding:8px;background:var(--g);margin:6px 0;border-radius:4px;font-size:12px}
+.raci{display:flex;gap:6px;margin:6px 0;align-items:center}.rb{padding:3px 6px;background:var(--b);color:var(--w);border-radius:3px;font-size:11px;min-width:40px;text-align:center}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}.modal.on{display:flex}
+.mc{background:var(--w);width:90%;max-height:80vh;overflow-y:auto;border-radius:4px}.mh{padding:12px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}.mb{padding:12px}.mf{padding:12px;border-top:1px solid var(--bd);text-align:right}.x{font-size:20px;cursor:pointer}
+table{width:100%;border-collapse:collapse}th,td{padding:8px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px}th{background:var(--g);color:#605e5c;font-weight:600}
+.tabs{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--bd);padding-bottom:8px}.tab{padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px}.tab.active{background:var(--b);color:var(--w)}
+.url-input{display:flex;gap:8px}.url-input input{flex:1}
+</style>
+</head>
+<body>
+<div class="hdr">🚀 AI PMO</div>
+<div class="nav">
+<button onclick="go('dash')" class="active">📊 概览</button>
+<button onclick="go('new')">➕ 新建</button>
+<button onclick="go('file')">📁 OneDrive</button>
+<button onclick="go('proj')">📋 项目</button>
+<button onclick="go('alrt')">⚠️ 预警</button>
+</div>
+
+<div id="dash" class="pg on">
+<div class="card"><div class="ctitle">📊 统计</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"><div style="text-align:center;padding:12px;background:var(--g);border-radius:4px"><div style="font-size:24px;font-weight:600;color:var(--b)" id="st1">0</div><div style="font-size:11px;color:#605e5c">项目</div></div><div style="text-align:center;padding:12px;background:var(--g);border-radius:4px"><div style="font-size:24px;font-weight:600;color:var(--wa)" id="st2">0</div><div style="font-size:11px;color:#605e5c">风险</div></div></div></div>
+<div class="card"><div class="ctitle">📋 项目列表</div><div id="dash-list"></div></div>
+</div>
+
+<div id="new" class="pg">
+<div class="card">
+<div class="ctitle">➕ 新建项目</div>
+<div class="fg"><label class="fl">项目名称</label><input class="fi" id="n-name" placeholder="输入项目名称"></div>
+<div class="fg"><label class="fl">项目背景</label><textarea class="fi" id="n-desc" placeholder="目标、周期、涉及部门..."></textarea></div>
+<div class="fg"><label class="fl">负责人</label><input class="fi" id="n-owner" placeholder="负责人姓名"></div>
+<div class="fg"><label class="fl">周期 (天)</label><input class="fi" id="n-days" type="number" placeholder="60"></div>
+<div class="fg"><label class="fl">涉及部门</label><input class="fi" id="n-dept" placeholder="技术部、产品部..."></div>
+<button class="btn" onclick="createP()">✨ AI 创建项目</button>
+</div>
+</div>
+
+<div id="file" class="pg">
+<div class="card">
+<div class="ctitle">📁 读取 OneDrive 文件</div>
+<div class="fg"><label class="fl">OneDrive 文件 URL</label><div class="url-input"><input class="fi" id="od-url" placeholder="https://...sharepoint.com/..."><button class="btn btn-sm" onclick="loadOD()">读取</button></div></div>
+<div class="fg"><label class="fl">或上传文件内容</label><textarea class="fi" id="od-content" placeholder="粘贴文件内容..."></textarea></div>
+<button class="btn" onclick="parseContent()">🤖 AI 解析内容</button>
+<div id="parse-result" style="margin-top:12px"></div>
+</div>
+<div class="card"><div class="ctitle">📂 最近文件</div><div id="recent-files"></div></div>
+</div>
+
+<div id="proj" class="pg">
+<div class="card"><div class="ctitle">📋 所有项目</div><table><thead><tr><th>名称</th><th>负责人</th><th>进度</th><th>状态</th></tr></thead><tbody id="proj-tbl"></tbody></table></div>
+</div>
+
+<div id="alrt" class="pg">
+<div class="card"><div class="ctitle">⚠️ 预警</div><div id="alert-list"></div></div>
+</div>
+
+<div class="modal" id="mdl"><div class="mc"><div class="mh"><h4 id="mdl-t">详情</h4><span class="x" onclick="closeM()">&times;</span></div><div class="mb" id="mdl-b"></div><div class="mf"><button class="btn" onclick="closeM()">关闭</button></div></div></div>
+
+<script>
+let projects=[],recentFiles=[];
+Office.onReady(function(info){console.log('Office ready:',info.host);});
+
+function go(p){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('on');event.target.classList.add('active');if(p==='dash')renderDash();if(p==='proj')renderProj();if(p==='alrt')renderAlrt();}
+
+function renderDash(){document.getElementById('st1').textContent=projects.length;document.getElementById('st2').textContent=projects.filter(x=>x.st==='wa').length;document.getElementById('dash-list').innerHTML=projects.length?projects.map(x=>'<div class="step" onclick="showP(\''+x.id+'\')" style="cursor:pointer"><b>'+x.nm+'</b><br><span style="font-size:11px;color:#605e5c">负责人:'+x.ow+' | 进度:'+x.pr+'%</span></div>').join(''):'<div style="color:#605e5c;font-size:12px">暂无项目，点击"新建"创建</div>';}
+
+function renderProj(){document.getElementById('proj-tbl').innerHTML=projects.map(x=>'<tr><td>'+x.nm+'</td><td>'+x.ow+'</td><td><div class="prog"><div class="prog-bar" style="width:'+x.pr+'%"></div></div></td><td><span class="badge bg-'+x.st+'">'+(x.st==='ok'?'正常':x.st==='wa'?'风险':'严重')+'</span></td></tr>').join('');}
+
+function renderAlrt(){const alerts=projects.filter(x=>x.rk&&x.rk.length>0);document.getElementById('alert-list').innerHTML=alerts.length?alerts.map(x=>'<div class="alert"><b>'+x.nm+'</b>: '+x.rk.map(r=>r.d).join(', ')+'</div>').join(''):'<div style="color:#605e5c;font-size:12px">暂无预警</div>';}
+
+function createP(){const nm=document.getElementById('n-name').value;if(!nm){alert('请输入项目名称');return;}const p={id:'P'+Date.now(),nm:nm,ow:document.getElementById('n-owner').value||'待分配',st:'ok',pr:0,dl:new Date(Date.now()+(parseInt(document.getElementById('n-days').value)||60)*86400000).toISOString().split('T')[0],ms:[{nm:'启动',dt:'TBD'},{nm:'执行',dt:'TBD'},{nm:'收尾',dt:'TBD'}],rc:[{r:'负责',n:document.getElementById('n-owner').value||'待分配'}],rk:[],sp:[]};projects.push(p);alert('项目创建成功！');document.getElementById('n-name').value='';document.getElementById('n-desc').value='';document.getElementById('n-owner').value='';document.getElementById('n-days').value='';document.getElementById('n-dept').value='';go('dash');renderDash();}
+
+async function loadOD(){const url=document.getElementById('od-url').value;if(!url){alert('请输入 OneDrive URL');return;}try{const resp=await fetch(url);if(!resp.ok)throw new Error('无法访问');const text=await resp.text();document.getElementById('od-content').value=text.substring(0,5000);alert('文件内容已加载！');recentFiles.push({url:url,name:url.split('/').pop()||'未知',date:new Date().toLocaleDateString()});document.getElementById('recent-files').innerHTML=recentFiles.map(f=>'<div class="step"><b>'+f.name+'</b><br><span style="font-size:11px;color:#605e5c">'+f.date+'</span></div>').join('');}catch(e){alert('读取失败：'+e.message+'。请确保链接有访问权限，或直接粘贴内容。');}}
+
+function parseContent(){const content=document.getElementById('od-content').value;if(!content){alert('请输入内容');return;}const extracted={name:content.match(/项目 [：:]\s*(.+)/)?.[1]||'未命名项目',owner:content.match(/负责人 [：:]\s*(.+)/)?.[1]||'待分配',days:content.match(/周期 [：:]\s*(\d+)/)?.[1]||'60'};document.getElementById('parse-result').innerHTML='<div class="alert"><b>AI 解析结果:</b><br>项目名称：'+extracted.name+'<br>负责人：'+extracted.owner+'<br>周期：'+extracted.days+'天<br><br><button class="btn btn-sm" onclick="useExtracted(\''+extracted.name+'\',\''+extracted.owner+'\',\''+extracted.days+'\')">使用此数据创建项目</button></div>';}
+
+function useExtracted(nm,ow,dy){document.getElementById('n-name').value=nm;document.getElementById('n-owner').value=ow;document.getElementById('n-days').value=dy;go('new');}
+
+function showP(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('mdl-t').textContent=p.nm;document.getElementById('mdl-b').innerHTML='<div style="margin-bottom:12px"><b>状态:</b> <span class="badge bg-'+p.st+'">'+(p.st==='ok'?'正常':p.st==='wa'?'风险':'严重')+'</span></div><div style="margin-bottom:12px"><b>进度:</b> '+p.pr+'%</div><div style="margin-bottom:12px"><b>负责人:</b> '+p.ow+'</div><div style="margin-bottom:12px"><b>截止:</b> '+p.dl+'</div>'+(p.ms&&p.ms.length?'<div style="margin-bottom:12px"><b>📍 里程碑</b>'+p.ms.map(m=>'<div class="step">'+m.nm+' - '+m.dt+'</div>').join('')+'</div>':'')+(p.rc&&p.rc.length?'<div style="margin-bottom:12px"><b>👥 RACI</b>'+p.rc.map(r=>'<div class="raci"><span class="rb">'+r.r+'</span><span>'+r.n+'</span></div>').join('')+'</div>':'')+(p.rk&&p.rk.length?'<div style="margin-bottom:12px"><b>⚠️ 风险</b>'+p.rk.map(r=>'<div class="alert">'+r.d+'</div>').join('')+'</div>':'');document.getElementById('mdl').classList.add('on');}
+
+function closeM(){document.getElementById('mdl').classList.remove('on');}
+
+// 初始化示例数据
+projects=[{id:'P1',nm:'AI 客服升级',ow:'张三',st:'ok',pr:15,dl:'2026-05-30',ms:[{nm:'需求',dt:'04-10'},{nm:'开发',dt:'05-15'},{nm:'上线',dt:'05-30'}],rc:[{r:'负责',n:'张三'},{r:'协作',n:'李四'}],rk:[{d:'需求变更',i:'中'}],sp:[]}];
+renderDash();
+</script>
+</body>
+</html>

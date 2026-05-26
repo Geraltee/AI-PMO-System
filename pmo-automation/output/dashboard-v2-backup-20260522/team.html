@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队负载 — PMO Dashboard</title>
+    <style>
+        :root{
+            --bg-page:#F5F5F7;--bg-card:#FFFFFF;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+            --radius-card:16px;--radius-sm:10px;--radius-pill:20px;
+            --blue:#007AFF;--blue-light:#E5F1FF;
+            --green:#34C759;--green-light:#E8F9ED;
+            --orange:#FF9500;--orange-light:#FFF4E5;
+            --red:#FF3B30;--red-light:#FFEBEA;
+            --purple:#AF52DE;--purple-light:#F3E5FF;
+            --gray:#86868B;--gray-light:#F2F2F7;--gray-border:#D2D2D7;
+            --text-primary:#1D1D1F;--text-secondary:#86868B;--text-tertiary:#AEAEB2;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+        .container{max-width:1200px;margin:0 auto;padding:40px 24px;}
+
+        .nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;}
+        .nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+        .nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        .page-header{margin-bottom:28px;}
+        .page-header h1{font-size:32px;font-weight:700;color:var(--text-primary);letter-spacing:-0.8px;margin-bottom:4px;}
+        .page-header p{font-size:15px;color:var(--text-secondary);}
+
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .card-title{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+        .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:var(--radius-pill);}
+        .pill-green{background:var(--green-light);color:var(--green);}
+        .pill-orange{background:var(--orange-light);color:var(--orange);}
+        .pill-red{background:var(--red-light);color:var(--red);}
+
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:#0066D6;}
+
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+        .stat-card{background:#FAFAFA;border-radius:12px;padding:18px 20px;border:1.5px solid var(--gray-border);text-align:center;}
+        .stat-value{font-size:30px;font-weight:700;letter-spacing:-0.5px;}
+        .stat-label{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+
+        .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+        .member-card{
+            background:#FAFAFA;
+            border-radius:var(--radius-card);
+            padding:22px;
+            border:1.5px solid var(--gray-border);
+            border-left:4px solid;
+            transition:all 0.2s;
+        }
+        .member-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
+        .member-card.overload{border-color:var(--red);}
+        .member-card.warning{border-color:var(--orange);}
+        .member-card.normal{border-color:var(--green);}
+
+        .member-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+        .member-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;flex-shrink:0;}
+        .member-info .member-name{font-size:16px;font-weight:600;color:var(--text-primary);}
+        .member-info .member-role{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+        .member-info .member-dept{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+
+        .load-section{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px;}
+        .load-pct{font-size:26px;font-weight:700;line-height:1;}
+        .load-tasks{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+        .progress-bar{width:100%;height:8px;background:var(--gray-light);border-radius:4px;overflow:hidden;margin-top:8px;}
+        .progress-fill{height:100%;border-radius:4px;}
+
+        .task-list{margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-border);}
+        .task-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;color:var(--text-secondary);}
+        .task-item .task-name{font-weight:500;color:var(--text-primary);}
+        .task-item .task-pct{font-weight:600;}
+
+        .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+        @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}.member-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">P</div>
+            PMO Dashboard
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">概览</a></li>
+            <li><a href="projects.html">项目</a></li>
+            <li><a href="team.html" class="active">团队</a></li>
+            <li><a href="risks.html">风险</a></li>
+            <li><a href="documents.html">文档</a></li>
+            <li><a href="gantt.html">甘特图</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>团队负载</h1>
+        <p>监控团队成员的工作负载与任务分配情况</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">◎ 团队成员</div>
+            <button class="btn btn-primary">+ 添加成员</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" style="color:var(--blue);">12</div><div class="stat-label">总成员</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--red);">1</div><div class="stat-label">严重过载</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--orange);">4</div><div class="stat-label">正常负载</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--green);">7</div><div class="stat-label">容量充足</div></div>
+        </div>
+
+        <div class="member-grid">
+            <div class="member-card overload">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#FF3B30;">张</div>
+                    <div class="member-info">
+                        <div class="member-name">张三</div>
+                        <div class="member-role">技术负责人</div>
+                        <div class="member-dept">技术部</div>
+                    </div>
+                    <span class="pill pill-red">严重过载</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--red);">95%</div>
+                        <div class="load-tasks">9 / 10 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--red);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">🔴 技术架构设计</span><span class="task-pct" style="color:var(--red);">75%</span></div>
+                    <div class="task-item"><span class="task-name">🟡 数据库设计</span><span class="task-pct" style="color:var(--orange);">60%</span></div>
+                    <div class="task-item"><span class="task-name">🟡 API 接口设计</span><span class="task-pct" style="color:var(--orange);">40%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 6 个任务</div>
+                </div>
+            </div>
+
+            <div class="member-card warning">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#FF9500;">李</div>
+                    <div class="member-info">
+                        <div class="member-name">李四</div>
+                        <div class="member-role">产品经理</div>
+                        <div class="member-dept">产品部</div>
+                    </div>
+                    <span class="pill pill-orange">正常偏高</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--orange);">72%</div>
+                        <div class="load-tasks">4 / 6 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--orange);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">🟡 UI/UX 设计</span><span class="task-pct" style="color:var(--orange);">70%</span></div>
+                    <div class="task-item"><span class="task-name">⏳ 知识库建设</span><span class="task-pct" style="color:var(--text-tertiary);">0%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 2 个任务</div>
+                </div>
+            </div>
+
+            <div class="member-card warning">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#FF9500;">王</div>
+                    <div class="member-info">
+                        <div class="member-name">王五</div>
+                        <div class="member-role">测试负责人</div>
+                        <div class="member-dept">测试部</div>
+                    </div>
+                    <span class="pill pill-orange">正常</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--orange);">65%</div>
+                        <div class="load-tasks">5 / 8 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--orange);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">⏳ 系统集成测试</span><span class="task-pct" style="color:var(--text-tertiary);">0%</span></div>
+                    <div class="task-item"><span class="task-name">⏳ 功能测试</span><span class="task-pct" style="color:var(--text-tertiary);">0%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 3 个任务</div>
+                </div>
+            </div>
+
+            <div class="member-card normal">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#34C759;">赵</div>
+                    <div class="member-info">
+                        <div class="member-name">赵六</div>
+                        <div class="member-role">前端开发</div>
+                        <div class="member-dept">技术部</div>
+                    </div>
+                    <span class="pill pill-green">容量充足</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--green);">45%</div>
+                        <div class="load-tasks">3 / 7 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--green);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">⏳ 前端开发</span><span class="task-pct" style="color:var(--orange);">30%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 2 个任务</div>
+                </div>
+            </div>
+
+            <div class="member-card normal">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#5856D6;">陈</div>
+                    <div class="member-info">
+                        <div class="member-name">陈琦</div>
+                        <div class="member-role">UI/UX 设计师</div>
+                        <div class="member-dept">设计部</div>
+                    </div>
+                    <span class="pill pill-green">容量充足</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--green);">50%</div>
+                        <div class="load-tasks">4 / 8 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--green);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">⏳ UI 设计</span><span class="task-pct" style="color:var(--orange);">40%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 3 个任务</div>
+                </div>
+            </div>
+
+            <div class="member-card normal">
+                <div class="member-header">
+                    <div class="member-avatar" style="background:#34C759;">周</div>
+                    <div class="member-info">
+                        <div class="member-name">周九</div>
+                        <div class="member-role">DevOps 工程师</div>
+                        <div class="member-dept">技术部</div>
+                    </div>
+                    <span class="pill pill-green">容量充足</span>
+                </div>
+                <div class="load-section">
+                    <div>
+                        <div class="load-pct" style="color:var(--green);">38%</div>
+                        <div class="load-tasks">2 / 6 任务容量</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:38%;background:var(--green);"></div></div>
+                <div class="task-list">
+                    <div class="task-item"><span class="task-name">⏳ 部署配置</span><span class="task-pct" style="color:var(--orange);">20%</span></div>
+                    <div class="task-item" style="color:var(--text-tertiary);">+ 其他 1 个任务</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">最后更新：2026-04-07 10:56 EDT &nbsp;·&nbsp; 共 12 名成员</div>
+</div>
+</body>
+</html>

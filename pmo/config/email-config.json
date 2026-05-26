@@ -1,0 +1,37 @@
+{
+  "emailConfig": {
+    "account": {
+      "email": "openclawPMO@outlook.com",
+      "displayName": "AI PMO System",
+      "appPassword": "vjpdxuqflwbiabcv"
+    },
+    "imap": {
+      "host": "outlook.office365.com",
+      "port": 993,
+      "secure": true,
+      "tls": true,
+      "authMethod": "appPassword",
+      "status": "failed",
+      "lastTest": "2026-04-05T10:37:00-04:00",
+      "error": "535 5.7.139 Authentication failed - App Password may be invalid or account requires additional security verification"
+    },
+    "smtp": {
+      "host": "smtp.office365.com",
+      "port": 587,
+      "secure": false,
+      "starttls": true,
+      "authMethod": "appPassword",
+      "status": "failed",
+      "lastTest": "2026-04-05T10:37:30-04:00",
+      "error": "535 5.7.139 Client not authenticated to send mail - STARTTLS required before AUTH"
+    }
+  },
+  "lastUpdated": "2026-04-05T10:37:30-04:00",
+  "status": "authentication_failed",
+  "troubleshooting": [
+    "Verify app password was generated correctly at https://account.microsoft.com/security",
+    "Ensure Modern Authentication is enabled for the account",
+    "Check if account has Conditional Access policies blocking IMAP/SMTP",
+    "Try using OAuth2 authentication instead of basic auth"
+  ]
+}

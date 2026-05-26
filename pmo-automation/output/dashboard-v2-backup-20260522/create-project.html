@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建项目 — PMO Dashboard</title>
+    <style>
+        :root {
+            --bg-page: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --bg-section: #F5F5F7;
+            --text-primary: #1D1D1F;
+            --text-secondary: #6E6E73;
+            --text-tertiary: #AEAEB2;
+            --divider: #E5E5EA;
+            --blue: #007AFF;
+            --blue-bg: #EBF5FF;
+            --green: #34C759;
+            --green-bg: #EDFAF1;
+            --orange: #FF9500;
+            --orange-bg: #FFF6EB;
+            --red: #FF3B30;
+            --red-bg: #FFF0EF;
+            --purple: #AF52DE;
+            --purple-bg: #F5EDFC;
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.10);
+            --radius-card: 16px;
+            --radius-sm: 10px;
+            --radius-pill: 100px;
+            --nav-h: 60px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Segoe UI",sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+
+        /* ─── Nav ─── */
+        .nav{position:sticky;top:0;z-index:100;height:var(--nav-h);background:rgba(255,255,255,0.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--divider);display:flex;align-items:center;padding:0 32px;gap:24px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--text-primary);text-decoration:none;}
+        .logo{width:28px;height:28px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;flex-shrink:0;}
+        .nav-links{display:flex;list-style:none;gap:4px;margin-left:auto;}
+        .nav-links a{text-decoration:none;padding:6px 14px;border-radius:var(--radius-pill);font-size:14px;font-weight:500;color:var(--text-secondary);transition:background .15s,color .15s;}
+        .nav-links a:hover{background:rgba(0,0,0,0.05);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        /* ─── Page ─── */
+        .page{max-width:1000px;margin:0 auto;padding:28px 24px 64px;}
+
+        /* ─── Stepper ─── */
+        .stepper{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px;padding:0 40px;}
+        .step-dot{width:28px;height:28px;border-radius:50%;background:var(--divider);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+        .step-dot.active{background:var(--blue);box-shadow:0 0 0 4px rgba(0,122,255,0.15);}
+        .step-dot.done{background:var(--green);}
+        .step-line{flex:1;height:2px;background:var(--divider);margin:0 6px;transition:background .3s;}
+        .step-line.done{background:var(--green);}
+        .step-labels{display:flex;justify-content:space-between;margin-top:8px;padding:0 20px;}
+        .step-label{font-size:11px;color:var(--text-tertiary);text-align:center;width:80px;font-weight:500;}
+        .step-label.active{color:var(--blue);font-weight:600;}
+        .step-label.done{color:var(--green);}
+
+        /* ─── Card ─── */
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);margin-bottom:20px;}
+
+        /* ─── Step Content (show/hide) ─── */
+        .step-panel{display:none;}
+        .step-panel.active{display:block;animation:fadeIn .35s ease;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+        /* ─── Loading ─── */
+        .loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+        .loading-spinner{width:48px;height:48px;border:4px solid var(--divider);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:24px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .loading-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+        .loading-sub{font-size:14px;color:var(--text-secondary);max-width:360px;line-height:1.5;}
+        .loading-model{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:4px 12px;background:var(--blue-bg);color:var(--blue);border-radius:var(--radius-pill);font-size:12px;font-weight:600;}
+
+        /* ─── Section Title ─── */
+        .sec-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+        .sec-title .icon{font-size:18px;}
+
+        /* ─── Preview (方案预览) ─── */
+        .preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--divider);}
+        .preview-header h2{font-size:20px;font-weight:700;}
+        .preview-actions{display:flex;gap:8px;}
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .2s;font-family:inherit;}
+        .btn-primary{background:var(--blue);color:#fff;}
+        .btn-primary:hover{background:#0066D6;}
+        .btn-ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
+        .btn-ghost:hover{background:var(--blue-bg);}
+        .btn-secondary{background:var(--bg-section);color:var(--text-primary);}
+        .btn-secondary:hover{background:#EBEBEE;}
+        .btn-green{background:var(--green);color:#fff;}
+        .btn-green:hover{background:#2DB84D;}
+        .btn-sm{padding:6px 12px;font-size:12px;}
+
+        .edit-hint{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--blue-bg);border-radius:var(--radius-sm);font-size:13px;color:var(--blue);margin-bottom:20px;font-weight:500;}
+
+        .plan-section{margin-bottom:24px;}
+        .plan-section h3{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--text-primary);display:flex;align-items:center;gap:6px;}
+        .plan-section p,.plan-section li{font-size:14px;line-height:1.7;color:var(--text-secondary);}
+        .plan-section ul,.plan-section ol{padding-left:22px;margin-top:6px;}
+        .plan-section li{margin-bottom:4px;}
+
+        .tag{display:inline-flex;padding:3px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;}
+        .tag-green{background:var(--green-bg);color:var(--green);}
+        .tag-orange{background:var(--orange-bg);color:var(--orange);}
+        .tag-red{background:var(--red-bg);color:var(--red);}
+        .tag-blue{background:var(--blue-bg);color:var(--blue);}
+        .tag-purple{background:var(--purple-bg);color:var(--purple);}
+
+        .risk-row{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--bg-section);border-radius:var(--radius-sm);margin-bottom:8px;border-left:3px solid var(--divider);}
+        .risk-row.high{border-left-color:var(--red);background:var(--red-bg);}
+        .risk-row.mid{border-left-color:var(--orange);background:var(--orange-bg);}
+        .risk-row.low{border-left-color:var(--green);background:var(--green-bg);}
+
+        .milestone-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--divider);}
+        .milestone-row:last-child{border-bottom:none;}
+        .ms-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .ms-dot.done{background:var(--green);}
+        .ms-dot.pending{background:var(--blue);opacity:0.5;}
+        .ms-info{flex:1;}
+        .ms-name{font-size:14px;font-weight:600;}
+        .ms-date{font-size:12px;color:var(--text-tertiary);}
+
+        .editable-area{outline:none;border-radius:var(--radius-sm);padding:2px 4px;transition:box-shadow .15s;}
+        .editable-area:focus{box-shadow:0 0 0 2px rgba(0,122,255,0.2);}
+
+        /* ─── Breakdown Preview (拆分结果) ─── */
+        .bd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+        .bd-stat{text-align:center;padding:16px 10px;background:var(--bg-section);border-radius:var(--radius-sm);}
+        .bd-stat-num{font-size:28px;font-weight:800;letter-spacing:-0.5px;}
+        .bd-stat-label{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+
+        .task-table{width:100%;border-collapse:collapse;font-size:13px;}
+        .task-table th{text-align:left;padding:10px 12px;background:var(--bg-section);font-weight:600;color:var(--text-secondary);font-size:12px;border-bottom:1px solid var(--divider);}
+        .task-table td{padding:10px 12px;border-bottom:1px solid var(--divider);vertical-align:middle;}
+        .task-table tr:hover td{background:var(--bg-section);}
+
+        .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+        .team-card{padding:14px;background:var(--bg-section);border-radius:var(--radius-sm);}
+        .team-role{font-size:14px;font-weight:600;margin-bottom:4px;}
+        .team-desc{font-size:12px;color:var(--text-secondary);}
+        .team-count{font-size:12px;color:var(--blue);font-weight:600;margin-top:4px;}
+
+        /* ─── Success ─── */
+        .success-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 20px;text-align:center;}
+        .success-icon{width:72px;height:72px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;}
+        .success-title{font-size:24px;font-weight:700;margin-bottom:6px;}
+        .success-sub{font-size:15px;color:var(--text-secondary);margin-bottom:28px;max-width:400px;}
+        .success-actions{display:flex;gap:12px;}
+        .success-detail{width:100%;max-width:560px;text-align:left;margin-top:24px;}
+
+        /* ─── Error ─── */
+        .error-wrap{text-align:center;padding:48px 20px;}
+        .error-icon{font-size:48px;margin-bottom:16px;}
+        .error-title{font-size:18px;font-weight:700;color:var(--red);margin-bottom:6px;}
+        .error-msg{font-size:14px;color:var(--text-secondary);margin-bottom:20px;}
+
+        @media(max-width:768px){
+            .stepper{padding:0 10px;}
+            .step-labels{padding:0 6px;}
+            .step-label{font-size:10px;width:60px;}
+            .preview-header{flex-direction:column;gap:12px;align-items:flex-start;}
+            .page{padding:20px 16px 48px;}
+            .nav{padding:0 16px;}
+            .nav-links{display:none;}
+            .bd-stats{grid-template-columns:1fr 1fr;}
+            .task-table-wrap{overflow-x:auto;}
+            .success-actions{flex-direction:column;width:100%;}
+            .success-actions .btn{width:100%;justify-content:center;}
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="projects.html" class="nav-brand"><div class="logo">P</div>PMO Dashboard</a>
+    <ul class="nav-links">
+        <li><a href="index.html">概览</a></li>
+        <li><a href="projects.html" class="active">项目</a></li>
+        <li><a href="team.html">团队</a></li>
+        <li><a href="gantt.html">甘特图</a></li>
+        <li><a href="risks.html">风险</a></li>
+        <li><a href="documents.html">文档</a></li>
+    </ul>
+</nav>
+
+<div class="page">
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+        <div class="step-dot active" data-step="1">1</div>
+        <div class="step-line" data-line="1"></div>
+        <div class="step-dot" data-step="2">2</div>
+        <div class="step-line" data-line="2"></div>
+        <div class="step-dot" data-step="3">3</div>
+        <div class="step-line" data-line="3"></div>
+        <div class="step-dot" data-step="4">4</div>
+    </div>
+    <div class="step-labels">
+        <div class="step-label active" data-label="1">AI 分析</div>
+        <div class="step-label" data-label="2">方案预览</div>
+        <div class="step-label" data-label="3">项目拆分</div>
+        <div class="step-label" data-label="4">确认创建</div>
+    </div>
+
+    <!-- ═══════ Step 1: AI 分析 Loading ═══════ -->
+    <div class="step-panel active" id="panel-1">
+        <div class="card">
+            <div class="loading-wrap">
+                <div class="loading-spinner"></div>
+                <div class="loading-title" id="loadingTitle">正在分析项目需求…</div>
+                <div class="loading-sub" id="loadingSub">AI 正在基于您的输入生成完整的项目方案，请稍候</div>
+                <div class="loading-model">🤖 <span id="modelName">GLM-5.0-Turbo</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ Step 2: 方案预览 ═══════ -->
+    <div class="step-panel" id="panel-2">
+        <div class="card">
+            <div class="preview-header">
+                <h2 id="previewTitle">项目方案</h2>
+                <div class="preview-actions">
+                    <button class="btn btn-ghost" onclick="handleDownload()">⬇ 下载 Word</button>
+                    <button class="btn btn-primary" onclick="goToBreakdown()">确认，进入拆分 →</button>
+                </div>
+            </div>
+            <div class="edit-hint">✏️ 所有内容均可点击直接编辑，修改后点击「确认，进入拆分」</div>
+            <div id="previewContent"></div>
+        </div>
+        <div style="text-align:center;margin-top:12px;">
+            <button class="btn btn-secondary" onclick="history.back()">← 返回项目列表</button>
+        </div>
+    </div>
+
+    <!-- ═══════ Step 3: 拆分 Loading ═══════ -->
+    <div class="step-panel" id="panel-3">
+        <div class="card">
+            <div class="loading-wrap">
+                <div class="loading-spinner"></div>
+                <div class="loading-title">正在拆分项目…</div>
+                <div class="loading-sub">AI 正在将项目方案拆分为可执行的任务、里程碑和资源分配</div>
+                <div class="loading-model">🤖 <span id="modelName2">GLM-5.0-Turbo</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ Step 4: 确认创建 ═══════ -->
+    <div class="step-panel" id="panel-4">
+        <div class="card">
+            <div class="preview-header">
+                <h2>拆分结果预览</h2>
+                <div class="preview-actions">
+                    <button class="btn btn-secondary" onclick="goStep(2)">← 返回修改方案</button>
+                    <button class="btn btn-green" onclick="confirmCreate()">✅ 确认创建项目</button>
+                </div>
+            </div>
+            <div id="breakdownContent"></div>
+        </div>
+    </div>
+
+    <!-- ═══════ Step 5: 创建成功 ═══════ -->
+    <div class="step-panel" id="panel-5">
+        <div class="card">
+            <div class="success-wrap">
+                <div class="success-icon">🎉</div>
+                <div class="success-title">项目创建成功</div>
+                <div class="success-sub" id="successSub">项目已保存，可在 Dashboard 中查看和管理</div>
+                <div class="success-actions">
+                    <button class="btn btn-primary" onclick="viewProject()">查看项目详情</button>
+                    <button class="btn btn-secondary" onclick="location.href='projects.html'">返回项目列表</button>
+                </div>
+                <div class="success-detail" id="successDetail"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ Error ═══════ -->
+    <div class="step-panel" id="panel-error">
+        <div class="card">
+            <div class="error-wrap">
+                <div class="error-icon">😕</div>
+                <div class="error-title" id="errorTitle">处理失败</div>
+                <div class="error-msg" id="errorMsg"></div>
+                <button class="btn btn-primary" onclick="location.href='projects.html'">返回项目列表</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="js/data-store.js"></script>
+<script src="js/model-config.js"></script>
+<script src="js/mock-data.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  创建项目 — 主控逻辑
+// ═══════════════════════════════════════════════
+
+let currentStep = 1;
+let mode = 'text';           // 'text' | 'file'
+let userInput = '';
+let expandedPlan = null;     // AI 扩写后的完整方案
+let breakdownData = null;    // AI 拆分后的结构数据
+let createdProjectId = '';
+
+// ─── 初始化 ───
+(async function init() {
+    mode = sessionStorage.getItem('createMode') || 'text';
+
+    // 尝试从后端获取真实模型名称，失败则显示默认值
+    let modelName = 'GLM-5.0-Turbo';
+    try {
+        const r = await fetch('http://localhost:3456/api/v1/health', { signal: AbortSignal.timeout(2000) });
+        if (r.ok) {
+            const info = await r.json();
+            modelName = info.model || modelName;
+        }
+    } catch { /* 后端未启动，使用默认值 */ }
+    document.getElementById('modelName').textContent = modelName;
+    document.getElementById('modelName2').textContent = modelName;
+
+    if (mode === 'text') {
+        userInput = sessionStorage.getItem('createDesc') || '';
+        document.getElementById('loadingTitle').textContent = '正在分析项目需求…';
+        document.getElementById('loadingSub').textContent = 'AI 正在基于您的描述生成完整的项目方案';
+    } else {
+        const fn = sessionStorage.getItem('createFileName') || '文档';
+        userInput = fn;
+        document.getElementById('loadingTitle').textContent = '正在解析文档…';
+        document.getElementById('loadingSub').textContent = `AI 正在解析「${fn}」并提取项目信息`;
+    }
+
+    // 无输入则回退
+    if (!userInput) { showError('缺少输入', '未检测到项目描述或文件，请返回重试。'); return; }
+
+    // 开始 AI 调用
+    startExpansion();
+})();
+
+// ─── Step 1: AI 扩写 / 解析 ───
+async function startExpansion() {
+    try {
+        const aiType = mode === 'file' ? 'parse' : 'expansion';
+        const payload = mode === 'file'
+            ? { fileName: sessionStorage.getItem('createFileName'), fileData: sessionStorage.getItem('createFileData') }
+            : { description: userInput };
+
+        const result = await callAI(aiType, payload);
+
+        if (!result.success) throw new Error(result.error || 'AI 返回异常');
+
+        expandedPlan = result.data;
+        renderPreview();
+        goStep(2);
+
+    } catch (err) {
+        showError('AI 分析失败', err.message);
+    }
+}
+
+// ─── Step 2: 渲染方案预览 ───
+function renderPreview() {
+    const p = expandedPlan;
+    document.getElementById('previewTitle').textContent = p.projectName + ' — 项目方案';
+
+    const metaRow = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+            <span class="tag tag-blue">${p.projectType || '内部研发'}</span>
+            <span class="tag tag-orange">优先级：${p.priority || '高'}</span>
+            <span class="tag tag-purple">预计 ${p.timeline?.estimatedDuration || '12 周'}</span>
+        </div>`;
+
+    // 概述
+    const overview = `
+        <div class="plan-section">
+            <h3><span class="icon">📋</span> 项目概述</h3>
+            <div class="editable-area" contenteditable="true" data-field="overview">${p.overview || ''}</div>
+        </div>`;
+
+    // 目标
+    const objectives = `
+        <div class="plan-section">
+            <h3><span class="icon">🎯</span> 项目目标</h3>
+            <ul class="editable-area" contenteditable="true" data-field="objectives">${(p.objectives || []).map(o => `<li>${o}</li>`).join('')}</ul>
+        </div>`;
+
+    // 范围
+    const scope = `
+        <div class="plan-section">
+            <h3><span class="icon">📐</span> 项目范围</h3>
+            <p style="font-weight:600;margin-bottom:4px;">范围内</p>
+            <ul class="editable-area" contenteditable="true" data-field="scopeIn">${(p.scope?.inScope || []).map(s => `<li>${s}</li>`).join('')}</ul>
+            <p style="font-weight:600;margin:10px 0 4px;">范围外</p>
+            <ul class="editable-area" contenteditable="true" data-field="scopeOut">${(p.scope?.outOfScope || []).map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>`;
+
+    // WBS
+    const wbs = `
+        <div class="plan-section">
+            <h3><span class="icon">🧩</span> 工作分解 (WBS)</h3>
+            ${(p.wbs || []).map(phase => `
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span class="tag tag-blue">${phase.phase}</span>
+                        <span style="font-size:12px;color:var(--text-tertiary);">${phase.duration || ''}</span>
+                    </div>
+                    <ul style="padding-left:24px;" class="editable-area" contenteditable="true" data-field="wbs">${phase.tasks.map(t => `<li>${t}</li>`).join('')}</ul>
+                </div>`).join('')}
+        </div>`;
+
+    // 资源
+    const resources = `
+        <div class="plan-section">
+            <h3><span class="icon">👥</span> 资源需求</h3>
+            <div class="team-grid">
+                ${(p.resources?.requiredRoles || []).map(r => `
+                    <div class="team-card">
+                        <div class="team-role">${r.role}</div>
+                        <div class="team-desc">${r.desc || ''}</div>
+                        <div class="team-count">${r.count} 人</div>
+                    </div>`).join('')}
+            </div>
+            <div style="margin-top:8px;font-size:13px;color:var(--text-secondary);">团队规模：约 <strong>${p.resources?.totalHeadcount || '-'}</strong> 人</div>
+        </div>`;
+
+    // 风险
+    const risks = `
+        <div class="plan-section">
+            <h3><span class="icon">⚠️</span> 风险识别</h3>
+            ${(p.risks || []).map(r => {
+                const cls = r.level === '高' ? 'high' : (r.level === '中' ? 'mid' : 'low');
+                return `<div class="risk-row ${cls}">
+                    <span class="tag ${cls === 'high' ? 'tag-red' : (cls === 'mid' ? 'tag-orange' : 'tag-green')}">${r.level}</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;">${r.title}</div>
+                        <div style="font-size:13px;color:var(--text-secondary);margin-top:2px;">${r.mitigation}</div>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>`;
+
+    // 里程碑
+    const milestones = `
+        <div class="plan-section">
+            <h3><span class="icon">🏁</span> 里程碑</h3>
+            ${(p.milestones || []).map(m => `
+                <div class="milestone-row">
+                    <div class="ms-dot pending"></div>
+                    <div class="ms-info">
+                        <div class="ms-name">${m.name}</div>
+                        <div class="ms-date">交付物：${(m.deliverables || []).join('、')}</div>
+                    </div>
+                </div>`).join('')}
+        </div>`;
+
+    // 交付物
+    const deliverables = `
+        <div class="plan-section">
+            <h3><span class="icon">📦</span> 交付物清单</h3>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                ${(p.deliverables || []).map(d => `
+                    <span class="tag tag-blue">${d.name} <span style="opacity:.6;margin-left:4px;">${d.format}</span></span>`).join('')}
+            </div>
+        </div>`;
+
+    document.getElementById('previewContent').innerHTML =
+        metaRow + overview + objectives + scope + wbs + resources + risks + milestones + deliverables;
+}
+
+// ─── 下载 Word ───
+function handleDownload() {
+    syncEditedPlan();
+    const p = expandedPlan;
+
+    let html = `<h1>${p.projectName} — 项目方案</h1>`;
+    html += `<div class="meta-row"><span>类型：${p.projectType}</span><span>优先级：${p.priority}</span><span>周期：${p.timeline?.estimatedDuration}</span></div>`;
+    html += `<h2>1. 项目概述</h2><p>${p.overview}</p>`;
+    html += `<h2>2. 项目目标</h2><ol>${(p.objectives || []).map(o => `<li>${o}</li>`).join('')}</ol>`;
+    html += `<h2>3. 项目范围</h2><h3>范围内</h3><ul>${(p.scope?.inScope || []).map(s => `<li>${s}</li>`).join('')}</ul><h3>范围外</h3><ul>${(p.scope?.outOfScope || []).map(s => `<li>${s}</li>`).join('')}</ul>`;
+    html += `<h2>4. 工作分解 (WBS)</h2>`;
+    (p.wbs || []).forEach((ph, i) => {
+        html += `<h3>${i + 1}. ${ph.phase}（${ph.duration || ''}）</h3><ol>${ph.tasks.map(t => `<li>${t}</li>`).join('')}</ol>`;
+    });
+    html += `<h2>5. 资源需求</h2><table><tr><th>角色</th><th>人数</th><th>职责</th></tr>${(p.resources?.requiredRoles || []).map(r => `<tr><td>${r.role}</td><td>${r.count}</td><td>${r.desc || '-'}</td></tr>`).join('')}</table>`;
+    html += `<h2>6. 风险识别</h2><table><tr><th>风险</th><th>等级</th><th>缓解措施</th></tr>${(p.risks || []).map(r => `<tr><td>${r.title}</td><td>${r.level}</td><td>${r.mitigation}</td></tr>`).join('')}</table>`;
+    html += `<h2>7. 里程碑</h2><table><tr><th>里程碑</th><th>交付物</th></tr>${(p.milestones || []).map(m => `<tr><td>${m.name}</td><td>${(m.deliverables || []).join('、')}</td></tr>`).join('')}</table>`;
+    html += `<h2>8. 交付物清单</h2><table><tr><th>交付物</th><th>格式</th></tr>${(p.deliverables || []).map(d => `<tr><td>${d.name}</td><td>${d.format}</td></tr>`).join('')}</table>`;
+
+    downloadAsWord(html, p.projectName + ' - 项目方案');
+}
+
+// ─── 同步用户编辑内容到 plan 对象 ───
+function syncEditedPlan() {
+    if (!expandedPlan) return;
+    document.querySelectorAll('.editable-area').forEach(el => {
+        const field = el.dataset.field;
+        if (!field) return;
+        if (field === 'overview') expandedPlan.overview = el.innerText.trim();
+        if (field === 'objectives') expandedPlan.objectives = [...el.querySelectorAll('li')].map(li => li.innerText.trim());
+        if (field === 'scopeIn') expandedPlan.scope.inScope = [...el.querySelectorAll('li')].map(li => li.innerText.trim());
+        if (field === 'scopeOut') expandedPlan.scope.outOfScope = [...el.querySelectorAll('li')].map(li => li.innerText.trim());
+        if (field === 'wbs') {
+            // 按 phase 分组还原
+            const lis = [...el.querySelectorAll('li')].map(li => li.innerText.trim()).filter(Boolean);
+            let idx = 0;
+            expandedPlan.wbs.forEach(phase => {
+                const count = phase._origCount || phase.tasks.length;
+                phase.tasks = lis.slice(idx, idx + count);
+                idx += count;
+            });
+        }
+    });
+}
+
+// 保存原始 task 数量用于编辑同步
+(function patchWbs() {
+    const origRender = renderPreview;
+    renderPreview = function() {
+        origRender();
+        if (expandedPlan?.wbs) {
+            expandedPlan.wbs.forEach(ph => { ph._origCount = ph.tasks.length; });
+        }
+    };
+})();
+
+// ─── Step 3: 项目拆分 ───
+async function goToBreakdown() {
+    syncEditedPlan();
+    goStep(3);
+
+    try {
+        const result = await callAI('breakdown', { plan: expandedPlan });
+        if (!result.success) throw new Error(result.error || '拆分失败');
+
+        breakdownData = result.data;
+        renderBreakdown();
+        goStep(4);
+    } catch (err) {
+        showError('项目拆分失败', err.message);
+    }
+}
+
+// ─── Step 4: 渲染拆分结果 ───
+function renderBreakdown() {
+    const d = breakdownData;
+    const totalTasks = (d.tasks || []).length;
+    const highTasks  = (d.tasks || []).filter(t => t.priority === '高').length;
+    const phases     = [...new Set((d.tasks || []).map(t => t.phase))];
+
+    const statsHtml = `
+        <div class="bd-stats">
+            <div class="bd-stat"><div class="bd-stat-num" style="color:var(--blue);">${totalTasks}</div><div class="bd-stat-label">总任务</div></div>
+            <div class="bd-stat"><div class="bd-stat-num" style="color:var(--red);">${highTasks}</div><div class="bd-stat-label">高优先级</div></div>
+            <div class="bd-stat"><div class="bd-stat-num" style="color:var(--purple);">${phases.length}</div><div class="bd-stat-label">阶段</div></div>
+            <div class="bd-stat"><div class="bd-stat-num" style="color:var(--green);">${(d.milestones || []).length}</div><div class="bd-stat-label">里程碑</div></div>
+            <div class="bd-stat"><div class="bd-stat-num" style="color:var(--orange);">${(d.team || []).length}</div><div class="bd-stat-label">团队角色</div></div>
+        </div>`;
+
+    // 任务表格
+    const taskRows = (d.tasks || []).map(t => {
+        const prCls = t.priority === '高' ? 'tag-red' : (t.priority === '中' ? 'tag-orange' : 'tag-blue');
+        return `<tr>
+            <td style="font-weight:600;color:var(--text-secondary);">${t.id}</td>
+            <td>${t.name}</td>
+            <td style="color:var(--text-tertiary);font-size:12px;">${t.phase}</td>
+            <td><span class="tag ${prCls}">${t.priority}</span></td>
+            <td style="color:var(--text-tertiary);">${t.duration} 天</td>
+            <td>${t.assignee}</td>
+        </tr>`;
+    }).join('');
+
+    const taskTable = `
+        <div class="plan-section">
+            <h3><span class="icon">📝</span> 任务清单</h3>
+            <div class="task-table-wrap" style="overflow-x:auto;">
+                <table class="task-table">
+                    <thead><tr><th>ID</th><th>任务名称</th><th>阶段</th><th>优先级</th><th>工期</th><th>负责人</th></tr></thead>
+                    <tbody>${taskRows}</tbody>
+                </table>
+            </div>
+        </div>`;
+
+    // 里程碑
+    const msHtml = `
+        <div class="plan-section">
+            <h3><span class="icon">🏁</span> 里程碑</h3>
+            ${(d.milestones || []).map(m => `
+                <div class="milestone-row">
+                    <div class="ms-dot pending"></div>
+                    <div class="ms-info"><div class="ms-name">${m.name}</div><div class="ms-date">${m.targetDate}</div></div>
+                </div>`).join('')}
+        </div>`;
+
+    // 团队
+    const teamHtml = `
+        <div class="plan-section">
+            <h3><span class="icon">👥</span> 团队配置</h3>
+            <div class="team-grid">
+                ${(d.team || []).map(t => `
+                    <div class="team-card">
+                        <div class="team-role">${t.role}</div>
+                        <div class="team-desc">${t.desc || ''}</div>
+                        <div class="team-count">${t.count} 人 · 待分配</div>
+                    </div>`).join('')}
+            </div>
+        </div>`;
+
+    // 风险
+    const riskHtml = `
+        <div class="plan-section">
+            <h3><span class="icon">⚠️</span> 风险项</h3>
+            ${(d.risks || []).map(r => {
+                const cls = r.level === '高' ? 'high' : (r.level === '中' ? 'mid' : 'low');
+                return `<div class="risk-row ${cls}"><span class="tag ${cls === 'high' ? 'tag-red' : (cls === 'mid' ? 'tag-orange' : 'tag-green')}">${r.level}</span><div style="flex:1;"><div style="font-weight:600;font-size:14px;">${r.title}</div><div style="font-size:13px;color:var(--text-secondary);">${r.mitigation}</div></div></div>`;
+            }).join('')}
+        </div>`;
+
+    document.getElementById('breakdownContent').innerHTML = statsHtml + taskTable + msHtml + teamHtml + riskHtml;
+}
+
+// ─── Step 5: 确认创建 ───
+function confirmCreate() {
+    // 通过 data-store 保存（自动处理默认字段）
+    const saved = PMOData.add(breakdownData);
+    createdProjectId = saved.projectId;
+
+    // 渲染成功页
+    document.getElementById('successSub').textContent = `「${breakdownData.projectName}」已成功创建，可在 Dashboard 中查看和管理`;
+    document.getElementById('successDetail').innerHTML = `
+        <div class="card" style="padding:20px;">
+            <div class="sec-title"><span class="icon">📊</span> 创建摘要</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+                <div><span style="color:var(--text-tertiary);">项目 ID</span><div style="font-weight:600;">${breakdownData.projectId}</div></div>
+                <div><span style="color:var(--text-tertiary);">项目名称</span><div style="font-weight:600;">${breakdownData.projectName}</div></div>
+                <div><span style="color:var(--text-tertiary);">起止日期</span><div style="font-weight:600;">${breakdownData.startDate} → ${breakdownData.endDate}</div></div>
+                <div><span style="color:var(--text-tertiary);">任务总数</span><div style="font-weight:600;">${breakdownData.tasks.length} 个</div></div>
+            </div>
+        </div>`;
+
+    // 隐藏 stepper
+    document.getElementById('stepper').style.display = 'none';
+    document.querySelector('.step-labels').style.display = 'none';
+
+    showPanel('panel-5');
+}
+
+// ─── 查看项目 ───
+function viewProject() {
+    location.href = `project-detail.html?id=${createdProjectId}`;
+}
+
+// ─── Stepper 导航 ───
+function goStep(step) {
+    currentStep = step;
+    // 更新 dots
+    document.querySelectorAll('.step-dot').forEach(dot => {
+        const s = +dot.dataset.step;
+        dot.classList.remove('active', 'done');
+        if (s < step) dot.classList.add('done');
+        if (s === step) dot.classList.add('active');
+    });
+    // 更新 lines
+    document.querySelectorAll('.step-line').forEach(line => {
+        const l = +line.dataset.line;
+        line.classList.toggle('done', l < step);
+    });
+    // 更新 labels
+    document.querySelectorAll('.step-label').forEach(label => {
+        const l = +label.dataset.label;
+        label.classList.remove('active', 'done');
+        if (l < step) label.classList.add('done');
+        if (l === step) label.classList.add('active');
+    });
+    // 显示对应 panel
+    const panelId = step <= 4 ? `panel-${step}` : `panel-${step}`;
+    showPanel(panelId);
+}
+
+function showPanel(id) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(id);
+    if (panel) panel.classList.add('active');
+}
+
+function showError(title, msg) {
+    document.getElementById('stepper').style.display = 'none';
+    document.querySelector('.step-labels').style.display = 'none';
+    document.getElementById('errorTitle').textContent = title;
+    document.getElementById('errorMsg').textContent = msg;
+    showPanel('panel-error');
+}
+</script>
+</body>
+</html>

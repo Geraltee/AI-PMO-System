@@ -3,131 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目列表 - PMO Dashboard</title>
+    <title>项目列表 — PMO Dashboard</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        .nav-bar { background: white; padding: 15px 30px; border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 0; }
-        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
-        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
-        .nav-links a:hover { background: #f5f5f5; }
-        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .content-card { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 30px; margin-bottom: 30px; }
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
-        .card-title { font-size: 24px; font-weight: 600; color: #333; }
-        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
-        .project-card { background: #f9f9f9; border-radius: 12px; padding: 20px; border-left: 4px solid #667eea; transition: all 0.3s; cursor: pointer; }
-        .project-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .project-card.urgent { border-left-color: #c62828; }
-        .project-card.warning { border-left-color: #f57c00; }
-        .project-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 10px; }
-        .project-meta { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
-        .meta-item { font-size: 13px; color: #666; display: flex; align-items: center; gap: 5px; }
-        .project-progress { margin-top: 15px; }
-        .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: #666; }
-        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px; }
-        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .status-on-track { background: #e8f5e9; color: #388e3c; }
-        .status-at-risk { background: #fff3e0; color: #f57c00; }
-        .status-delayed { background: #ffebee; color: #c62828; }
-        .last-updated { text-align: center; color: rgba(255,255,255,0.8); margin-top: 30px; padding: 20px; }
+        :root {
+            --bg-page:#F5F5F7; --bg-card:#FFFFFF;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+            --radius-card:16px; --radius-sm:10px; --radius-pill:20px;
+            --blue:#007AFF; --blue-light:#E5F1FF;
+            --green:#34C759; --green-light:#E8F9ED;
+            --orange:#FF9500; --orange-light:#FFF4E5;
+            --red:#FF3B30; --red-light:#FFEBEA;
+            --gray:#86868B; --gray-light:#F2F2F7; --gray-border:#D2D2D7;
+            --text-primary:#1D1D1F; --text-secondary:#86868B; --text-tertiary:#AEAEB2;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+        .container{max-width:1200px;margin:0 auto;padding:40px 24px;}
+
+        .nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+        .nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;color:var(--text-primary);}
+        .nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+        .nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+        .nav-links a.active{background:var(--blue);color:#fff;}
+
+        .page-header{margin-bottom:28px;}
+        .page-header h1{font-size:32px;font-weight:700;color:var(--text-primary);letter-spacing:-0.8px;margin-bottom:4px;}
+        .page-header p{font-size:15px;color:var(--text-secondary);}
+
+        .card{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .card-title{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-0.2px;display:flex;align-items:center;gap:8px;}
+
+        .pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:var(--radius-pill);}
+        .pill-green{background:var(--green-light);color:var(--green);}
+        .pill-orange{background:var(--orange-light);color:var(--orange);}
+        .pill-red{background:var(--red-light);color:var(--red);}
+        .pill-blue{background:var(--blue-light);color:var(--blue);}
+
+        .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .btn-primary{background:var(--blue);color:white;}
+        .btn-primary:hover{background:#0066D6;}
+        .btn-ghost{background:transparent;color:var(--blue);}
+        .btn-ghost:hover{background:var(--blue-light);}
+
+        .filter-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+        .filter-pill{font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--gray-border);background:white;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;}
+        .filter-pill:hover{border-color:var(--blue);color:var(--blue);}
+        .filter-pill.active{background:var(--blue);color:white;border-color:var(--blue);}
+
+        .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;}
+        .project-card{
+            background:#FAFAFA;
+            border-radius:var(--radius-card);
+            padding:22px;
+            border:1.5px solid var(--gray-border);
+            transition:all 0.2s ease;
+            cursor:pointer;
+            position:relative;
+            overflow:hidden;
+        }
+        .project-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:16px 0 0 16px;}
+        .project-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);border-color:transparent;}
+        .project-card.urgent::before{background:var(--red);}
+        .project-card.warning::before{background:var(--orange);}
+        .project-card.normal::before{background:var(--green);}
+        .project-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+        .project-name{font-size:16px;font-weight:600;color:var(--text-primary);line-height:1.3;}
+        .project-id{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+        .project-meta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+        .meta-item{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+        .project-progress{margin-bottom:10px;}
+        .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px;}
+        .progress-bar{width:100%;height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;}
+        .progress-fill{height:100%;border-radius:3px;}
+        .project-alert{font-size:12px;color:var(--text-secondary);padding:6px 10px;border-radius:6px;margin-top:10px;display:flex;align-items:center;gap:4px;}
+
+        .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+        @media(max-width:700px){.project-grid{grid-template-columns:1fr;}}
+
+        /* ─── New Project Modal ─── */
+        .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s;}
+        .modal-overlay.open{opacity:1;visibility:visible;}
+        .modal{background:var(--bg-card);border-radius:var(--radius-card);width:580px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.18);transform:translateY(20px) scale(0.97);transition:transform .3s cubic-bezier(.32,.72,0,1);padding:28px 28px 24px;}
+        .modal-overlay.open .modal{transform:translateY(0) scale(1);}
+        .modal-title{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+        .modal-subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
+        .modal-section{margin-bottom:4px;}
+        .modal-section-label{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+        .modal-section-label .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-pill);background:var(--blue-light);color:var(--blue);}
+        .modal-textarea{width:100%;min-height:100px;border:1.5px solid var(--gray-border);border-radius:var(--radius-sm);padding:14px 16px;font-size:14px;font-family:inherit;resize:vertical;color:var(--text-primary);outline:none;transition:border-color .2s;line-height:1.6;}
+        .modal-textarea:focus{border-color:var(--blue);}
+        .modal-textarea::placeholder{color:var(--text-tertiary);}
+        .modal-divider{border:none;border-top:2px dashed var(--gray-border);margin:18px 0;position:relative;}
+        .modal-divider::after{content:'OR';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card);padding:0 12px;font-size:12px;font-weight:700;color:var(--text-tertiary);letter-spacing:1px;}
+        .upload-zone{border:2px dashed var(--gray-border);border-radius:var(--radius-sm);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--gray-light);}
+        .upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:var(--blue-light);}
+        .upload-zone.has-file{border-color:var(--green);background:var(--green-light);}
+        .upload-icon{font-size:32px;margin-bottom:8px;}
+        .upload-text{font-size:14px;color:var(--text-secondary);margin-bottom:4px;}
+        .upload-hint{font-size:12px;color:var(--text-tertiary);}
+        .upload-file-info{font-size:13px;font-weight:600;color:var(--green);margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;}
+        .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+        .btn-lg{padding:10px 22px;font-size:14px;border-radius:var(--radius-sm);}
+        .btn-cancel{background:var(--gray-light);color:var(--text-primary);border:none;cursor:pointer;font-family:inherit;font-weight:500;transition:background .15s;}
+        .btn-cancel:hover{background:#E5E5EA;}
+        .btn-create{background:var(--blue);color:white;border:none;cursor:pointer;font-family:inherit;font-weight:600;transition:background .15s;opacity:0.4;pointer-events:none;}
+        .btn-create.active{opacity:1;pointer-events:auto;}
+        .btn-create.active:hover{background:#0066D6;}
+        .modal-error{font-size:12px;color:var(--red);margin-top:6px;display:none;}
+        .modal-error.show{display:block;}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav-bar">
-            <div class="nav-links">
-                <a href="index.html">📊 概览</a>
-                <a href="projects.html" class="active">📁 项目</a>
-                <a href="team.html">👥 团队</a>
-                <a href="risks.html">⚠️ 风险</a>
-                <a href="documents.html">📄 文档</a>
-            </div>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">P</div>
+            PMO Dashboard
         </div>
-        <div class="content-card">
-            <div class="card-header">
-                <div class="card-title">📁 所有项目</div>
-                <div style="display:flex;gap:10px;">
-                    <button style="padding:10px 20px;background:#f5f5f5;border:none;border-radius:8px;cursor:pointer;">🔍 筛选</button>
-                    <button style="padding:10px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;">➕ 新建项目</button>
-                </div>
-            </div>
-            <div class="project-grid">
-                <div class="project-card urgent" onclick="location.href='project-detail.html?id=PRJ-2026-001'">
-                    <div class="project-name">🤖 AI Smart Customer Service Upgrade</div>
-                    <div class="project-meta">
-                        <span class="meta-item">📋 PRJ-2026-001</span>
-                        <span class="meta-item">👤 张三</span>
-                        <span class="meta-item">📅 2026-03-15 ~ 2026-05-31</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><span class="status-badge status-at-risk">🟡 进行中</span></div>
-                    <div class="project-progress">
-                        <div class="progress-label"><span>完成度</span><span>35%</span></div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:35%;"></div></div>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;">⚠️ 1 个紧急任务 | 3 个警告任务</div>
-                </div>
-                <div class="project-card" style="border-left-color:#388e3c;">
-                    <div class="project-name">💼 CRM 系统迁移</div>
-                    <div class="project-meta">
-                        <span class="meta-item">📋 PRJ-2026-002</span>
-                        <span class="meta-item">👤 李四</span>
-                        <span class="meta-item">📅 2026-04-01 ~ 2026-06-30</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><span class="status-badge status-on-track">🟢 正常</span></div>
-                    <div class="project-progress">
-                        <div class="progress-label"><span>完成度</span><span>55%</span></div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:55%;background:#388e3c;"></div></div>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;">✅ 所有任务正常进行</div>
-                </div>
-                <div class="project-card warning">
-                    <div class="project-name">📊 数据分析平台</div>
-                    <div class="project-meta">
-                        <span class="meta-item">📋 PRJ-2026-003</span>
-                        <span class="meta-item">👤 王五</span>
-                        <span class="meta-item">📅 2026-03-20 ~ 2026-06-15</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><span class="status-badge status-at-risk">🟠 风险</span></div>
-                    <div class="project-progress">
-                        <div class="progress-label"><span>完成度</span><span>42%</span></div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:42%;background:#f57c00;"></div></div>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;">⚠️ 资源冲突 | 进度滞后</div>
-                </div>
-                <div class="project-card" style="border-left-color:#388e3c;">
-                    <div class="project-name">📱 移动端应用开发</div>
-                    <div class="project-meta">
-                        <span class="meta-item">📋 PRJ-2026-004</span>
-                        <span class="meta-item">👤 赵六</span>
-                        <span class="meta-item">📅 2026-04-10 ~ 2026-07-10</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><span class="status-badge status-on-track">🟢 正常</span></div>
-                    <div class="project-progress">
-                        <div class="progress-label"><span>完成度</span><span>20%</span></div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:20%;background:#388e3c;"></div></div>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;">✅ 所有任务正常进行</div>
-                </div>
-                <div class="project-card" style="border-left-color:#c62828;">
-                    <div class="project-name">🔒 安全合规审计</div>
-                    <div class="project-meta">
-                        <span class="meta-item">📋 PRJ-2026-005</span>
-                        <span class="meta-item">👤 钱七</span>
-                        <span class="meta-item">📅 2026-03-01 ~ 2026-04-30</span>
-                    </div>
-                    <div style="margin-bottom:10px;"><span class="status-badge status-delayed">🔴 延期</span></div>
-                    <div class="project-progress">
-                        <div class="progress-label"><span>完成度</span><span>68%</span></div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:68%;background:#c62828;"></div></div>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;">🔴 已延期 5 天 | 需立即处理</div>
-                </div>
-            </div>
-        </div>
-        <div class="last-updated"><p>最后更新：2026-04-07 10:56 EDT | 共 5 个项目</p></div>
+        <ul class="nav-links">
+            <li><a href="index.html">概览</a></li>
+            <li><a href="projects.html" class="active">项目</a></li>
+            <li><a href="team.html">团队</a></li>
+            <li><a href="documents.html">文档</a></li>
+            <li><a href="gantt.html">甘特图</a></li>
+            <li><a href="personal.html">个人</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>所有项目</h1>
+        <p>管理并跟踪所有项目的进度、里程碑与资源分配</p>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">◈ 项目列表</div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-ghost">筛选</button>
+                <button class="btn btn-primary" onclick="openNewProjectModal()">+ 新建项目</button>
+            </div>
+        </div>
+
+        <div class="filter-bar" id="filterBar"></div>
+
+        <div class="project-grid" id="projectGrid"></div>
+    </div>
+
+    <div class="footer" id="footerText"></div>
+</div>
+
+<!-- ═══ New Project Modal ═══ -->
+<div class="modal-overlay" id="newProjectModal">
+    <div class="modal">
+        <div class="modal-title">创建新项目</div>
+        <div class="modal-subtitle">输入项目简介或上传已有文档，AI 将自动生成完整项目方案</div>
+
+        <!-- 上半部分：文字输入 -->
+        <div class="modal-section">
+            <div class="modal-section-label">项目简介 <span class="badge">AI 扩写</span></div>
+            <textarea class="modal-textarea" id="inputDesc" placeholder="请描述您的项目目标、范围和关键需求…&#10;&#10;例如：建设一套企业级知识管理系统，支持文档协作、智能检索和权限管理" oninput="onModalInput()"></textarea>
+            <div class="modal-error" id="descError">请输入至少 10 个字的项目简介</div>
+        </div>
+
+        <!-- 虚线分隔 -->
+        <hr class="modal-divider">
+
+        <!-- 下半部分：文件上传 -->
+        <div class="modal-section">
+            <div class="modal-section-label">上传文档 <span class="badge">AI 解析</span></div>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+                 ondragover="event.preventDefault();this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="handleDrop(event)">
+                <div class="upload-icon" id="uploadIcon">📄</div>
+                <div class="upload-text" id="uploadText">点击或拖拽文件到此处</div>
+                <div class="upload-hint">支持 .docx / .doc / .pdf，最大 10 MB</div>
+                <div class="upload-file-info" id="uploadFileInfo" style="display:none;"></div>
+                <input type="file" id="fileInput" accept=".docx,.doc,.pdf" style="display:none" onchange="handleFileSelect(event)">
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="modal-actions">
+            <button class="btn-cancel btn-lg" onclick="closeNewProjectModal()">取消</button>
+            <button class="btn-create btn-lg" id="btnCreate" onclick="startCreateProject()">开始创建</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/data-store.js"></script>
+<script>
+    // ─── 筛选状态 ───
+    let currentFilter = '全部';
+
+    // ─── 动态渲染项目列表 ───
+    function renderProjects() {
+        const allProjects = PMOData.getAll();
+
+        // 统计各状态数量
+        const counts = { '全部': allProjects.length, '正常': 0, '有风险': 0, '已延期': 0, '规划中': 0 };
+        allProjects.forEach(p => {
+            if (counts[p.status] !== undefined) counts[p.status]++;
+            // 进行中 归入 正常
+            if (p.status === '进行中') counts['正常']++;
+        });
+
+        // 渲染筛选栏
+        const filterBar = document.getElementById('filterBar');
+        filterBar.innerHTML = Object.entries(counts).map(([label, count]) => {
+            const emoji = label === '全部' ? '' : (label === '正常' ? '🟢 ' : (label === '有风险' ? '🟠 ' : (label === '已延期' ? '🔴 ' : '🔵 ')));
+            const cls = label === currentFilter ? 'filter-pill active' : 'filter-pill';
+            return `<button class="${cls}" onclick="setFilter('${label}')">${emoji}${label} (${count})</button>`;
+        }).join('');
+
+        // 筛选项目
+        const filtered = currentFilter === '全部' ? allProjects :
+            currentFilter === '正常' ? allProjects.filter(p => p.status === '正常' || p.status === '进行中') :
+            allProjects.filter(p => p.status === currentFilter);
+
+        // 渲染项目卡片
+        const grid = document.getElementById('projectGrid');
+        grid.innerHTML = filtered.map(p => {
+            const statusCls = PMOData.getStatusClass(p.status);
+            const pill = PMOData.getStatusPill(p.status);
+            const pColor = statusCls === 'urgent' ? 'var(--red)' : (statusCls === 'warning' ? 'var(--orange)' : 'var(--green)');
+            const aColor = statusCls === 'urgent' ? 'var(--red-light)' : (statusCls === 'warning' ? 'var(--orange-light)' : 'var(--green-light)');
+            const tasks = (p.tasks || []).length;
+            const start = (p.startDate || '').slice(5).replace('-', '~');
+            const end = (p.endDate || '').slice(5).replace('-', '');
+            const alert = p.alertText || '';
+
+            return `<div class="project-card ${statusCls}" onclick="location.href='project-detail.html?id=${p.projectId}'">
+                <div class="project-top">
+                    <div>
+                        <div class="project-name">${p.projectName || p.projectId}</div>
+                        <div class="project-id">${p.projectId}</div>
+                    </div>
+                    <span class="pill ${pill.cls}">${pill.text}</span>
+                </div>
+                <div class="project-meta">
+                    <span class="meta-item">👤 ${p.manager || '待分配'}</span>
+                    <span class="meta-item">📅 ${start} ~ ${end}</span>
+                    <span class="meta-item">🔢 ${tasks} 个任务</span>
+                </div>
+                <div class="project-progress">
+                    <div class="progress-label"><span>完成度</span><span style="font-weight:600;color:var(--text-primary);">${p.progress || 0}%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${p.progress||0}%;background:${pColor};"></div></div>
+                </div>
+                ${alert ? `<div class="project-alert" style="background:${aColor};color:${pColor};">${alert}</div>` : ''}
+            </div>`;
+        }).join('');
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-tertiary);font-size:15px;">暂无此状态的项目</div>';
+        }
+
+        // 页脚
+        document.getElementById('footerText').textContent = `共 ${allProjects.length} 个项目 · 数据实时同步`;
+    }
+
+    function setFilter(filter) {
+        currentFilter = filter;
+        renderProjects();
+    }
+
+    // ─── Modal 控制 ───
+    let selectedFile = null;
+
+    function openNewProjectModal() {
+        document.getElementById('newProjectModal').classList.add('open');
+        document.getElementById('inputDesc').value = '';
+        document.getElementById('inputDesc').focus();
+        resetUpload();
+        updateCreateBtn();
+    }
+
+    function closeNewProjectModal() {
+        document.getElementById('newProjectModal').classList.remove('open');
+    }
+
+    function resetUpload() {
+        selectedFile = null;
+        document.getElementById('fileInput').value = '';
+        const zone = document.getElementById('uploadZone');
+        zone.classList.remove('has-file');
+        document.getElementById('uploadIcon').textContent = '📄';
+        document.getElementById('uploadText').textContent = '点击或拖拽文件到此处';
+        document.getElementById('uploadFileInfo').style.display = 'none';
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) setFile(file);
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('uploadZone').classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) setFile(file);
+    }
+
+    function setFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['docx', 'doc', 'pdf'].includes(ext)) {
+            alert('仅支持 .docx / .doc / .pdf 文件');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('文件大小不能超过 10 MB');
+            return;
+        }
+        selectedFile = file;
+        const zone = document.getElementById('uploadZone');
+        zone.classList.add('has-file');
+        document.getElementById('uploadIcon').textContent = ext === 'pdf' ? '📕' : '📘';
+        document.getElementById('uploadText').textContent = '点击重新选择';
+        const info = document.getElementById('uploadFileInfo');
+        info.style.display = 'flex';
+        info.innerHTML = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+        // 输入框与文件互斥：选了文件清空描述
+        document.getElementById('inputDesc').value = '';
+        updateCreateBtn();
+    }
+
+    function onModalInput() {
+        // 输入了文字清除文件
+        if (selectedFile && document.getElementById('inputDesc').value.trim()) {
+            resetUpload();
+        }
+        updateCreateBtn();
+    }
+
+    function updateCreateBtn() {
+        const desc = document.getElementById('inputDesc').value.trim();
+        const btn  = document.getElementById('btnCreate');
+        const err  = document.getElementById('descError');
+        err.classList.remove('show');
+        if (desc.length >= 10 || selectedFile) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    }
+
+    function startCreateProject() {
+        const desc = document.getElementById('inputDesc').value.trim();
+
+        if (selectedFile) {
+            // 文件模式
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    sessionStorage.setItem('createMode', 'file');
+                    sessionStorage.setItem('createFileName', selectedFile.name);
+                    sessionStorage.setItem('createFileData', e.target.result);
+                    window.location.href = 'create-project.html';
+                } catch(err) {
+                    alert('文件过大，请使用文本输入模式');
+                }
+            };
+            reader.readAsDataURL(selectedFile);
+        } else if (desc.length >= 10) {
+            sessionStorage.setItem('createMode', 'text');
+            sessionStorage.setItem('createDesc', desc);
+            window.location.href = 'create-project.html';
+        } else {
+            document.getElementById('descError').classList.add('show');
+        }
+    }
+
+    // 点击蒙层关闭
+    document.getElementById('newProjectModal').addEventListener('click', function(e) {
+        if (e.target === this) closeNewProjectModal();
+    });
+
+    // ─── 页面加载时渲染 ───
+    renderProjects();
+
+    // 从创建页返回时自动刷新
+    if (performance.navigation.type === 2 || document.referrer.includes('create-project')) {
+        renderProjects();
+    }
+    window.addEventListener('pageshow', renderProjects);
+</script>
 </body>
 </html>

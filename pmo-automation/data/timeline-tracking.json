@@ -1,0 +1,120 @@
+{
+  "projectId": "PRJ-2026-001",
+  "projectName": "AI Smart Customer Service Upgrade",
+  "lastCheck": "2026-04-05T09:38:00-04:00",
+  "phases": [
+    {
+      "name": "Requirement Analysis",
+      "owner": "Wu Shi",
+      "ownerEmail": "wushi@company.com",
+      "startDate": "2026-04-04",
+      "endDate": "2026-04-18",
+      "status": "active",
+      "daysRemaining": 13,
+      "riskLevel": "low"
+    },
+    {
+      "name": "System Design",
+      "owner": "Li Si",
+      "ownerEmail": "lisi@company.com",
+      "startDate": "2026-04-19",
+      "endDate": "2026-05-03",
+      "status": "pending",
+      "daysRemaining": 28,
+      "riskLevel": "low"
+    },
+    {
+      "name": "UI/UX Design",
+      "owner": "Chen Qi",
+      "ownerEmail": "chenqi@company.com",
+      "startDate": "2026-04-19",
+      "endDate": "2026-05-10",
+      "status": "pending",
+      "daysRemaining": 35,
+      "riskLevel": "low"
+    },
+    {
+      "name": "Development",
+      "owner": "Wang Wu",
+      "ownerEmail": "wangwu@company.com",
+      "startDate": "2026-05-04",
+      "endDate": "2026-06-14",
+      "status": "pending",
+      "daysRemaining": 70,
+      "riskLevel": "low"
+    },
+    {
+      "name": "Testing",
+      "owner": "Liu Ba",
+      "ownerEmail": "liuba@company.com",
+      "startDate": "2026-06-15",
+      "endDate": "2026-06-28",
+      "status": "pending",
+      "daysRemaining": 84,
+      "riskLevel": "low"
+    },
+    {
+      "name": "Deployment",
+      "owner": "Zhou Jiu",
+      "ownerEmail": "zhoujiu@company.com",
+      "startDate": "2026-06-29",
+      "endDate": "2026-07-04",
+      "status": "pending",
+      "daysRemaining": 90,
+      "riskLevel": "low"
+    }
+  ],
+  "actionItems": [
+    {
+      "id": "AI-001",
+      "description": "安排利益相关者访谈 (Schedule stakeholder interviews)",
+      "owner": "PM (Zhang San)",
+      "ownerEmail": "zhangsan@company.com",
+      "dueDate": "2026-04-08",
+      "status": "pending",
+      "daysRemaining": 3,
+      "riskLevel": "medium",
+      "priority": "high"
+    },
+    {
+      "id": "AI-002",
+      "description": "需求收集会议 (Requirement collection meeting)",
+      "owner": "Wu Shi",
+      "ownerEmail": "wushi@company.com",
+      "dueDate": "2026-04-10",
+      "status": "pending",
+      "daysRemaining": 5,
+      "riskLevel": "medium",
+      "priority": "high"
+    },
+    {
+      "id": "M1",
+      "description": "M1: 需求确认 (Requirement Confirmation Milestone)",
+      "owner": "Wu Shi",
+      "ownerEmail": "wushi@company.com",
+      "dueDate": "2026-04-10",
+      "status": "pending",
+      "daysRemaining": 5,
+      "riskLevel": "medium",
+      "priority": "critical"
+    }
+  ],
+  "alerts": [
+    {
+      "type": "upcoming_deadline",
+      "severity": "medium",
+      "itemId": "AI-001",
+      "message": "Action Item AI-001 (Stakeholder Interviews) due in 3 days - 2026-04-08",
+      "owner": "Zhang San",
+      "ownerEmail": "zhangsan@company.com"
+    },
+    {
+      "type": "upcoming_milestone",
+      "severity": "medium",
+      "itemId": "M1",
+      "message": "Milestone M1 (Requirement Confirmation) due in 5 days - 2026-04-10",
+      "owner": "Wu Shi",
+      "ownerEmail": "wushi@company.com"
+    }
+  ]
+}

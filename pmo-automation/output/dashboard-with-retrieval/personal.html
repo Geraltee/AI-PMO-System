@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的工作台 — PMO Dashboard</title>
+<style>
+:root{
+  --bg-page:#F5F5F7;--bg-card:#FFFFFF;--bg-section:#F5F5F7;
+  --shadow-card:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);
+  --shadow-hover:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.08);
+  --radius-card:16px;--radius-sm:10px;--radius-pill:20px;
+  --blue:#007AFF;--blue-light:#E5F1FF;
+  --green:#34C759;--green-light:#E8F9ED;
+  --orange:#FF9500;--orange-light:#FFF4E5;
+  --red:#FF3B30;--red-light:#FFEBEA;
+  --purple:#AF52DE;--purple-light:#F3E5FF;
+  --gray:#86868B;--gray-light:#F2F2F7;--gray-border:#D2D2D7;
+  --text-primary:#1D1D1F;--text-secondary:#86868B;--text-tertiary:#AEAEB2;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg-page);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+.container{max-width:1200px;margin:0 auto;padding:40px 24px;}
+
+/* ─── Nav ─── */
+.nav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);border-radius:var(--radius-card);padding:0 20px;box-shadow:var(--shadow-card);margin-bottom:32px;height:60px;}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;}
+.nav-brand .logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+.nav-links{display:flex;gap:4px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:6px 14px;border-radius:var(--radius-pill);transition:all 0.2s;}
+.nav-links a:hover{background:var(--gray-light);color:var(--text-primary);}
+.nav-links a.active{background:var(--blue);color:#fff;}
+.user-switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);}
+.user-switch select{padding:5px 10px;border:1.5px solid var(--gray-border);border-radius:var(--radius-sm);font-size:13px;background:#FAFAFA;}
+
+/* ─── Header ─── */
+.page-header{margin-bottom:28px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.page-header h1{font-size:32px;font-weight:700;letter-spacing:-0.8px;}
+.page-header p{font-size:15px;color:var(--text-secondary);margin-top:4px;}
+
+/* ─── Cards ─── */
+.card{background:var(--bg-card);border-radius:var(--radius-card);padding:24px;box-shadow:var(--shadow-card);margin-bottom:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--gray-border);}
+.card-title{font-size:17px;font-weight:600;}
+.card-badge{padding:4px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--blue-light);color:var(--blue);}
+
+/* ─── Stats ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--bg-card);border-radius:var(--radius-card);padding:20px;box-shadow:var(--shadow-card);text-align:center;}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-0.5px;}
+.stat-label{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+
+/* ─── Task List ─── */
+.task-list{display:flex;flex-direction:column;gap:10px;}
+.task-item{padding:14px 16px;background:var(--bg-section);border-radius:var(--radius-sm);border-left:3px solid var(--divider);transition:all 0.2s;}
+.task-item:hover{box-shadow:var(--shadow-hover);background:var(--bg-card);}
+.task-item.done{border-left-color:var(--green);}
+.task-item.delayed{border-left-color:var(--red);background:var(--red-light);}
+.task-item.warning{border-left-color:var(--orange);background:var(--orange-light);}
+
+.task-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.task-name{font-weight:600;font-size:14px;}
+.task-meta{font-size:12px;color:var(--text-secondary);display:flex;gap:12px;flex-wrap:wrap;}
+.task-project{font-size:11px;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:var(--radius-pill);font-weight:600;}
+
+.progress-bar{width:100%;height:6px;background:var(--gray-light);border-radius:var(--radius-pill);overflow:hidden;margin:8px 0;}
+.progress-fill{height:100%;border-radius:var(--radius-pill);transition:width 0.3s ease;}
+
+.task-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.btn-sm{font-size:12px;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s;}
+.btn-primary-sm{background:var(--blue);color:white;}.btn-primary-sm:hover{background:#0066D6;}
+.btn-ghost-sm{background:transparent;color:var(--blue);border:1px solid var(--blue);}.btn-ghost-sm:hover{background:var(--blue-light);}
+
+.range-sm{width:120px;}
+
+/* ─── Tabs ─── */
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--gray-border);padding-bottom:1px;}
+.tab-btn{font-size:14px;font-weight:500;padding:8px 16px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab-btn:hover{color:var(--text-primary);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ─── Comments ─── */
+.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;max-height:300px;overflow-y:auto;}
+.comment-item{padding:12px 14px;background:var(--bg-section);border-radius:var(--radius-sm);}
+.comment-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;}
+.comment-author{font-weight:600;color:var(--text-primary);}
+.comment-time{color:var(--text-tertiary);}
+.comment-body{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+.comment-project{font-size:11px;color:var(--blue);margin-top:4px;}
+
+.comment-input-area{display:flex;gap:10px;}
+.comment-input{flex:1;padding:10px 14px;border:1.5px solid var(--gray-border);border-radius:var(--radius-sm);font-size:13px;background:#FAFAFA;}
+.comment-input:focus{outline:none;border-color:var(--blue);}
+
+/* ─── Requests ─── */
+.request-list{display:flex;flex-direction:column;gap:10px;}
+.request-item{padding:12px 14px;background:var(--bg-section);border-radius:var(--radius-sm);border-left:3px solid var(--orange);}
+.request-item.approved{border-left-color:var(--green);}
+.request-item.rejected{border-left-color:var(--red);}
+.request-header{display:flex;justify-content:space-between;margin-bottom:4px;}
+.request-title{font-weight:600;font-size:13px;}
+.request-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-pill);}
+.status-pending{background:var(--orange-light);color:var(--orange);}
+.status-approved{background:var(--green-light);color:var(--green);}
+.status-rejected{background:var(--red-light);color:var(--red);}
+
+/* ─── Modal ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:200;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--bg-card);border-radius:var(--radius-card);padding:28px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+.modal-body{margin-bottom:20px;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;}
+
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;}
+.form-input,.form-select{width:100%;padding:9px 12px;border:1.5px solid var(--gray-border);border-radius:var(--radius-sm);font-size:13px;background:#FAFAFA;}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--blue);background:white;}
+textarea.form-input{resize:vertical;min-height:60px;}
+
+/* ─── Empty ─── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-tertiary);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+
+.footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
+@media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<nav class="nav">
+  <div class="nav-brand"><div class="logo">P</div>PMO Dashboard</div>
+  <ul class="nav-links">
+    <li><a href="index.html">概览</a></li>
+    <li><a href="projects.html">项目</a></li>
+    <li><a href="team.html">团队</a></li>
+    <li><a href="documents.html">文档</a></li>
+    <li><a href="gantt.html">甘特图</a></li>
+    <li><a href="personal.html" class="active">个人</a></li>
+  </ul>
+  <div class="user-switch">
+    <span>👤</span>
+    <select id="userSelect" onchange="switchUser(this.value)">
+      <option value="">选择身份…</option>
+    </select>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div>
+    <h1 id="greeting">我的工作台</h1>
+    <p id="subGreeting">查看并管理分配给你的任务</p>
+  </div>
+</div>
+
+<!-- 工作概览 -->
+<div class="stats-grid" id="statsGrid"></div>
+
+<!-- 主体内容 -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tasks')">📋 我的任务</button>
+  <button class="tab-btn" onclick="switchTab('comments')">💬 评论</button>
+  <button class="tab-btn" onclick="switchTab('requests')">⏰ 时间申请</button>
+</div>
+
+<div id="tabContent"></div>
+
+<div class="footer" id="footerText"></div>
+
+</div>
+
+<!-- 申请延期 Modal -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <div class="modal-title">⏰ 申请时间变更</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">任务</label>
+        <input type="text" class="form-input" id="reqTaskName" readonly>
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">原截止日期</label>
+          <input type="date" class="form-input" id="reqOldDate" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">申请变更为</label>
+          <input type="date" class="form-input" id="reqNewDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">申请原因</label>
+        <textarea class="form-input" id="reqReason" placeholder="请说明变更原因…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-ghost-sm" onclick="closeModal()">取消</button>
+      <button class="btn-sm btn-primary-sm" onclick="submitRequest()">提交申请</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data-store.js"></script>
+<script>
+// ═══════════════════════════════════════════
+//  数据层扩展（评论 / 时间申请 / 当前用户）
+// ═══════════════════════════════════════════
+const EXT = {
+  key(k){ return 'pmo_' + k; },
+  get(k){ try{ return JSON.parse(localStorage.getItem(this.key(k))||'[]'); }catch(e){ return []; } },
+  set(k,v){ localStorage.setItem(this.key(k), JSON.stringify(v)); },
+  getUser(){ return localStorage.getItem(this.key('current_user')) || ''; },
+  setUser(v){ localStorage.setItem(this.key('current_user'), v); },
+};
+
+// ─── 收集所有 assignee 作为可选用户 ───
+function collectUsers(){
+  const names = new Set();
+  PMOData.getAll().forEach(p => {
+    (p.tasks||[]).forEach(t => { if(t.assignee) names.add(t.assignee); });
+    (p.team||[]).forEach(m => { if(m.name) names.add(m.name); });
+  });
+  return Array.from(names).sort();
+}
+
+let currentUser = EXT.getUser();
+let currentTab = 'tasks';
+let reqTarget = null; // { projectId, taskId }
+
+// ─── 初始化 ───
+function init(){
+  const users = collectUsers();
+  const sel = document.getElementById('userSelect');
+  sel.innerHTML = '<option value="">选择身份…</option>' + users.map(u =>
+    `<option value="${esc(u)}" ${u===currentUser?'selected':''}>${esc(u)}</option>`
+  ).join('');
+
+  if(!currentUser && users.length > 0){
+    currentUser = users[0];
+    EXT.setUser(currentUser);
+    sel.value = currentUser;
+  }
+
+  updateGreeting();
+  renderStats();
+  renderTab();
+  updateFooter();
+}
+
+function switchUser(name){
+  currentUser = name;
+  EXT.setUser(name);
+  updateGreeting();
+  renderStats();
+  renderTab();
+  updateFooter();
+}
+
+function updateGreeting(){
+  const h = document.getElementById('greeting');
+  const s = document.getElementById('subGreeting');
+  if(currentUser){
+    h.textContent = `👋 ${currentUser}，欢迎回来`;
+    s.textContent = '以下是你当前负责的任务与项目动态';
+  } else {
+    h.textContent = '我的工作台';
+    s.textContent = '请先选择你的身份以查看分配的任务';
+  }
+}
+
+// ─── 统计 ───
+function renderStats(){
+  if(!currentUser){ document.getElementById('statsGrid').innerHTML=''; return; }
+  const allTasks = PMOData.getAll().flatMap(p =>
+    (p.tasks||[]).filter(t => t.assignee === currentUser).map(t => ({...t, projectId:p.projectId, projectName:p.projectName}))
+  );
+  const today = new Date().toISOString().slice(0,10);
+  const todo = allTasks.filter(t => t.status !== '已完成').length;
+  const done = allTasks.filter(t => t.status === '已完成').length;
+  const delayed = allTasks.filter(t => t.endDate && t.endDate < today && t.status !== '已完成').length;
+  const dueToday = allTasks.filter(t => t.endDate === today && t.status !== '已完成').length;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-value" style="color:var(--orange);">${todo}</div><div class="stat-label">待办任务</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--green);">${done}</div><div class="stat-label">已完成</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--red);">${delayed}</div><div class="stat-label">已延期</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--blue);">${dueToday}</div><div class="stat-label">今日截止</div></div>
+  `;
+}
+
+// ─── Tab 切换 ───
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderTab();
+}
+
+function renderTab(){
+  const area = document.getElementById('tabContent');
+  if(!currentUser){ area.innerHTML=emptyState('请先选择你的身份'); return; }
+  if(currentTab === 'tasks') renderTasks(area);
+  else if(currentTab === 'comments') renderComments(area);
+  else if(currentTab === 'requests') renderRequests(area);
+}
+
+// ─── 任务列表 ───
+function renderTasks(container){
+  const projects = PMOData.getAll();
+  let myTasks = [];
+  projects.forEach(p => {
+    (p.tasks||[]).filter(t => t.assignee === currentUser).forEach(t => {
+      myTasks.push({...t, projectId:p.projectId, projectName:p.projectName});
+    });
+  });
+
+  // 排序：已延期 → 今日截止 → 进行中 → 已完成
+  const today = new Date().toISOString().slice(0,10);
+  myTasks.sort((a,b) => {
+    const score = t => {
+      if(t.status==='已完成') return 999;
+      if(t.endDate < today) return -100 + t.endDate.localeCompare(today);
+      if(t.endDate === today) return -50;
+      return 0;
+    };
+    return score(a) - score(b);
+  });
+
+  if(myTasks.length === 0){
+    container.innerHTML = emptyState('暂无分配给你的任务');
+    return;
+  }
+
+  let html = '<div class="task-list">';
+  myTasks.forEach(t => {
+    const isDone = t.status === '已完成';
+    const isDelayed = t.endDate && t.endDate < today && !isDone;
+    const isDueToday = t.endDate === today && !isDone;
+    const cls = isDone ? 'done' : (isDelayed ? 'delayed' : (isDueToday ? 'warning' : ''));
+    const projShort = t.projectName ? t.projectName.replace(/^[^\s]+\s/,'') : '';
+
+    html += `
+      <div class="task-item ${cls}">
+        <div class="task-row">
+          <div>
+            <div class="task-name">${t.id} ${t.name}</div>
+            <div class="task-meta">
+              <span class="task-project">${projShort}</span>
+              <span>${t.phase || ''}</span>
+              <span>截止 ${t.endDate || '待定'}</span>
+            </div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:${isDone?'var(--green)':isDelayed?'var(--red)':'var(--orange)'};">${t.status}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${t.progress||0}%;background:${isDone?'var(--green)':isDelayed?'var(--red)':'var(--blue)'}"></div></div>
+        <div class="task-actions">
+          <label style="font-size:12px;color:var(--text-secondary);">进度:</label>
+          <input type="range" class="range-sm" min="0" max="100" value="${t.progress||0}"
+            onchange="updateTaskProgress('${t.projectId}','${t.id}',this.value)">
+          <span style="font-size:12px;font-weight:600;min-width:36px;">${t.progress||0}%</span>
+          <button class="btn-sm btn-ghost-sm" onclick="openRequestModal('${t.projectId}','${t.id}')">⏰ 申请延期</button>
+          <button class="btn-sm btn-primary-sm" onclick="location.href='task-edit.html?projectId=${t.projectId}&taskId=${t.id}'">✏️ 编辑</button>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ─── 快速更新进度 ───
+function updateTaskProgress(pid, tid, val){
+  const proj = PMOData.getById(pid);
+  if(!proj) return;
+  const tasks = [...proj.tasks];
+  const idx = tasks.findIndex(t => t.id === tid);
+  if(idx === -1) return;
+  let status = tasks[idx].status;
+  const progress = parseInt(val);
+  if(progress === 100) status = '已完成';
+  else if(status === '已完成' && progress < 100) status = '进行中';
+  tasks[idx] = {...tasks[idx], progress, status};
+
+  // 同步更新团队（从 assignee 重新推导）
+  const memberMap = {};
+  tasks.forEach(t => {
+    if(!t.assignee) return;
+    if(!memberMap[t.assignee]) memberMap[t.assignee] = {name:t.assignee, role:'成员', load:0, desc:'', count:0};
+    memberMap[t.assignee].count++;
+    memberMap[t.assignee].load = Math.min(100, Math.round((memberMap[t.assignee].count/tasks.length)*100));
+  });
+  const derivedTeam = Object.values(memberMap).map(m => ({name:m.name, role:m.role, load:m.load, desc:m.desc}));
+
+  PMOData.update(pid, { tasks, team: derivedTeam });
+  const totalProg = tasks.length ? Math.round(tasks.reduce((s,t)=>s+(t.progress||0),0)/tasks.length) : 0;
+  PMOData.update(pid, { progress: totalProg });
+
+  renderStats();
+  renderTab();
+}
+
+// ─── 评论 ───
+function renderComments(container){
+  const comments = EXT.get('comments');
+  const projects = PMOData.getAll();
+  const myProjects = new Set(projects.filter(p => (p.tasks||[]).some(t => t.assignee === currentUser)).map(p => p.projectId));
+
+  // 显示：我发表的 + 我参与项目的评论
+  const visible = comments.filter(c => c.author === currentUser || myProjects.has(c.projectId)).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+
+  let html = '<div class="card"><div class="card-header"><div class="card-title">💬 发表评论</div></div>';
+  // 项目选择
+  const projOpts = projects.filter(p => myProjects.has(p.projectId)).map(p => `<option value="${p.projectId}">${p.projectName}</option>`).join('');
+  html += `
+    <div class="form-group">
+      <label class="form-label">选择项目</label>
+      <select class="form-select" id="commentProject">${projOpts}</select>
+    </div>
+    <div class="comment-input-area">
+      <input type="text" class="comment-input" id="commentInput" placeholder="输入评论…" onkeydown="if(event.key==='Enter')postComment()">
+      <button class="btn-sm btn-primary-sm" onclick="postComment()">发送</button>
+    </div>
+  `;
+
+  if(visible.length > 0){
+    html += '<div class="comment-list" style="margin-top:16px;">';
+    visible.slice(0,20).forEach(c => {
+      const proj = projects.find(p => p.projectId === c.projectId);
+      html += `
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">${esc(c.author)}</span>
+            <span class="comment-time">${new Date(c.createdAt).toLocaleString('zh-CN')}</span>
+          </div>
+          <div class="comment-body">${esc(c.content)}</div>
+          ${proj ? `<div class="comment-project">📁 ${proj.projectName}</div>` : ''}
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function postComment(){
+  const input = document.getElementById('commentInput');
+  const projSel = document.getElementById('commentProject');
+  const content = input.value.trim();
+  if(!content) return;
+  const list = EXT.get('comments');
+  list.push({
+    id: 'C-' + Date.now(),
+    projectId: projSel.value,
+    author: currentUser,
+    content,
+    createdAt: new Date().toISOString(),
+  });
+  EXT.set('comments', list);
+  input.value = '';
+  renderComments(document.getElementById('tabContent'));
+}
+
+// ─── 时间申请 ───
+function renderRequests(container){
+  const requests = EXT.get('time_requests').filter(r => r.author === currentUser).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+  let html = '<div class="card"><div class="card-header"><div class="card-title">⏰ 我的时间变更申请</div></div>';
+
+  if(requests.length === 0){
+    html += emptyState('暂无时间变更申请');
+  } else {
+    html += '<div class="request-list">';
+    requests.forEach(r => {
+      const cls = r.status === '已通过' ? 'approved' : (r.status === '已拒绝' ? 'rejected' : '');
+      const stCls = r.status === '已通过' ? 'status-approved' : (r.status === '已拒绝' ? 'status-rejected' : 'status-pending');
+      html += `
+        <div class="request-item ${cls}">
+          <div class="request-header">
+            <span class="request-title">${esc(r.taskName)} · ${r.oldDate} → ${r.newDate}</span>
+            <span class="request-status ${stCls}">${r.status}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);">${esc(r.reason)}</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">申请于 ${new Date(r.createdAt).toLocaleDateString('zh-CN')}</div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function openRequestModal(pid, tid){
+  const proj = PMOData.getById(pid);
+  const task = (proj.tasks||[]).find(t => t.id === tid);
+  if(!task) return;
+  reqTarget = {projectId:pid, taskId:tid};
+  document.getElementById('reqTaskName').value = task.name;
+  document.getElementById('reqOldDate').value = task.endDate || '';
+  document.getElementById('reqNewDate').value = '';
+  document.getElementById('reqReason').value = '';
+  document.getElementById('requestModal').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('requestModal').classList.remove('show'); reqTarget=null; }
+
+function submitRequest(){
+  if(!reqTarget) return;
+  const newDate = document.getElementById('reqNewDate').value;
+  const reason = document.getElementById('reqReason').value.trim();
+  if(!newDate){ alert('请选择新的截止日期'); return; }
+  if(!reason){ alert('请填写申请原因'); return; }
+
+  const proj = PMOData.getById(reqTarget.projectId);
+  const task = (proj.tasks||[]).find(t => t.id === reqTarget.taskId);
+
+  const list = EXT.get('time_requests');
+  list.push({
+    id: 'R-' + Date.now(),
+    projectId: reqTarget.projectId,
+    taskId: reqTarget.taskId,
+    taskName: task.name,
+    author: currentUser,
+    oldDate: task.endDate || '',
+    newDate,
+    reason,
+    status: '审批中',
+    createdAt: new Date().toISOString(),
+  });
+  EXT.set('time_requests', list);
+  closeModal();
+  if(currentTab === 'requests') renderTab();
+  alert('✅ 申请已提交');
+}
+
+// ─── 工具 ───
+function emptyState(text){
+  return `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${esc(text)}</div></div>`;
+}
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function updateFooter(){
+  const allTasks = PMOData.getAll().flatMap(p => p.tasks||[]).filter(t => t.assignee === currentUser).length;
+  document.getElementById('footerText').textContent = currentUser ? `${currentUser} · ${allTasks} 个任务` : '请先选择身份';
+}
+
+// 启动
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMO Dashboard - 概览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* 导航栏 */
+        .nav-bar { background: white; padding: 15px 30px; border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 0; }
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #666; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: #f5f5f5; }
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        
+        /* 信息检索模块 */
+        .retrieval-module { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 30px; margin-bottom: 30px; }
+        .retrieval-header { display: flex; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .retrieval-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 24px; }
+        .retrieval-title h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
+        .retrieval-title p { color: #666; font-size: 14px; }
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-tab { padding: 10px 20px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s; font-weight: 500; }
+        .search-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .search-tab:hover:not(.active) { background: #e0e0e0; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-input { flex: 1; padding: 15px 20px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 16px; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .search-btn { padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .search-results { margin-top: 20px; }
+        .result-item { background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; cursor: pointer; }
+        .result-item:hover { border-color: #667eea; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15); transform: translateX(5px); }
+        .result-title { font-size: 18px; color: #667eea; margin-bottom: 8px; font-weight: 600; }
+        .result-snippet { color: #666; line-height: 1.6; margin-bottom: 10px; }
+        .result-meta { display: flex; gap: 15px; font-size: 13px; color: #999; }
+        .file-type { padding: 3px 8px; background: #e3f2fd; color: #1976d2; border-radius: 4px; font-weight: 600; }
+        
+        /* Dashboard Grid */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-header { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px; }
+        .card-icon.blue { background: #e3f2fd; color: #1976d2; }
+        .card-icon.green { background: #e8f5e9; color: #388e3c; }
+        .card-icon.orange { background: #fff3e0; color: #f57c00; }
+        .card-icon.purple { background: #f3e5f5; color: #7b1fa2; }
+        .card-icon.red { background: #ffebee; color: #c62828; }
+        .card-title { font-size: 18px; font-weight: 600; color: #333; }
+        .stat-value { font-size: 36px; font-weight: 700; color: #667eea; margin-bottom: 5px; }
+        .stat-label { color: #666; font-size: 14px; }
+        .project-list { list-style: none; }
+        .project-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .project-item:last-child { border-bottom: none; }
+        .project-item:hover { background: #f9f9f9; padding-left: 10px; border-radius: 4px; }
+        .project-name { font-weight: 500; color: #333; }
+        .project-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-on-track { background: #e8f5e9; color: #388e3c; }
+        .status-at-risk { background: #fff3e0; color: #f57c00; }
+        .status-delayed { background: #ffebee; color: #c62828; }
+        .last-updated { text-align: center; color: rgba(255,255,255,0.8); margin-top: 30px; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="index.html" class="active">📊 概览</a>
+                <a href="projects.html">📁 项目</a>
+                <a href="team.html">👥 团队</a>
+                <a href="risks.html">⚠️ 风险</a>
+                <a href="documents.html">📄 文档</a>
+            </div>
+        </div>
+        
+        <div class="retrieval-module">
+            <div class="retrieval-header">
+                <div class="retrieval-icon">🔍</div>
+                <div class="retrieval-title">
+                    <h2>OneDrive 文档信息检索</h2>
+                    <p>基于谷歌学术/知网检索逻辑 · 支持关键词搜索与自然语言提问</p>
+                </div>
+            </div>
+            <div class="search-tabs">
+                <button class="search-tab active" data-mode="keyword">关键词搜索</button>
+                <button class="search-tab" data-mode="natural">自然语言提问</button>
+            </div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="输入关键词或自然语言问题...">
+                <button class="search-btn" id="searchBtn">🔍 搜索</button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div style="text-align:center;padding:40px;color:#999;">
+                    <div style="font-size:48px;margin-bottom:15px;">📚</div>
+                    <p>输入关键词或问题，开始检索 OneDrive 文档</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">📊</div>
+                    <div class="card-title">项目概览</div>
+                </div>
+                <div class="stat-value">12</div>
+                <div class="stat-label">进行中项目</div>
+                <div style="margin-top:20px;padding-top:20px;border-top:2px solid #f0f0f0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                        <span style="color:#666;">本月完成</span>
+                        <span style="font-weight:600;color:#388e3c;">3 个</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                        <span style="color:#666;">下月计划</span>
+                        <span style="font-weight:600;color:#1976d2;">5 个</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#666;">资源利用率</span>
+                        <span style="font-weight:600;color:#f57c00;">78%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">✅</div>
+                    <div class="card-title">项目状态</div>
+                </div>
+                <ul class="project-list">
+                    <li class="project-item" onclick="location.href='projects.html'">
+                        <span class="project-name">🤖 AI 智能客服升级</span>
+                        <span class="project-status status-on-track">正常</span>
+                    </li>
+                    <li class="project-item" onclick="location.href='projects.html'">
+                        <span class="project-name">💼 CRM 系统迁移</span>
+                        <span class="project-status status-on-track">正常</span>
+                    </li>
+                    <li class="project-item" onclick="location.href='projects.html'">
+                        <span class="project-name">📊 数据分析平台</span>
+                        <span class="project-status status-at-risk">风险</span>
+                    </li>
+                    <li class="project-item" onclick="location.href='projects.html'">
+                        <span class="project-name">📱 移动端应用开发</span>
+                        <span class="project-status status-on-track">正常</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">👥</div>
+                    <div class="card-title">团队负载</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f9f9f9;border-radius:8px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;">张</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#333;">张三</div>
+                            <div style="font-size:12px;color:#666;">高级项目经理</div>
+                        </div>
+                        <div style="font-size:12px;color:#c62828;font-weight:600;">95%</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f9f9f9;border-radius:8px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;">李</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#333;">李四</div>
+                            <div style="font-size:12px;color:#666;">技术负责人</div>
+                        </div>
+                        <div style="font-size:12px;color:#f57c00;font-weight:600;">72%</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f9f9f9;border-radius:8px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;">王</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#333;">王五</div>
+                            <div style="font-size:12px;color:#666;">产品专员</div>
+                        </div>
+                        <div style="font-size:12px;color:#388e3c;font-weight:600;">45%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon red">⚠️</div>
+                    <div class="card-title">风险预警</div>
+                </div>
+                <ul style="list-style:none;">
+                    <li style="padding:15px;background:#ffebee;border-left:4px solid #c62828;border-radius:4px;margin-bottom:10px;">
+                        <div style="font-weight:600;color:#333;margin-bottom:5px;">资源冲突</div>
+                        <div style="font-size:13px;color:#666;">数据分析平台与 CRM 迁移争夺开发资源</div>
+                    </li>
+                    <li style="padding:15px;background:#fff3e0;border-left:4px solid #f57c00;border-radius:4px;margin-bottom:10px;">
+                        <div style="font-weight:600;color:#333;margin-bottom:5px;">技术依赖</div>
+                        <div style="font-size:13px;color:#666;">第三方 API 集成存在不确定性</div>
+                    </li>
+                    <li style="padding:15px;background:#fff3e0;border-left:4px solid #f57c00;border-radius:4px;margin-bottom:10px;">
+                        <div style="font-weight:600;color:#333;margin-bottom:5px;">时间压力</div>
+                        <div style="font-size:13px;color:#666;">Q2 交付目标紧凑，需关注团队负荷</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="last-updated">
+            <p>最后更新：2026-04-07 10:56 EDT | 数据源：OneDrive + PMO 系统</p>
+        </div>
+    </div>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchResults = document.getElementById('searchResults');
+        const searchTabs = document.querySelectorAll('.search-tab');
+        let currentMode = 'keyword';
+        searchTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                searchTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+                if (currentMode === 'natural') {
+                    searchInput.placeholder = '用自然语言提问，例如："AI 客服项目的技术架构是什么？"';
+                } else {
+                    searchInput.placeholder = '输入关键词或自然语言问题...';
+                }
+            });
+        });
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) { alert('请输入搜索内容'); return; }
+            searchBtn.disabled = true;
+            searchResults.innerHTML = '<div style="text-align:center;padding:40px;color:#666;"><div style="border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 15px;"></div><p>正在检索 OneDrive 文档...</p></div>';
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const results = [{title:'AI 智能客服系统需求文档 v2.0',snippet:'本文档详细描述了 AI 智能客服升级项目的功能需求、技术架构和实施方案...',source:'OneDrive/Projects/AI-Customer-Service/',date:'2026-04-02',type:'docx'},{title:'客服系统技术架构设计',snippet:'系统采用微服务架构，包含 NLP 引擎、知识库、对话管理等核心模块...',source:'OneDrive/Technical/Architecture/',date:'2026-03-28',type:'pptx'},{title:'竞品分析报告 - 智能客服市场',snippet:'对市场上主流智能客服解决方案的对比分析...',source:'OneDrive/Research/Market-Analysis/',date:'2026-03-15',type:'pdf'}];
+            let html = '<div style="margin-bottom:15px;padding:10px;background:#f5f5f5;border-radius:8px;"><span style="font-weight:600;color:#667eea;">📄 找到 '+results.length+' 个相关文档</span></div>';
+            results.forEach(r => { html += '<div class="result-item"><div class="result-title">📄 '+r.title+'</div><div class="result-snippet">'+r.snippet+'</div><div class="result-meta"><span>📁 '+r.source+'</span><span>📅 '+r.date+'</span><span class="file-type">'+r.type.toUpperCase()+'</span></div></div>'; });
+            searchResults.innerHTML = html;
+            searchBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
