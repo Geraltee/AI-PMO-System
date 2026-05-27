@@ -11,9 +11,8 @@
  *  └────────────────────────────────────────────────────┘
  */
 
-// ─── 后端 API 地址 ───
-// 后端启动后会自动变为 true，无需手动修改
-const API_BASE = 'http://localhost:3456';
+// ─── 后端 API 地址（Render 云端部署） ───
+const API_BASE = 'https://pmo-ai-api.onrender.com';
 
 
 /**
