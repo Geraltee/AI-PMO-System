@@ -42,6 +42,13 @@ async function callAI(type, payload) {
   // ─── 后端未就绪：使用模拟数据 ───
   if (!callAI._backendReady) {
     console.warn('[PMO] 后端未启动，使用 Demo 模式（模拟数据）');
+
+    // 防御：检查 mock-data.js 是否已加载
+    if (typeof getMockResponse !== 'function') {
+      console.error('[PMO] mock-data.js 未加载，无法使用 Demo 模式。请检查 <script> 加载顺序：mock-data.js 必须在 model-config.js 之前。');
+      throw new Error('Demo 模式不可用：模拟数据模块未加载。请确保 mock-data.js 在 model-config.js 之前引入。');
+    }
+
     const ms = 1200 + Math.random() * 1500;
     await new Promise(r => setTimeout(r, ms));
     return getMockResponse(type, payload);
