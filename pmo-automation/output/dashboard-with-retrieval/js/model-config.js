@@ -31,7 +31,7 @@ async function callAI(type, payload) {
   // ─── 先探测后端是否可用 ───
   if (typeof callAI._backendReady === 'undefined') {
     try {
-      const r = await fetch(`${API_BASE}/api/v1/health`, { signal: AbortSignal.timeout(3000) });
+      const r = await fetch(`${API_BASE}/api/v1/health`, { signal: AbortSignal.timeout(15000) });
       callAI._backendReady = r.ok;
     } catch {
       callAI._backendReady = false;
