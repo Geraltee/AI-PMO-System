@@ -100,11 +100,35 @@ function callZhipu(systemPrompt, userContent, extra = {}) {
                         return;
                     }
                     // 提取 AI 返回的文本内容
-                    const content = parsed.choices?.[0]?.message?.content || '';
+                    let content = parsed.choices?.[0]?.message?.content || '';
+
+                    if (!content) {
+                        reject(new Error('AI 返回内容为空'));
+                        return;
+                    }
+
+                    // 清理可能的 markdown 代码块包裹（智谱 AI 偶尔不严格遵守 json_object 模式）
+                    content = content.trim();
+                    if (content.startsWith('```')) {
+                        // 去掉开头的 ```json 或 ```
+                        content = content.replace(/^```[a-z]*\n?/, '');
+                        // 去掉结尾的 ```
+                        content = content.replace(/\n?```$/, '');
+                        content = content.trim();
+                    }
+
+                    // 如果 AI 在 JSON 前后加了说明文字，尝试提取 JSON 对象
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        content = jsonMatch[0];
+                    }
+
                     // 解析 JSON
                     resolve(JSON.parse(content));
                 } catch (e) {
-                    // 如果 JSON 解析失败，返回原始文本
+                    // 解析失败时记录原始内容（方便 Render 日志排查）
+                    console.error('[AI解析失败] 原始响应:', data.substring(0, 2000));
+                    console.error('[AI解析失败] 解析错误:', e.message);
                     reject(new Error('AI 返回格式异常，请重试'));
                 }
             });
@@ -269,10 +293,11 @@ app.post('/api/v1/project/breakdown', async (req, res) => {
     }
 
     try {
-        console.log(`[拆分] 收到请求，项目: ${plan.projectName || '未知'}`);
-        const prompt = PROMPTS.breakdown.user.replace('{input}', JSON.stringify(plan, null, 2));
+        const planJson = JSON.stringify(plan, null, 2);
+        console.log(`[拆分] 收到请求，项目: ${plan.projectName || '未知'}，方案大小: ${planJson.length} 字符`);
+        const prompt = PROMPTS.breakdown.user.replace('{input}', planJson);
         const result = await callZhipu(PROMPTS.breakdown.system, prompt, { max_tokens: 4096 });
-        console.log(`[拆分] 完成 → ${result.tasks?.length || 0} 个任务`);
+        console.log(`[拆分] 完成 → ${result.tasks?.length || 0} 个任务，${result.milestones?.length || 0} 个里程碑`);
         res.json({ success: true, data: result });
     } catch (err) {
         console.error(`[拆分] 失败: ${err.message}`);
