@@ -290,7 +290,6 @@
 </div>
 
 <script src="js/data-store.js"></script>
-<script src="js/mock-data.js"></script>
 <script src="js/model-config.js"></script>
 <script>
 // ═══════════════════════════════════════════════
@@ -311,7 +310,7 @@ let createdProjectId = '';
     // 尝试从后端获取真实模型名称，失败则显示默认值
     let modelName = 'GLM-5.0-Turbo';
     try {
-        const r = await fetch('http://localhost:3456/api/v1/health', { signal: AbortSignal.timeout(2000) });
+        const r = await fetch(`${API_BASE}/api/v1/health`, { signal: AbortSignal.timeout(15000) });
         if (r.ok) {
             const info = await r.json();
             modelName = info.model || modelName;
