@@ -97,8 +97,55 @@
         .empty-state a{color:var(--blue);text-decoration:none;font-weight:500;}
         .empty-state a:hover{text-decoration:underline;}
 
+        /* ─── 模态框 ─── */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.25s ease;backdrop-filter:blur(4px);}
+        .modal-overlay.active{opacity:1;visibility:visible;}
+        .modal-box{background:var(--bg-card);border-radius:var(--radius-card);width:600px;max-width:92vw;max-height:80vh;overflow:hidden;transform:translateY(20px) scale(0.97);transition:all 0.3s cubic-bezier(0.32,0.72,0,1);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+        .modal-overlay.active .modal-box{transform:translateY(0) scale(1);}
+        .modal-close{position:absolute;top:16px;right:16px;width:28px;height:28px;border:none;background:var(--gray-light);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray);z-index:2;transition:all 0.15s;}
+        .modal-close:hover{background:var(--red-light);color:var(--red);}
+        .modal-header{padding:28px 28px 20px;border-bottom:1px solid var(--gray-border);position:relative;}
+        .modal-body{padding:24px 28px 28px;overflow-y:auto;flex:1;}
+
+        .modal-doc-icon{font-size:36px;line-height:1;}
+        .modal-doc-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;margin-top:10px;}
+        .modal-doc-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+
+        .modal-section{margin-bottom:24px;}
+        .modal-section:last-child{margin-bottom:0;}
+        .modal-section-title{font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+        .modal-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .modal-info-item{padding:12px 14px;background:var(--gray-light);border-radius:var(--radius-sm);}
+        .modal-info-label{font-size:11px;color:var(--text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px;}
+        .modal-info-value{font-size:14px;font-weight:600;color:var(--text-primary);}
+
+        .modal-task-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--gray-light);border-radius:var(--radius-sm);margin-bottom:6px;transition:all 0.15s;}
+        .modal-task-item:hover{background:var(--blue-light);}
+        .modal-task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+        .modal-task-info{flex:1;min-width:0;}
+        .modal-task-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .modal-task-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+        .modal-task-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-pill);flex-shrink:0;}
+
+        .modal-preview{padding:40px 20px;background:var(--gray-light);border-radius:var(--radius-sm);text-align:center;border:2px dashed var(--gray-border);}
+        .modal-preview-icon{font-size:48px;margin-bottom:12px;}
+        .modal-preview-text{font-size:14px;color:var(--text-secondary);}
+
+        .modal-actions{display:flex;gap:10px;margin-top:12px;}
+        .modal-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.2s;}
+        .modal-btn-primary{background:var(--blue);color:white;}.modal-btn-primary:hover{background:#0066D6;}
+        .modal-btn-secondary{background:var(--gray-light);color:var(--text-primary);}.modal-btn-secondary:hover{background:var(--gray-border);}
+
+        .modal-version{position:relative;padding-left:20px;}
+        .modal-version::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--gray-border);border-radius:1px;}
+        .modal-version-item{position:relative;padding:6px 0 6px 16px;}
+        .modal-version-item::before{content:'';position:absolute;left:-17px;top:12px;width:10px;height:10px;border-radius:50%;border:2px solid var(--blue);background:var(--bg-card);}
+        .modal-version-text{font-size:12px;font-weight:500;color:var(--text-primary);}
+        .modal-version-meta{font-size:11px;color:var(--text-secondary);}
+
         .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
-        @media(max-width:700px){.doc-grid{grid-template-columns:repeat(2,1fr);}.doc-stats{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:700px){.doc-grid{grid-template-columns:repeat(2,1fr);}.doc-stats{grid-template-columns:repeat(2,1fr);} .modal-info-grid{grid-template-columns:1fr;}}
     </style>
 </head>
 <body>
@@ -139,6 +186,19 @@
     </div>
 
     <div class="footer" id="footerText"></div>
+</div>
+
+<!-- 文档详情模态框 -->
+<div class="modal-overlay" id="docModal" onclick="if(event.target===this)closeDocModal()">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeDocModal()">✕</button>
+        <div class="modal-header">
+            <div class="modal-doc-icon" id="docModalIcon"></div>
+            <div class="modal-doc-title" id="docModalTitle"></div>
+            <div class="modal-doc-badges" id="docModalBadges"></div>
+        </div>
+        <div class="modal-body" id="docModalBody"></div>
+    </div>
 </div>
 
 <script src="js/data-store.js"></script>
@@ -253,7 +313,7 @@
                 const statusColor = d.milestoneStatus === '已完成' ? 'var(--green)' : d.milestoneStatus === '进行中' ? 'var(--orange)' : 'var(--gray)';
 
                 html += `
-                    <div class="doc-card" onclick="location.href='project-detail.html?projectId=${d.projectId}'">
+                    <div class="doc-card" onclick="event.stopPropagation();showDocModal(${JSON.stringify(d).replace(/"/g, '&quot;')})">
                         <div class="doc-icon">${cfg.icon}</div>
                         <div class="doc-name">${d.name}</div>
                         <div class="doc-meta">${d.milestone} · 截止 ${d.targetDate || '待定'}</div>
@@ -279,6 +339,132 @@
 
     document.getElementById('footerText').textContent = `共 ${totalDocs} 份文档 · 来自 ${projects.length} 个项目`;
 })();
+
+// ─── 文档详情模态框 ───
+const docTypeConfig = {
+    doc:    { icon: '📄', label: '文档',   badge: 'badge-doc',    previewIcon: '📝' },
+    design: { icon: '🎨', label: '设计',   badge: 'badge-design', previewIcon: '🖌️' },
+    report: { icon: '📊', label: '报告',   badge: 'badge-report', previewIcon: '📈' },
+    plan:   { icon: '📋', label: '方案',   badge: 'badge-plan',   previewIcon: '📐' },
+    other:  { icon: '📎', label: '其他',   badge: 'badge-other',  previewIcon: '📄' },
+};
+
+function showDocModal(doc) {
+    const cfg = docTypeConfig[doc.type] || docTypeConfig.other;
+    const statusColor = doc.milestoneStatus === '已完成' ? 'var(--green)' : doc.milestoneStatus === '进行中' ? 'var(--orange)' : 'var(--gray)';
+    const statusBg = doc.milestoneStatus === '已完成' ? 'var(--green-light)' : doc.milestoneStatus === '进行中' ? 'var(--orange-light)' : 'var(--gray-light)';
+
+    // 头部
+    document.getElementById('docModalIcon').textContent = cfg.icon;
+    document.getElementById('docModalTitle').textContent = doc.name;
+    document.getElementById('docModalBadges').innerHTML = `
+        <span class="file-badge ${cfg.badge}">${cfg.label}</span>
+        <span class="file-badge" style="background:${statusBg};color:${statusColor};">${doc.milestoneStatus}</span>
+    `;
+
+    // 从 PMOData 获取关联项目完整信息
+    const project = PMOData.getById(doc.projectId);
+    const relatedTasks = project ? (project.tasks || []).filter(t => {
+        return (project.milestones || []).some(ms => ms.name === doc.milestone);
+    }).slice(0, 8) : [];
+
+    // 构建内容
+    let body = '';
+
+    // 1. 基本信息
+    body += `<div class="modal-section">
+        <div class="modal-section-title">ℹ️ 基本信息</div>
+        <div class="modal-info-grid">
+            <div class="modal-info-item">
+                <div class="modal-info-label">所属项目</div>
+                <div class="modal-info-value">${doc.projectName}</div>
+            </div>
+            <div class="modal-info-item">
+                <div class="modal-info-label">所属里程碑</div>
+                <div class="modal-info-value">${doc.milestone}</div>
+            </div>
+            <div class="modal-info-item">
+                <div class="modal-info-label">截止日期</div>
+                <div class="modal-info-value">${doc.targetDate || '待定'}</div>
+            </div>
+            <div class="modal-info-item">
+                <div class="modal-info-label">项目状态</div>
+                <div class="modal-info-value" style="color:${statusColor};">${project ? project.status : '-'}</div>
+            </div>
+        </div>
+    </div>`;
+
+    // 2. 关联任务
+    if (relatedTasks.length > 0) {
+        body += `<div class="modal-section">
+            <div class="modal-section-title">🔗 里程碑关联任务（${relatedTasks.length} 项）</div>`;
+        relatedTasks.forEach(t => {
+            const tColor = t.status==='已完成'?'var(--green)':t.status==='进行中'?'var(--orange)':'var(--gray)';
+            const tBg = t.status==='已完成'?'var(--green-light)':t.status==='进行中'?'var(--orange-light)':'var(--gray-light)';
+            body += `<div class="modal-task-item">
+                <div class="modal-task-dot" style="background:${tColor};"></div>
+                <div class="modal-task-info">
+                    <div class="modal-task-name">${t.name}</div>
+                    <div class="modal-task-meta">${t.phase||'-'} · ${t.assignee||'-'} · ${t.startDate||''}→${t.endDate||''}</div>
+                </div>
+                <div class="modal-task-status" style="color:${tColor};background:${tBg};">${t.status} ${t.progress||0}%</div>
+            </div>`;
+        });
+        body += '</div>';
+    }
+
+    // 3. 文档预览区
+    body += `<div class="modal-section">
+        <div class="modal-section-title">👁️ 文档预览</div>
+        <div class="modal-preview">
+            <div class="modal-preview-icon">${cfg.previewIcon}</div>
+            <div class="modal-preview-text">${doc.milestoneStatus === '已完成' ? '文档已交付，点击下方按钮查看' : '文档正在编写中，暂未上传'}</div>
+        </div>
+    </div>`;
+
+    // 4. 操作按钮
+    body += `<div class="modal-section">
+        <div class="modal-section-title">⚡ 操作</div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" onclick="alert('文件上传功能开发中')">📤 上传文件</button>
+            <button class="modal-btn modal-btn-secondary" onclick="alert('编辑功能开发中')">✏️ 编辑信息</button>
+            <button class="modal-btn modal-btn-secondary" onclick="location.href='project-detail.html?projectId=${doc.projectId}'">🔗 查看项目</button>
+        </div>
+    </div>`;
+
+    // 5. 版本记录（模拟）
+    body += `<div class="modal-section">
+        <div class="modal-section-title">📜 版本记录</div>
+        <div class="modal-version">
+            <div class="modal-version-item">
+                <div class="modal-version-text">V1.0 — ${doc.name} 创建</div>
+                <div class="modal-version-meta">创建于 ${doc.targetDate || '待定'} · 自动生成</div>
+            </div>`;
+    if (doc.milestoneStatus === '已完成') {
+        body += `<div class="modal-version-item">
+                <div class="modal-version-text">V2.0 — 交付审核通过</div>
+                <div class="modal-version-meta">里程碑「${doc.milestone}」已完成 · 状态更新</div>
+            </div>`;
+    } else if (doc.milestoneStatus === '进行中') {
+        body += `<div class="modal-version-item">
+                <div class="modal-version-text">V1.1 — 内容更新中</div>
+                <div class="modal-version-meta">里程碑「${doc.milestone}」进行中 · 待交付</div>
+            </div>`;
+    }
+    body += '</div></div>';
+
+    document.getElementById('docModalBody').innerHTML = body;
+    document.getElementById('docModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDocModal() {
+    document.getElementById('docModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ESC 关闭
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDocModal(); });
 </script>
 </body>
 </html>

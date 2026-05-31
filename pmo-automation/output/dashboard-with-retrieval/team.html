@@ -91,6 +91,58 @@
         .empty-state a{color:var(--blue);text-decoration:none;font-weight:500;}
         .empty-state a:hover{text-decoration:underline;}
 
+        /* ─── 模态框 ─── */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.25s ease;backdrop-filter:blur(4px);}
+        .modal-overlay.active{opacity:1;visibility:visible;}
+        .modal-box{background:var(--bg-card);border-radius:var(--radius-card);width:640px;max-width:92vw;max-height:80vh;overflow:hidden;transform:translateY(20px) scale(0.97);transition:all 0.3s cubic-bezier(0.32,0.72,0,1);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+        .modal-overlay.active .modal-box{transform:translateY(0) scale(1);}
+        .modal-close{position:absolute;top:16px;right:16px;width:28px;height:28px;border:none;background:var(--gray-light);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray);z-index:2;transition:all 0.15s;}
+        .modal-close:hover{background:var(--red-light);color:var(--red);}
+        .modal-header{padding:28px 28px 20px;border-bottom:1px solid var(--gray-border);position:relative;}
+        .modal-body{padding:24px 28px 28px;overflow-y:auto;flex:1;}
+        .modal-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;}
+        .modal-subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+
+        .modal-profile{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+        .modal-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;font-weight:700;flex-shrink:0;}
+        .modal-name{font-size:20px;font-weight:700;}
+        .modal-role{font-size:13px;color:var(--text-secondary);margin-top:2px;}
+        .modal-dept{font-size:12px;color:var(--text-tertiary);margin-top:1px;}
+
+        .modal-section{margin-bottom:24px;}
+        .modal-section:last-child{margin-bottom:0;}
+        .modal-section-title{font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+        .modal-load-bar{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+        .modal-load-num{font-size:28px;font-weight:700;min-width:60px;}
+        .modal-load-bar-track{flex:1;height:10px;background:var(--gray-light);border-radius:5px;overflow:hidden;}
+        .modal-load-bar-fill{height:100%;border-radius:5px;transition:width 0.5s ease;}
+        .modal-load-status{font-size:12px;font-weight:600;margin-top:4px;}
+
+        .modal-project-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--gray-light);border-radius:var(--radius-sm);margin-bottom:8px;transition:all 0.15s;}
+        .modal-project-item:hover{background:var(--blue-light);}
+        .modal-proj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+        .modal-proj-info{flex:1;min-width:0;}
+        .modal-proj-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .modal-proj-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+        .modal-proj-pct{font-size:14px;font-weight:700;flex-shrink:0;}
+
+        .modal-task-table{width:100%;border-collapse:collapse;font-size:13px;}
+        .modal-task-table th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.3px;border-bottom:2px solid var(--gray-border);background:var(--gray-light);}
+        .modal-task-table td{padding:8px 10px;border-bottom:1px solid var(--gray-border);vertical-align:middle;}
+        .modal-task-table tr:hover td{background:#FAFAFA;}
+        .modal-task-table .task-status{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-pill);}
+        .modal-task-table .task-priority{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+
+        .skill-tag{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:var(--radius-pill);background:var(--blue-light);color:var(--blue);margin:3px 3px 3px 0;}
+
+        .modal-timeline{position:relative;padding-left:20px;}
+        .modal-timeline::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--gray-border);border-radius:1px;}
+        .modal-timeline-item{position:relative;padding:6px 0 6px 16px;}
+        .modal-timeline-item::before{content:'';position:absolute;left:-17px;top:12px;width:10px;height:10px;border-radius:50%;border:2px solid var(--blue);background:var(--bg-card);}
+        .modal-timeline-name{font-size:12px;font-weight:500;color:var(--text-primary);}
+        .modal-timeline-meta{font-size:11px;color:var(--text-secondary);}
+
         .footer{text-align:center;padding:24px 0;font-size:12px;color:var(--text-tertiary);}
         @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}.member-grid{grid-template-columns:1fr;}}
     </style>
@@ -129,6 +181,24 @@
     </div>
 
     <div class="footer" id="footerText"></div>
+</div>
+
+<!-- 成员详情模态框 -->
+<div class="modal-overlay" id="memberModal" onclick="if(event.target===this)closeMemberModal()">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeMemberModal()">✕</button>
+        <div class="modal-header">
+            <div class="modal-profile">
+                <div class="modal-avatar" id="modalAvatar"></div>
+                <div>
+                    <div class="modal-name" id="modalName"></div>
+                    <div class="modal-role" id="modalRole"></div>
+                    <div class="modal-dept" id="modalDept"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
 </div>
 
 <script src="js/data-store.js"></script>
@@ -226,7 +296,7 @@
             ).join(' · ');
 
             html += `
-                <div class="member-card ${level}" onclick="${m.projectList.length ? `location.href='project-detail.html?projectId=${m.projectList[0].projectId}'` : ''}">
+                <div class="member-card ${level}" onclick="event.stopPropagation();showMemberModal('${m.name}')">
                     <div class="member-header">
                         <div class="member-avatar" style="background:${avatarColor};">${m.name.charAt(0)}</div>
                         <div class="member-info">
@@ -263,6 +333,140 @@ function getAvatarColor(name) {
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
 }
+
+// ─── 成员详情模态框 ───
+function showMemberModal(memberName) {
+    const projects = PMOData.getAll();
+    const memberProjects = [];
+    const allTasks = [];
+
+    projects.forEach(p => {
+        const memberTasks = (p.tasks || []).filter(t => t.assignee === memberName);
+        if (memberTasks.length > 0) {
+            memberProjects.push({
+                projectId: p.projectId,
+                projectName: p.projectName,
+                projectType: p.projectType,
+                status: p.status,
+                progress: p.progress,
+                department: p.department,
+                tasks: memberTasks,
+            });
+            allTasks.push(...memberTasks.map(t => ({ ...t, projectName: p.projectName, projectId: p.projectId })));
+        }
+    });
+
+    if (memberProjects.length === 0) return;
+
+    const loadPct = Math.min(100, Math.round((allTasks.length / Math.max(1, projects.reduce((s,p) => s + (p.tasks||[]).length, 0))) * 100));
+    const loadColor = loadPct >= 90 ? 'var(--red)' : loadPct >= 60 ? 'var(--orange)' : 'var(--green)';
+    const loadLabel = loadPct >= 90 ? '过载' : loadPct >= 60 ? '较高' : '正常';
+    const statusColor = loadPct >= 90 ? 'var(--red)' : loadPct >= 60 ? 'var(--orange)' : 'var(--green)';
+
+    // 头像
+    const avatar = document.getElementById('modalAvatar');
+    avatar.style.background = getAvatarColor(memberName);
+    avatar.textContent = memberName.charAt(0);
+    document.getElementById('modalName').textContent = memberName;
+
+    // 角色：最常出现的 phase
+    const phaseMap = {};
+    allTasks.forEach(t => { const ph = t.phase || '其他'; phaseMap[ph] = (phaseMap[ph]||0)+1; });
+    const topPhase = Object.entries(phaseMap).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('modalRole').textContent = topPhase ? topPhase[0] + '负责人' : '团队成员';
+
+    // 部门
+    document.getElementById('modalDept').textContent = '参与 ' + memberProjects.length + ' 个项目 · ' + allTasks.length + ' 个任务';
+
+    // 构建模态框内容
+    let body = '';
+
+    // 1. 负载概览
+    body += `<div class="modal-section">
+        <div class="modal-section-title">📊 负载概览</div>
+        <div class="modal-load-bar">
+            <div class="modal-load-num" style="color:${loadColor};">${loadPct}%</div>
+            <div class="modal-load-bar-track"><div class="modal-load-bar-fill" style="width:${loadPct}%;background:${loadColor};"></div></div>
+        </div>
+        <div class="modal-load-status" style="color:${loadColor};">● ${loadLabel} — ${allTasks.filter(t=>t.status==='已完成').length} 已完成 / ${allTasks.filter(t=>t.status==='进行中').length} 进行中 / ${allTasks.filter(t=>t.status==='未开始').length} 待开始</div>
+    </div>`;
+
+    // 2. 项目分布
+    body += `<div class="modal-section">
+        <div class="modal-section-title">📁 参与项目</div>`;
+    memberProjects.forEach(p => {
+        const projColor = p.status === '正常' || p.status === '进行中' ? 'var(--green)' : p.status === '有风险' || p.status === '规划中' ? 'var(--orange)' : 'var(--red)';
+        const completedInProj = p.tasks.filter(t => t.status === '已完成').length;
+        body += `<div class="modal-project-item">
+            <div class="modal-proj-dot" style="background:${projColor};"></div>
+            <div class="modal-proj-info">
+                <div class="modal-proj-name">${p.projectName}</div>
+                <div class="modal-proj-meta">${p.projectType} · ${p.department} · ${completedInProj}/${p.tasks.length} 任务已完成</div>
+            </div>
+            <div class="modal-proj-pct" style="color:${projColor};">${p.progress}%</div>
+        </div>`;
+    });
+    body += '</div>';
+
+    // 3. 任务明细表格
+    body += `<div class="modal-section">
+        <div class="modal-section-title">📋 任务明细（共 ${allTasks.length} 项）</div>
+        <div style="overflow-x:auto;">
+        <table class="modal-task-table">
+            <thead><tr><th>任务名称</th><th>所属项目</th><th>阶段</th><th>优先级</th><th>状态</th><th>进度</th></tr></thead>
+            <tbody>`;
+    allTasks.forEach(t => {
+        const stColor = t.status==='已完成'?'var(--green)':t.status==='进行中'?'var(--orange)':'var(--gray)';
+        const stBg = t.status==='已完成'?'var(--green-light)':t.status==='进行中'?'var(--orange-light)':'var(--gray-light)';
+        const prColor = t.priority==='高'?'var(--red)':t.priority==='中'?'var(--orange)':'var(--gray)';
+        const prBg = t.priority==='高'?'var(--red-light)':t.priority==='中'?'var(--orange-light)':'var(--gray-light)';
+        body += `<tr>
+            <td style="font-weight:500;">${t.name}</td>
+            <td style="font-size:12px;color:var(--text-secondary);">${t.projectName}</td>
+            <td>${t.phase||'-'}</td>
+            <td><span class="task-priority" style="color:${prColor};background:${prBg};">${t.priority}</span></td>
+            <td><span class="task-status" style="color:${stColor};background:${stBg};">${t.status}</span></td>
+            <td style="font-weight:600;color:${stColor};">${t.progress||0}%</td>
+        </tr>`;
+    });
+    body += '</tbody></table></div></div>';
+
+    // 4. 技能标签（基于 phase 推导）
+    const phaseLabels = { '需求阶段':'需求分析', '需求':'需求分析', '设计阶段':'系统设计', '设计':'系统设计', '开发阶段':'核心开发', '开发':'核心开发', '测试阶段':'质量测试', '测试':'质量测试', '部署':'部署运维', '分析':'数据分析', '评估':'安全评估', '整改':'安全整改' };
+    const skills = [...new Set(Object.keys(phaseMap).map(ph => phaseLabels[ph] || ph))];
+    body += `<div class="modal-section">
+        <div class="modal-section-title">🏷️ 技能标签</div>
+        <div>${skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+    </div>`;
+
+    // 5. 近期任务时间线（取前5个未完成的）
+    const recentTasks = allTasks.filter(t => t.status !== '已完成').sort((a,b) => (a.startDate||'').localeCompare(b.startDate||'')).slice(0, 5);
+    if (recentTasks.length > 0) {
+        body += `<div class="modal-section">
+            <div class="modal-section-title">📅 近期时间线</div>
+            <div class="modal-timeline">`;
+        recentTasks.forEach(t => {
+            const tlColor = t.priority==='高'?'var(--red)':t.priority==='中'?'var(--orange)':'var(--gray)';
+            body += `<div class="modal-timeline-item" style="--tl-color:${tlColor};">
+                <div class="modal-timeline-name">${t.name}</div>
+                <div class="modal-timeline-meta">${t.projectName} · ${t.startDate||'待定'} → ${t.endDate||'待定'}</div>
+            </div>`;
+        });
+        body += '</div></div>';
+    }
+
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('memberModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMemberModal() {
+    document.getElementById('memberModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ESC 关闭
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMemberModal(); });
 </script>
 </body>
 </html>
