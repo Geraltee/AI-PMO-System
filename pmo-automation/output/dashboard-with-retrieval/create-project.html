@@ -556,16 +556,20 @@ function renderBreakdown() {
             <div class="bd-stat"><div class="bd-stat-num" style="color:var(--orange);">${(d.team || []).length}</div><div class="bd-stat-label">团队角色</div></div>
         </div>`;
 
-    // 任务表格
+    // 任务表格（v3.0 - 增加交付物、风险点）
     const taskRows = (d.tasks || []).map(t => {
         const prCls = t.priority === '高' ? 'tag-red' : (t.priority === '中' ? 'tag-orange' : 'tag-blue');
+        const risks = (t.riskPoints || []);
         return `<tr>
             <td style="font-weight:600;color:var(--text-secondary);">${t.id}</td>
             <td>${t.name}</td>
             <td style="color:var(--text-tertiary);font-size:12px;">${t.phase}</td>
+            <td style="color:var(--text-tertiary);font-size:12px;">${t.milestone || '-'}</td>
             <td><span class="tag ${prCls}">${t.priority}</span></td>
             <td style="color:var(--text-tertiary);">${t.duration} 天</td>
             <td>${t.assignee}</td>
+            <td style="font-size:12px;color:var(--text-secondary);">${t.deliverable || '-'}</td>
+            <td style="font-size:12px;">${risks.length ? risks.map(r => '<span style="padding:1px 5px;background:var(--orange-bg);color:var(--orange);border-radius:4px;margin-right:3px;">' + r + '</span>').join('') : '-'}</td>
         </tr>`;
     }).join('');
 
@@ -574,20 +578,25 @@ function renderBreakdown() {
             <h3><span class="icon">📝</span> 任务清单</h3>
             <div class="task-table-wrap" style="overflow-x:auto;">
                 <table class="task-table">
-                    <thead><tr><th>ID</th><th>任务名称</th><th>阶段</th><th>优先级</th><th>工期</th><th>负责人</th></tr></thead>
+                    <thead><tr><th>ID</th><th>任务名称</th><th>阶段</th><th>里程碑</th><th>优先级</th><th>工期</th><th>负责人</th><th>交付物</th><th>风险点</th></tr></thead>
                     <tbody>${taskRows}</tbody>
                 </table>
             </div>
         </div>`;
 
-    // 里程碑
+    // 里程碑（v3.0 - 四要素）
     const msHtml = `
         <div class="plan-section">
-            <h3><span class="icon">🏁</span> 里程碑</h3>
+            <h3><span class="icon">🏁</span> 里程碑（决策优先、闭环推进）</h3>
             ${(d.milestones || []).map(m => `
                 <div class="milestone-row">
                     <div class="ms-dot pending"></div>
-                    <div class="ms-info"><div class="ms-name">${m.name}</div><div class="ms-date">${m.targetDate}</div></div>
+                    <div class="ms-info">
+                        <div class="ms-name">${m.name}</div>
+                        <div class="ms-date">${m.targetDate}${m.owner ? ' · 负责人: ' + m.owner : ''}${m.priority ? ' · ' + m.priority + '优先级' : ''}</div>
+                        ${m.decisionPoint ? '<div style="font-size:12px;color:var(--purple);margin-top:2px;">决策点: ' + m.decisionPoint + '</div>' : ''}
+                        ${m.deliverables ? '<div style="font-size:12px;color:var(--text-tertiary);margin-top:2px;">交付物: ' + m.deliverables.join('、') + '</div>' : ''}
+                    </div>
                 </div>`).join('')}
         </div>`;
 
@@ -618,14 +627,14 @@ function renderBreakdown() {
     document.getElementById('breakdownContent').innerHTML = statsHtml + taskTable + msHtml + teamHtml + riskHtml;
 }
 
-// ─── Step 5: 确认创建 ───
-function confirmCreate() {
+// ─── Step 5: 确认创建（含 SOP 生成） ───
+async function confirmCreate() {
     // 通过 data-store 保存（自动处理默认字段）
     const saved = PMOData.add(breakdownData);
     createdProjectId = saved.projectId;
 
     // 渲染成功页
-    document.getElementById('successSub').textContent = `「${breakdownData.projectName}」已成功创建，可在 Dashboard 中查看和管理`;
+    document.getElementById('successSub').textContent = `「${breakdownData.projectName}」已成功创建，正在生成 SOP 文档...`;
     document.getElementById('successDetail').innerHTML = `
         <div class="card" style="padding:20px;">
             <div class="sec-title"><span class="icon">📊</span> 创建摘要</div>
@@ -634,6 +643,8 @@ function confirmCreate() {
                 <div><span style="color:var(--text-tertiary);">项目名称</span><div style="font-weight:600;">${breakdownData.projectName}</div></div>
                 <div><span style="color:var(--text-tertiary);">起止日期</span><div style="font-weight:600;">${breakdownData.startDate} → ${breakdownData.endDate}</div></div>
                 <div><span style="color:var(--text-tertiary);">任务总数</span><div style="font-weight:600;">${breakdownData.tasks.length} 个</div></div>
+                <div><span style="color:var(--text-tertiary);">里程碑数</span><div style="font-weight:600;">${(breakdownData.milestones || []).length} 个</div></div>
+                <div><span style="color:var(--text-tertiary);">SOP 状态</span><div style="font-weight:600;color:var(--orange);" id="sopStatus">生成中...</div></div>
             </div>
         </div>`;
 
@@ -642,6 +653,20 @@ function confirmCreate() {
     document.querySelector('.step-labels').style.display = 'none';
 
     showPanel('panel-5');
+
+    // 异步生成 SOP 文档（不阻塞用户操作）
+    try {
+        const sopResult = await callAI('sop', { plan: expandedPlan, breakdown: breakdownData });
+        if (sopResult.success && sopResult.data) {
+            PMOData.updateSOP(createdProjectId, sopResult.data);
+            const sopEl = document.getElementById('sopStatus');
+            if (sopEl) { sopEl.textContent = '已生成'; sopEl.style.color = 'var(--green)'; }
+        }
+    } catch (err) {
+        console.warn('[SOP] 生成失败:', err.message);
+        const sopEl = document.getElementById('sopStatus');
+        if (sopEl) { sopEl.textContent = '生成失败(不影响项目)'; sopEl.style.color = 'var(--red)'; }
+    }
 }
 
 // ─── 查看项目 ───

@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════
- *  AI 模型配置中心 — PMO Dashboard
+ *  AI 模型配置中心 — PMO Dashboard v3.0
  * ═══════════════════════════════════════════════════════════
  *
  *  ┌────────────────────────────────────────────────────┐
@@ -8,6 +8,7 @@
  *  │  后端部署在 Render：https://pmo-ai-api.onrender.com │
  *  │                                                    │
  *  │  更换模型：修改 Render 环境变量 AI_MODEL 即可       │
+ *  │  v3.0 新增：SOP 文档生成接口                       │
  *  └────────────────────────────────────────────────────┘
  */
 
@@ -45,7 +46,7 @@ async function _checkHealth() {
 
 /**
  * 调用 AI 接口
- * @param {'expansion'|'breakdown'|'parse'} type  - 调用类型
+ * @param {'expansion'|'breakdown'|'parse'|'sop'} type  - 调用类型
  * @param {object} payload - 请求参数
  * @returns {Promise<object>} AI 返回的结构化数据
  */
@@ -54,6 +55,7 @@ async function callAI(type, payload) {
         expansion: '/api/v1/project/expand',
         breakdown: '/api/v1/project/breakdown',
         parse:      '/api/v1/project/parse',
+        sop:        '/api/v1/project/sop',
     };
 
     const url = `${API_BASE}${endpoints[type]}`;

@@ -1,18 +1,14 @@
 /**
  * ═══════════════════════════════════════════════════════════
- *  PMO Dashboard — 共享数据层
+ *  PMO Dashboard — 共享数据层 v3.0
  * ═══════════════════════════════════════════════════════════
  *
- *  所有页面通过此文件读写数据，实现页面间互通。
- *  数据存储在 localStorage('pmo_projects')。
- *  首次访问时写入 5 个种子项目（演示数据）。
+ *  核心升级：
+ *  - milestone 增加 decisionPoint / owner / priority / gatingCriteria / relatedTaskIds
+ *  - task 增加 milestone / deliverable / riskPoints
+ *  - project 增加 sopDocument / meta / sopRules
+ *  - 新增 adjustTeam() 团队动态调整方法
  *
- *  用法：
- *    PMOData.getAll()              → 获取所有项目
- *    PMOData.getById('PRJ-xxx')    → 获取单个项目
- *    PMOData.add(projectData)      → 新增项目
- *    PMOData.update(id, changes)   → 更新项目
- *    PMOData.getStats()            → 获取仪表板统计
  * ═══════════════════════════════════════════════════════════
  */
 
@@ -35,22 +31,22 @@ const PMOData = (() => {
             progress: 35,
             alertText: '⚠️ 1 个紧急任务 · 3 个警告任务',
             tasks: [
-                { id:'T001',name:'需求调研与分析',phase:'需求阶段',assignee:'张三',startDate:'2026-03-15',endDate:'2026-03-22',duration:7,priority:'高',status:'已完成',progress:100,dependencies:[] },
-                { id:'T002',name:'竞品分析',phase:'需求阶段',assignee:'李四',startDate:'2026-03-18',endDate:'2026-03-25',duration:7,priority:'中',status:'已完成',progress:100,dependencies:[] },
-                { id:'T003',name:'技术选型',phase:'需求阶段',assignee:'张三',startDate:'2026-03-25',endDate:'2026-03-28',duration:3,priority:'高',status:'已完成',progress:100,dependencies:['T001'] },
-                { id:'T004',name:'需求文档编写',phase:'需求阶段',assignee:'李四',startDate:'2026-03-28',endDate:'2026-03-31',duration:3,priority:'中',status:'已完成',progress:100,dependencies:['T002'] },
-                { id:'T005',name:'技术架构设计',phase:'设计阶段',assignee:'张三',startDate:'2026-04-01',endDate:'2026-04-08',duration:7,priority:'高',status:'进行中',progress:75,dependencies:['T003'] },
-                { id:'T006',name:'数据库设计',phase:'设计阶段',assignee:'张三',startDate:'2026-04-05',endDate:'2026-04-10',duration:5,priority:'中',status:'进行中',progress:60,dependencies:['T003'] },
-                { id:'T007',name:'API 接口设计',phase:'设计阶段',assignee:'张三',startDate:'2026-04-08',endDate:'2026-04-12',duration:4,priority:'中',status:'进行中',progress:40,dependencies:['T005'] },
-                { id:'T008',name:'UI/UX 设计',phase:'设计阶段',assignee:'李四',startDate:'2026-04-05',endDate:'2026-04-10',duration:5,priority:'高',status:'进行中',progress:70,dependencies:['T004'] },
-                { id:'T009',name:'设计评审',phase:'设计阶段',assignee:'张三',startDate:'2026-04-12',endDate:'2026-04-14',duration:2,priority:'高',status:'未开始',progress:0,dependencies:['T005','T006','T007','T008'] },
-                { id:'T010',name:'核心模块开发',phase:'开发阶段',assignee:'张三',startDate:'2026-04-15',endDate:'2026-05-05',duration:20,priority:'高',status:'未开始',progress:0,dependencies:['T009'] },
+                { id:'T001',name:'需求调研与分析',phase:'需求阶段',milestone:'需求分析完成',assignee:'张三',startDate:'2026-03-15',endDate:'2026-03-22',duration:7,priority:'高',status:'已完成',progress:100,dependencies:[],deliverable:'需求调研报告',riskPoints:['调研对象配合度不确定'] },
+                { id:'T002',name:'竞品分析',phase:'需求阶段',milestone:'需求分析完成',assignee:'李四',startDate:'2026-03-18',endDate:'2026-03-25',duration:7,priority:'中',status:'已完成',progress:100,dependencies:[],deliverable:'竞品分析报告',riskPoints:['竞品信息获取渠道有限'] },
+                { id:'T003',name:'技术选型',phase:'需求阶段',milestone:'需求分析完成',assignee:'张三',startDate:'2026-03-25',endDate:'2026-03-28',duration:3,priority:'高',status:'已完成',progress:100,dependencies:['T001'],deliverable:'技术选型文档',riskPoints:['新技术成熟度风险'] },
+                { id:'T004',name:'需求文档编写',phase:'需求阶段',milestone:'需求分析完成',assignee:'李四',startDate:'2026-03-28',endDate:'2026-03-31',duration:3,priority:'中',status:'已完成',progress:100,dependencies:['T002'],deliverable:'需求规格说明书',riskPoints:['需求变更频繁'] },
+                { id:'T005',name:'技术架构设计',phase:'设计阶段',milestone:'系统设计完成',assignee:'张三',startDate:'2026-04-01',endDate:'2026-04-08',duration:7,priority:'高',status:'进行中',progress:75,dependencies:['T003'],deliverable:'架构设计文档',riskPoints:['架构复杂度超预期'] },
+                { id:'T006',name:'数据库设计',phase:'设计阶段',milestone:'系统设计完成',assignee:'张三',startDate:'2026-04-05',endDate:'2026-04-10',duration:5,priority:'中',status:'进行中',progress:60,dependencies:['T003'],deliverable:'数据库设计文档',riskPoints:['数据模型需反复调整'] },
+                { id:'T007',name:'API 接口设计',phase:'设计阶段',milestone:'系统设计完成',assignee:'张三',startDate:'2026-04-08',endDate:'2026-04-12',duration:4,priority:'中',status:'进行中',progress:40,dependencies:['T005'],deliverable:'API 接口文档',riskPoints:[] },
+                { id:'T008',name:'UI/UX 设计',phase:'设计阶段',milestone:'系统设计完成',assignee:'李四',startDate:'2026-04-05',endDate:'2026-04-10',duration:5,priority:'高',status:'进行中',progress:70,dependencies:['T004'],deliverable:'UI 设计稿',riskPoints:['设计评审意见分歧'] },
+                { id:'T009',name:'设计评审',phase:'设计阶段',milestone:'系统设计完成',assignee:'张三',startDate:'2026-04-12',endDate:'2026-04-14',duration:2,priority:'高',status:'未开始',progress:0,dependencies:['T005','T006','T007','T008'],deliverable:'评审纪要',riskPoints:['评审不通过需返工'] },
+                { id:'T010',name:'核心模块开发',phase:'开发阶段',milestone:'开发实施完成',assignee:'张三',startDate:'2026-04-15',endDate:'2026-05-05',duration:20,priority:'高',status:'未开始',progress:0,dependencies:['T009'],deliverable:'可运行系统',riskPoints:['技术难点攻克超时','资源过载'] },
             ],
             milestones: [
-                { name:'需求分析完成',targetDate:'2026-03-31',deliverables:['需求规格说明书'],status:'已完成' },
-                { name:'系统设计完成',targetDate:'2026-04-15',deliverables:['架构设计文档','数据库设计文档','UI 设计稿'],status:'进行中' },
-                { name:'开发实施完成',targetDate:'2026-05-15',deliverables:['可运行系统','API 文档'],status:'待开始' },
-                { name:'测试验收完成',targetDate:'2026-05-31',deliverables:['测试报告','验收报告'],status:'待开始' },
+                { name:'需求分析完成', decisionPoint:'需求是否完整覆盖业务需求，方案是否通过评审', targetDate:'2026-03-31', deliverables:['需求规格说明书'], owner:'张三', priority:'高', status:'已完成', gatingCriteria:'需求文档需获得产品负责人签字', relatedTaskIds:['T001','T002','T004'] },
+                { name:'系统设计完成', decisionPoint:'技术架构是否满足非功能需求，设计方案是否通过技术评审', targetDate:'2026-04-15', deliverables:['架构设计文档','数据库设计文档','UI 设计稿'], owner:'张三', priority:'高', status:'进行中', gatingCriteria:'设计评审通过，无重大技术风险遗留', relatedTaskIds:['T005','T006','T007','T008','T009'] },
+                { name:'开发实施完成', decisionPoint:'核心功能是否全部实现并通过单元测试', targetDate:'2026-05-15', deliverables:['可运行系统','API 文档'], owner:'张三', priority:'高', status:'待开始', gatingCriteria:'代码覆盖率 > 80%，核心用例全部通过', relatedTaskIds:['T010'] },
+                { name:'测试验收完成', decisionPoint:'是否满足验收标准，是否可发布上线', targetDate:'2026-05-31', deliverables:['测试报告','验收报告'], owner:'王五', priority:'高', status:'待开始', gatingCriteria:'零 P0/P1 缺陷，性能达标', relatedTaskIds:[] },
             ],
             risks: [
                 { title:'资源过载 · 张三',level:'高',mitigation:'技术负责人负载 95%，负责任务 9 个，建议重新分配' },
@@ -259,7 +255,6 @@ const PMOData = (() => {
     /** 新增项目 */
     function add(project) {
         const list = _read();
-        // 确保有默认字段
         project.createdAt = project.createdAt || new Date().toISOString();
         project.progress = project.progress || 0;
         project.status = project.status || '规划中';
@@ -267,6 +262,24 @@ const PMOData = (() => {
         project.milestones = project.milestones || [];
         project.risks = project.risks || [];
         project.team = project.team || [];
+        // v3.0 新字段
+        project.sopDocument = project.sopDocument || null;
+        project.meta = project.meta || {};
+        project.sopRules = project.sopRules || {};
+        // 确保里程碑有新字段
+        project.milestones.forEach(m => {
+            m.decisionPoint = m.decisionPoint || '';
+            m.owner = m.owner || '';
+            m.priority = m.priority || '中';
+            m.gatingCriteria = m.gatingCriteria || '';
+            m.relatedTaskIds = m.relatedTaskIds || [];
+        });
+        // 确保任务有新字段
+        project.tasks.forEach(t => {
+            t.milestone = t.milestone || '';
+            t.deliverable = t.deliverable || '';
+            t.riskPoints = t.riskPoints || [];
+        });
         list.push(project);
         _write(list);
         return project;
@@ -355,5 +368,96 @@ const PMOData = (() => {
         localStorage.setItem(SEED_KEY, 'v1-seeded');
     }
 
-    return { getAll, getById, add, update, remove, getStats, getStatusClass, getStatusPill, reset, restoreSeed };
+    /**
+     * 团队动态调整：增减成员时自动重分配任务
+     * @param {string} projectId - 项目 ID
+     * @param {Array} newTeam - 新的团队列表
+     * @param {string} action - 'add' | 'remove' | 'replace'
+     * @returns {object|null} 更新后的项目，或 null
+     *
+     * 核心规则：
+     * - 仅重新分配「未开始」的任务
+     * - 已开始/已完成的任务保持不变（保护已有工作成果）
+     * - 被移除成员的未完成任务自动分配给同角色成员或项目 owner
+     */
+    function adjustTeam(projectId, newTeam, action) {
+        const list = _read();
+        const idx = list.findIndex(p => p.projectId === projectId);
+        if (idx === -1) return null;
+
+        const project = list[idx];
+        const oldTeam = project.team || [];
+        const tasks = project.tasks || [];
+
+        // 记录被移除的成员
+        const removedMembers = [];
+        const addedMembers = [];
+
+        if (action === 'remove') {
+            // newTeam 是要移除的成员列表
+            const removeNames = newTeam.map(m => m.name || m.role);
+            removedMembers.push(...oldTeam.filter(m => removeNames.includes(m.name || m.role)));
+            project.team = oldTeam.filter(m => !removeNames.includes(m.name || m.role));
+        } else if (action === 'add') {
+            project.team = [...oldTeam, ...newTeam];
+            addedMembers.push(...newTeam);
+        } else if (action === 'replace') {
+            const oldNames = oldTeam.map(m => m.name || m.role);
+            const newNames = newTeam.map(m => m.name || m.role);
+            removedMembers.push(...oldTeam.filter(m => !newNames.includes(m.name || m.role)));
+            addedMembers.push(...newTeam.filter(m => !oldNames.includes(m.name || m.role)));
+            project.team = newTeam;
+        }
+
+        // 重新分配「未开始」的任务：被移除成员的任务转移
+        if (removedMembers.length > 0) {
+            const removeNames = removedMembers.map(m => m.name || m.role);
+            tasks.forEach(task => {
+                if (task.status === '未开始' && removeNames.includes(task.assignee)) {
+                    // 优先分配给同角色成员
+                    const sameRole = project.team.find(m => m.role === removedMembers.find(r => (r.name || r.role) === task.assignee)?.role && (m.name || m.role) !== task.assignee);
+                    if (sameRole) {
+                        task.assignee = sameRole.name || sameRole.role;
+                    } else if (project.team.length > 0) {
+                        task.assignee = project.team[0].name || project.team[0].role;
+                    }
+                }
+            });
+        }
+
+        // 重算每个成员的负载
+        const taskCounts = {};
+        tasks.filter(t => t.status !== '已完成').forEach(t => {
+            taskCounts[t.assignee] = (taskCounts[t.assignee] || 0) + 1;
+        });
+        const totalActive = tasks.filter(t => t.status !== '已完成').length || 1;
+        project.team.forEach(m => {
+            const name = m.name || m.role;
+            const count = taskCounts[name] || 0;
+            m.load = Math.round((count / totalActive) * 100);
+            m.assigned = count > 0;
+        });
+
+        project.tasks = tasks;
+        list[idx] = project;
+        _write(list);
+        return project;
+    }
+
+    /**
+     * 更新项目 SOP 文档
+     * @param {string} projectId - 项目 ID
+     * @param {object} sopData - SOP 文档数据
+     * @returns {object|null}
+     */
+    function updateSOP(projectId, sopData) {
+        const list = _read();
+        const idx = list.findIndex(p => p.projectId === projectId);
+        if (idx === -1) return null;
+        list[idx].sopDocument = sopData;
+        _write(list);
+        return list[idx];
+    }
+
+    return { getAll, getById, add, update, remove, getStats, getStatusClass, getStatusPill, reset, restoreSeed, adjustTeam, updateSOP };
 })();
