@@ -1,0 +1,11 @@
+# 环境变量 / 密钥（禁止提交到公开仓库）
+.env
+**/api/.env
+
+# 系统文件
+.DS_Store
+**/.DS_Store
+
+# 依赖
+node_modules/
+**/node_modules/
