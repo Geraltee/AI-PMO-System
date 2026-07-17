@@ -22,25 +22,26 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 
 // ─── 读取配置 ───
+// 支持两种环境：
+//   1. 本地开发：从 .env 文件读取
+//   2. Render / 生产环境：从 process.env 环境变量读取（无需 .env 文件）
 function loadEnv() {
     const envPath = path.join(__dirname, '.env');
-    if (!fs.existsSync(envPath)) {
-        console.error('');
-        console.error('❌ 找不到 .env 配置文件！');
-        console.error('');
-        console.error('请执行以下步骤：');
-        console.error('  1. 复制 .env.example 为 .env');
-        console.error('  2. 在 .env 中填入你的智谱 API Key');
-        console.error('');
-        process.exit(1);
+
+    // 优先尝试读取 .env 文件（本地开发）
+    if (fs.existsSync(envPath)) {
+        const lines = fs.readFileSync(envPath, 'utf-8')
+            .split('\n')
+            .filter(l => l.trim() && !l.startsWith('#'))
+            .map(l => l.split('='));
+        const env = {};
+        lines.forEach(([k, ...v]) => { env[k.trim()] = v.join('=').trim(); });
+        return env;
     }
-    const lines = fs.readFileSync(envPath, 'utf-8')
-        .split('\n')
-        .filter(l => l.trim() && !l.startsWith('#'))
-        .map(l => l.split('='));
-    const env = {};
-    lines.forEach(([k, ...v]) => { env[k.trim()] = v.join('=').trim(); });
-    return env;
+
+    // 回退到 process.env（Render / Docker / 生产环境）
+    console.log('⚠️  未找到 .env 文件，使用环境变量（Render / 生产模式）');
+    return process.env;
 }
 
 const env = loadEnv();
@@ -50,7 +51,9 @@ const AI_MODEL = env.AI_MODEL || 'glm-4-plus';
 
 if (!ZHIPU_API_KEY || ZHIPU_API_KEY === '在这里填入你的API_Key') {
     console.error('');
-    console.error('❌ 请先在 .env 文件中填入你的智谱 API Key！');
+    console.error('❌ 请先配置智谱 API Key！');
+    console.error('   本地开发：在 api/.env 中填入 API Key');
+    console.error('   Render：在 Environment 中设置 ZHIPU_API_KEY');
     console.error('   获取地址：https://open.bigmodel.cn → 控制台 → API Keys');
     console.error('');
     process.exit(1);
