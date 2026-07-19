@@ -206,11 +206,52 @@ const PMOData = (() => {
     // ─── 内部：读取原始数据 ───
     function _read() {
         _ensureSeed();
+        let projects;
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            projects = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         } catch {
-            return JSON.parse(JSON.stringify(SEED_PROJECTS));
+            projects = JSON.parse(JSON.stringify(SEED_PROJECTS));
         }
+        // 修复历史遗留的重复 / 缺失 projectId（自动自愈，无需用户手动清空数据）
+        const repaired = _repairIds(projects);
+        if (repaired.changed) _write(repaired.projects);
+        return repaired.projects;
+    }
+
+    // ─── 生成唯一项目编号（按年份递增，确保不与已有项目冲突）───
+    function _genProjectId(list) {
+        const year = new Date().getFullYear();
+        const prefix = `PRJ-${year}-`;
+        const seqs = (list || [])
+            .map(p => p.projectId)
+            .filter(id => typeof id === 'string' && id.indexOf(prefix) === 0)
+            .map(id => parseInt(id.slice(prefix.length), 10))
+            .filter(n => !isNaN(n));
+        let next = (seqs.length ? Math.max.apply(null, seqs) : 0) + 1;
+        let id = `${prefix}${String(next).padStart(3, '0')}`;
+        // 兜底：极端情况下仍冲突，追加时间戳后缀
+        let guard = 0;
+        while ((list || []).some(p => p.projectId === id) && guard < 100) {
+            id = `${prefix}${String(next).padStart(3, '0')}-${String(Date.now()).slice(-4)}`;
+            guard++;
+        }
+        return id;
+    }
+
+    // ─── 修复重复 / 缺失的项目编号 ───
+    function _repairIds(projects) {
+        const seen = {};
+        let changed = false;
+        (projects || []).forEach(p => {
+            let id = p.projectId;
+            if (!id || seen[id]) {
+                id = _genProjectId(projects); // 基于当前列表生成唯一 ID
+                p.projectId = id;
+                changed = true;
+            }
+            seen[id] = true;
+        });
+        return { projects, changed };
     }
 
     // ─── 内部：写入数据 ───
@@ -255,6 +296,10 @@ const PMOData = (() => {
     /** 新增项目 */
     function add(project) {
         const list = _read();
+        // 自动生成唯一项目编号，避免 AI 返回的 ID 与已有项目重复（导致详情页张冠李戴）
+        if (!project.projectId || list.some(p => p.projectId === project.projectId)) {
+            project.projectId = _genProjectId(list);
+        }
         project.createdAt = project.createdAt || new Date().toISOString();
         project.progress = project.progress || 0;
         project.status = project.status || '规划中';

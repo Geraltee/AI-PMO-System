@@ -629,8 +629,9 @@ function renderBreakdown() {
 
 // ─── Step 5: 确认创建（含 SOP 生成） ───
 async function confirmCreate() {
-    // 通过 data-store 保存（自动处理默认字段）
+    // 通过 data-store 保存（自动处理默认字段 + 唯一项目编号）
     const saved = PMOData.add(breakdownData);
+    breakdownData.projectId = saved.projectId; // 同步唯一 ID 到展示
     createdProjectId = saved.projectId;
 
     // 渲染成功页
