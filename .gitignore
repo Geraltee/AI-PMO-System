@@ -2,6 +2,10 @@
 .env
 **/api/.env
 
+# WorkBuddy 本地运行时数据（memory / automations，非项目源码）
+.workbuddy/
+**/.workbuddy/
+
 # 系统文件
 .DS_Store
 **/.DS_Store
