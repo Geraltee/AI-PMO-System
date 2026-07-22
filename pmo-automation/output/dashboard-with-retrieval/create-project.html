@@ -222,6 +222,7 @@
                 <h2 id="previewTitle">项目方案</h2>
                 <div class="preview-actions">
                     <button class="btn btn-ghost" onclick="handleDownload()">⬇ 下载 Word</button>
+                    <button class="btn btn-primary" id="tplGenBtn" style="display:none;" onclick="generateFromTemplate(this)">📐 按模板生成</button>
                     <button class="btn btn-primary" onclick="goToBreakdown()">确认，进入拆分 →</button>
                 </div>
             </div>
@@ -268,6 +269,7 @@
                 <div class="success-sub" id="successSub">项目已保存，可在 Dashboard 中查看和管理</div>
                 <div class="success-actions">
                     <button class="btn btn-primary" onclick="viewProject()">查看项目详情</button>
+                    <button class="btn btn-green" id="tplGenBtn2" style="display:none;" onclick="generateFromTemplate(this)">📐 下载模板文档</button>
                     <button class="btn btn-secondary" onclick="location.href='projects.html'">返回项目列表</button>
                 </div>
                 <div class="success-detail" id="successDetail"></div>
@@ -291,10 +293,198 @@
 
 <script src="js/data-store.js"></script>
 <script src="js/model-config.js"></script>
+<script src="js/vendor/pizzip.js"></script>
+<script src="js/vendor/docxtemplater.js"></script>
+<script src="js/vendor/pdf-lib.min.js"></script>
 <script>
-// ═══════════════════════════════════════════════
+// ═════════════════════════════════════════════
+//  模板填充模块（docxtemplater / pdf-lib，浏览器端，不修改模板排版）
+// ═════════════════════════════════════════════
+const _PizZip = window.PizZip;
+const _Docxtemplater = (window.docxtemplater && (window.docxtemplater.Docxtemplater || window.docxtemplater.default)) || window.docxtemplater;
+const _PDFLib = window.PDFLib;
+
+// 模板（来自 projects.html 新建弹窗，可选叠加在文本/文件之上）
+let templateName = sessionStorage.getItem('createTemplateName') || '';
+let templateData = sessionStorage.getItem('createTemplateData') || ''; // dataURL (base64)
+const hasTemplate = !!(templateName && templateData);
+
+// 工具：字符串数组 → {v} 对象数组（docxtemplater 数组循环要求元素为对象）
+function _toV(arr) {
+  return (arr || []).map(x => ({ v: (typeof x === 'string' ? x : (x && (x.name || x.title || x.text)) || '') }));
+}
+function _asText(v) { return v == null ? '' : String(v); }
+
+// 组装 docxtemplater / pdf 填充数据（覆盖 AI 返回的主要字段）
+function buildTemplateData() {
+  const p = expandedPlan || {};
+  const d = breakdownData || {};
+  return {
+    projectName: p.projectName || d.projectName || '',
+    projectType: p.projectType || d.projectType || '',
+    priority: p.priority || d.priority || '',
+    overview: p.overview || '',
+    objectives: _toV(p.objectives),
+    scopeIn: _toV(p.scope && p.scope.inScope),
+    scopeOut: _toV(p.scope && p.scope.outOfScope),
+    wbs: (p.wbs || []).map(ph => ({
+      phase: ph.phase || '', duration: ph.duration || '', decisionPoint: ph.decisionPoint || '',
+      tasks: _toV(ph.tasks && ph.tasks.map(t => t.name))
+    })),
+    resourcesRoles: (p.resources && p.resources.requiredRoles || []).map(r => ({
+      role: r.role || '', count: r.count || '', desc: r.desc || ''
+    })),
+    totalHeadcount: (p.resources && p.resources.totalHeadcount) || (d.team && d.team.length) || '',
+    risks: (p.risks || []).map(r => ({ title: r.title || '', level: r.level || '', mitigation: r.mitigation || '' })),
+    milestones: (p.milestones || []).map(m => ({
+      name: m.name || '', targetDate: m.targetDate || '', owner: m.owner || '',
+      decisionPoint: m.decisionPoint || '', deliverables: (m.deliverables || []).join('、')
+    })),
+    deliverables: (p.deliverables || []).map(dl => ({ name: dl.name || '', format: dl.format || '' })),
+    startDate: d.startDate || '', endDate: d.endDate || '',
+    tasks: (d.tasks || []).map(t => ({
+      id: t.id || '', name: t.name || '', phase: t.phase || '', milestone: t.milestone || '',
+      priority: t.priority || '', duration: t.duration || '', assignee: t.assignee || '',
+      deliverable: t.deliverable || '', riskPoints: _toV(t.riskPoints)
+    })),
+    team: (d.team || []).map(t => ({ role: t.role || '', count: t.count || '', desc: t.desc || '' }))
+  };
+}
+
+function _hasPlaceholders(text) {
+  return /\{\{.*?\}\}/.test(text) || /\{#|\{>|\{\^/.test(text);
+}
+
+// dataURL(base64) → Uint8Array
+function _dataUrlToBytes(dataURL) {
+  const b64 = dataURL.split(',')[1] || '';
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+function _zipToBlob(zip) {
+  return zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+}
+
+// 无占位符降级：在 </w:body> 前注入标准章节（带占位符，沿用模板样式）
+function _standardSectionXml() {
+  return `
+<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>AI 生成项目方案</w:t></w:r></w:p>
+<w:p><w:r><w:t xml:space="preserve">项目名：{{projectName}}　类型：{{projectType}}　优先级：{{priority}}</w:t></w:r></w:p>
+<w:p><w:r><w:t xml:space="preserve">概述：{{overview}}</w:t></w:r></w:p>
+<w:p><w:pPr><w:pStyle w:val="Heading2"/></w:pPr><w:r><w:t>项目目标</w:t></w:r></w:p>
+{{#objectives}}<w:p><w:r><w:t xml:space="preserve">· {{v}}</w:t></w:r></w:p>{{/objectives}}
+<w:p><w:pPr><w:pStyle w:val="Heading2"/></w:pPr><w:r><w:t>里程碑</w:t></w:r></w:p>
+{{#milestones}}<w:p><w:r><w:t xml:space="preserve">· {{name}}（{{targetDate}}）负责人：{{owner}}</w:t></w:r></w:p>{{/milestones}}
+<w:p><w:pPr><w:pStyle w:val="Heading2"/></w:pPr><w:r><w:t>风险项</w:t></w:r></w:p>
+{{#risks}}<w:p><w:r><w:t xml:space="preserve">· {{title}}（{{level}}）：{{mitigation}}</w:t></w:r></w:p>{{/risks}}
+`;
+}
+
+// 填充 Word 模板（.docx）
+async function fillWordTemplate(dataURL, data) {
+  const bytes = _dataUrlToBytes(dataURL);
+  const zip = new _PizZip(bytes);
+  const opts = { paragraphLoop: true, linebreaks: true, delimiters: { start: '{{', end: '}}' } };
+  const xml = zip.file('word/document.xml').asText();
+  if (!_hasPlaceholders(xml)) {
+    // 无占位符：注入标准章节块后渲染（原模板格式不变，内容追加至末尾）
+    let docXml = zip.file('word/document.xml').asText();
+    docXml = docXml.replace('</w:body>', _standardSectionXml() + '</w:body>');
+    zip.file('word/document.xml', docXml);
+    const doc = new _Docxtemplater(zip, opts);
+    doc.render(data);
+    return { blob: _zipToBlob(doc.getZip()), degraded: true };
+  }
+  const doc = new _Docxtemplater(zip, opts);
+  doc.render(data);
+  return { blob: _zipToBlob(doc.getZip()), degraded: false };
+}
+
+// 填充 PDF 模板（仅 AcroForm 表单字段）
+async function fillPdfTemplate(dataURL, data) {
+  const bytes = _dataUrlToBytes(dataURL);
+  const pdfDoc = await _PDFLib.PDFDocument.load(bytes);
+  const form = pdfDoc.getForm();
+  const fields = form.getFields();
+  if (!fields.length) {
+    throw new Error('PDF 模板未含可填写表单字段（AcroForm）。请使用带表单字段的 PDF，或改用 Word 模板。');
+  }
+  // pdf-lib 默认编码不支持中文，需嵌入字体（体积大），首版对中文值降级
+  const flat = {
+    projectName: data.projectName, overview: data.overview, priority: data.priority,
+    projectType: data.projectType, startDate: data.startDate, endDate: data.endDate,
+    totalHeadcount: data.totalHeadcount
+  };
+  if (/[^\x00-\x7F]/.test(Object.values(flat).join(''))) {
+    throw new Error('PDF 表单暂不支持中文值（需嵌入字体，体积较大）。请改用 Word(.docx) 模板，或确保 PDF 字段值为英文/数字。');
+  }
+  const findVal = (name) => {
+    const n = name.toLowerCase(), cn = name;
+    if (/project|name/.test(n) || /项目|名称|标题/.test(cn)) return flat.projectName;
+    if (/priority/.test(n) || /优先级/.test(cn)) return flat.priority;
+    if (/overview|summary|desc/.test(n) || /概述|简介|描述/.test(cn)) return flat.overview;
+    if (/type/.test(n) || /类型/.test(cn)) return flat.projectType;
+    if (/start/.test(n) || /开始|起始/.test(cn)) return flat.startDate;
+    if (/end/.test(n) || /结束|截止/.test(cn)) return flat.endDate;
+    if (/headcount|team|staff/.test(n) || /人数|规模|团队/.test(cn)) return flat.totalHeadcount;
+    return null;
+  };
+  for (const field of fields) {
+    const name = field.getName();
+    const val = findVal(name);
+    if (val != null && typeof field.setText === 'function') {
+      try { field.setText(_asText(val)); }
+      catch (e) { throw new Error('PDF 字段「' + name + '」填入失败：' + e.message + '。请改用 Word 模板。'); }
+    }
+  }
+  form.flatten();
+  const out = await pdfDoc.save();
+  return { blob: new Blob([out], { type: 'application/pdf' }), degraded: false };
+}
+
+function _downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+// 主流程：按模板生成并下载（btn 用于显示加载态）
+async function generateFromTemplate(btn) {
+  if (!hasTemplate) { alert('未检测到模板文件'); return; }
+  const oldText = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ 生成中…'; }
+  try {
+    const data = buildTemplateData();
+    const ext = templateName.split('.').pop().toLowerCase();
+    let res, fname;
+    if (ext === 'docx') {
+      res = await fillWordTemplate(templateData, data);
+      fname = (expandedPlan?.projectName || '项目') + '-按模板生成.docx';
+    } else if (ext === 'pdf') {
+      res = await fillPdfTemplate(templateData, data);
+      fname = (expandedPlan?.projectName || '项目') + '-按模板生成.pdf';
+    } else {
+      throw new Error('不支持的模板格式：' + ext);
+    }
+    _downloadBlob(res.blob, fname);
+    if (res.degraded) {
+      alert('模板未检测到占位符（如 {{projectName}}），已按原模板样式在文档末尾追加生成项目内容。\n如需精准填入，请在模板中用 {{...}} 标记填位。');
+    }
+  } catch (err) {
+    alert('按模板生成失败：' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = oldText; }
+  }
+}
+
+// ═════════════════════════════════════════════
 //  创建项目 — 主控逻辑
-// ═══════════════════════════════════════════════
+// ═════════════════════════════════════════════
 
 let currentStep = 1;
 let mode = 'text';           // 'text' | 'file'
@@ -328,6 +518,14 @@ let createdProjectId = '';
         userInput = fn;
         document.getElementById('loadingTitle').textContent = '正在解析文档…';
         document.getElementById('loadingSub').textContent = `AI 正在解析「${fn}」并提取项目信息`;
+    }
+
+    // 模板提示 + 显示模板生成按钮
+    if (hasTemplate) {
+      const ls = document.getElementById('loadingSub');
+      if (ls) ls.textContent += ' · 已载入模板「' + templateName + '」，将按模板格式生成文档';
+      const b1 = document.getElementById('tplGenBtn');  if (b1) b1.style.display = '';
+      const b2 = document.getElementById('tplGenBtn2'); if (b2) b2.style.display = '';
     }
 
     // 无输入则回退

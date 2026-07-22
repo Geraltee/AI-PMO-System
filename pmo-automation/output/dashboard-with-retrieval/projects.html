@@ -188,6 +188,23 @@
             </div>
         </div>
 
+        <hr class="modal-divider">
+
+        <!-- 第三部分：固定模板上传（可选，与上面独立叠加） -->
+        <div class="modal-section">
+            <div class="modal-section-label">固定模板（可选） <span class="badge badge-template">按格式填入</span></div>
+            <div class="upload-zone" id="templateZone" onclick="document.getElementById('templateInput').click()"
+                 ondragover="event.preventDefault();this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="handleTemplateDrop(event)">
+                <div class="upload-icon" id="templateIcon">📐</div>
+                <div class="upload-text" id="templateText">点击或拖拽上传固定模板</div>
+                <div class="upload-hint">支持 .docx / .pdf，将按你的模板格式生成项目文档（不修改模板排版）</div>
+                <div class="upload-file-info" id="templateFileInfo" style="display:none;"></div>
+                <input type="file" id="templateInput" accept=".docx,.pdf" style="display:none" onchange="handleTemplateSelect(event)">
+            </div>
+        </div>
+
         <!-- 操作按钮 -->
         <div class="modal-actions">
             <button class="btn-cancel btn-lg" onclick="closeNewProjectModal()">取消</button>
@@ -274,12 +291,14 @@
 
     // ─── Modal 控制 ───
     let selectedFile = null;
+    let selectedTemplate = null;
 
     function openNewProjectModal() {
         document.getElementById('newProjectModal').classList.add('open');
         document.getElementById('inputDesc').value = '';
         document.getElementById('inputDesc').focus();
         resetUpload();
+        resetTemplate();
         updateCreateBtn();
     }
 
@@ -295,6 +314,53 @@
         document.getElementById('uploadIcon').textContent = '📄';
         document.getElementById('uploadText').textContent = '点击或拖拽文件到此处';
         document.getElementById('uploadFileInfo').style.display = 'none';
+    }
+
+    function resetTemplate() {
+        selectedTemplate = null;
+        const ti = document.getElementById('templateInput');
+        if (ti) ti.value = '';
+        const zone = document.getElementById('templateZone');
+        if (zone) zone.classList.remove('has-file');
+        const icon = document.getElementById('templateIcon');
+        if (icon) icon.textContent = '📐';
+        const txt = document.getElementById('templateText');
+        if (txt) txt.textContent = '点击或拖拽上传固定模板';
+        const info = document.getElementById('templateFileInfo');
+        if (info) info.style.display = 'none';
+    }
+
+    function handleTemplateSelect(e) {
+        const file = e.target.files[0];
+        if (file) setTemplate(file);
+    }
+
+    function handleTemplateDrop(e) {
+        e.preventDefault();
+        const zone = document.getElementById('templateZone');
+        if (zone) zone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) setTemplate(file);
+    }
+
+    function setTemplate(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['docx', 'pdf'].includes(ext)) {
+            alert('模板仅支持 .docx / .pdf 文件');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('模板文件大小不能超过 10 MB');
+            return;
+        }
+        selectedTemplate = file;
+        const zone = document.getElementById('templateZone');
+        zone.classList.add('has-file');
+        document.getElementById('templateIcon').textContent = ext === 'pdf' ? '📕' : '📘';
+        document.getElementById('templateText').textContent = '点击重新选择';
+        const info = document.getElementById('templateFileInfo');
+        info.style.display = 'flex';
+        info.innerHTML = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
     }
 
     function handleFileSelect(e) {
@@ -355,6 +421,25 @@
     function startCreateProject() {
         const desc = document.getElementById('inputDesc').value.trim();
 
+        // 模板可选，叠加在文本/文件之上，读取后一并跳转
+        const saveTemplateAndGo = () => {
+            if (selectedTemplate) {
+                const tr = new FileReader();
+                tr.onload = function(te) {
+                    try {
+                        sessionStorage.setItem('createTemplateName', selectedTemplate.name);
+                        sessionStorage.setItem('createTemplateData', te.target.result);
+                    } catch (err) {
+                        console.warn('模板过大，未随模板生成', err);
+                    }
+                    window.location.href = 'create-project.html';
+                };
+                tr.readAsDataURL(selectedTemplate);
+            } else {
+                window.location.href = 'create-project.html';
+            }
+        };
+
         if (selectedFile) {
             // 文件模式
             const reader = new FileReader();
@@ -363,8 +448,8 @@
                     sessionStorage.setItem('createMode', 'file');
                     sessionStorage.setItem('createFileName', selectedFile.name);
                     sessionStorage.setItem('createFileData', e.target.result);
-                    window.location.href = 'create-project.html';
-                } catch(err) {
+                    saveTemplateAndGo();
+                } catch (err) {
                     alert('文件过大，请使用文本输入模式');
                 }
             };
@@ -372,7 +457,7 @@
         } else if (desc.length >= 10) {
             sessionStorage.setItem('createMode', 'text');
             sessionStorage.setItem('createDesc', desc);
-            window.location.href = 'create-project.html';
+            saveTemplateAndGo();
         } else {
             document.getElementById('descError').classList.add('show');
         }
